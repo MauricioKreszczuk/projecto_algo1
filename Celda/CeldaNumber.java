@@ -1,6 +1,8 @@
+package Celda;
+
 import java.math.BigDecimal;
 
-public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Number> {
+public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Number>, definirCelda {
 
     public CeldaNumber(){
         super();
@@ -30,5 +32,11 @@ public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Numb
             default -> throw new IllegalArgumentException("Unexpected value: " + valor);
     };
 }
+
+    @Override
+    public void establecerValor(Object valor) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'establecerValor'");
+    }
 
 }

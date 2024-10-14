@@ -1,3 +1,5 @@
+package Celda;
+
 public abstract class Celda<T> {
 
     T valor;

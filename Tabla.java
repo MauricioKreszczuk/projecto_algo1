@@ -1,9 +1,7 @@
-// TODOs  
-// 1) Hay algunos parámetros que no van a quedar así; atentos a medida que avancemos el tp a cambiar eso antes de implementar nada
-// 2) Crear clases Fila y Columna para que no salte el compilador y poder trabajar con esta clase
-// 3) Ver cómo se hace para dar la opción de tener dos retornos distintos en un método o cómo trabajar esto
+import Celda.Celda;
+import Columna.Columna;
 
-public class Tabla {
+public class Tabla implements ImputarFaltantes {
     private Fila[] filas;
     private Columna[] columnas;
 
@@ -50,6 +48,12 @@ public class Tabla {
 
     public Tabla crearVista() {
         // Implementación
+    }
+
+    @Override
+    public void imputarNA() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
     }
 
 }

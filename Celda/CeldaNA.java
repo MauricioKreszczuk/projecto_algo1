@@ -1,3 +1,5 @@
+package Celda;
+
 public class CeldaNA extends Celda<Object> {
 
     public CeldaNA() {

@@ -1,0 +1,9 @@
+TODOs
+1) Revisar comunicacion entre paquetes
+2) En cada modulo hay problemas a revisar. Tanto de compilación como de lógica.
+3) Crear interfaz esComparable y asegurarse de que las clases que aplican las implementen.
+
+--------
+
+2) En este punto tenemos problemas como el que hay en Columna.java
+Hay un problema para importar ArrayCelda, hay que solucionarlo antes de escribir mas código.
