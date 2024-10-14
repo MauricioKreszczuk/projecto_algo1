@@ -1,6 +1,6 @@
 import java.math.BigDecimal;
 
-public class CeldaNumber extends Celda<Number> {
+public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Number> {
 
     public CeldaNumber(){
         super();
@@ -8,6 +8,11 @@ public class CeldaNumber extends Celda<Number> {
 
     public CeldaNumber(Number valor) {
         super(valor);
+    }
+
+    @Override
+    public Number obtenerValor() {
+        return this.valor;
     }
 
     @Override
@@ -21,7 +26,7 @@ public class CeldaNumber extends Celda<Number> {
             case BigDecimal bd -> new CeldaNumber(new BigDecimal(bd.toString()));
             case Short s -> new CeldaNumber(Short.valueOf(s));
             case Byte b -> new CeldaNumber(Byte.valueOf(b));
-            //Añadir error de tipo no reconocido
+            //Añadir error al Exceptions despues
             default -> throw new IllegalArgumentException("Unexpected value: " + valor);
     };
 }

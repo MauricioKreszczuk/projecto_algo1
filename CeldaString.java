@@ -1,4 +1,4 @@
-public class CeldaString extends Celda<String> {
+public class CeldaString extends Celda<String> implements obtenerValorCelda<String> {
 
     public CeldaString(){
         super();
@@ -6,7 +6,11 @@ public class CeldaString extends Celda<String> {
 
     public CeldaString(String valor) {
         super(valor);
-        //TODO Auto-generated constructor stub
+    }
+
+    @Override
+    public String obtenerValor() {
+        return this.valor;
     }
 
     @Override

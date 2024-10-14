@@ -1,3 +1,3 @@
-public interface obtenerValorCelda {
-    public obtenerValor();
+public interface obtenerValorCelda<T> {
+    public T obtenerValor();
 }

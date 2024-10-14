@@ -5,7 +5,7 @@ public class CeldaNA extends Celda<Object> {
     }
 
     @Override
-    public String getTipo() {
+    public String obtenerTipo() {
         return "NA"; 
     }
 
