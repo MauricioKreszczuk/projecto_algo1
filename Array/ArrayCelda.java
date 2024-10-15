@@ -1,7 +1,10 @@
+package Array;
 import Celda.*;
 
 import java.util.HashMap;
 import java.util.List;
+
+import ImputarFaltantes;
 
 
 public class ArrayCelda implements ImputarFaltantes {

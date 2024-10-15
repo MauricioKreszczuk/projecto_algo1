@@ -33,8 +33,10 @@ public abstract class Celda<T> {
         if (obj == null || getClass() != obj.getClass()) {
             return false; 
         }
-        Celda<?> other = (Celda<?>) obj;
-        return java.util.Objects.equals(valor, other.valor);
+        
+
+        Celda<T> other = (Celda<T>) obj;
+        return this.obtenerValorCelda() == other.obte
     }
 
     @Override

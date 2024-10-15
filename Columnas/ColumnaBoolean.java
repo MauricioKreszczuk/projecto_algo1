@@ -1,4 +1,4 @@
-package Columna;
+package Columnas;
 
 public class ColumnaBoolean {
     

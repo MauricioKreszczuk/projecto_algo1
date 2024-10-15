@@ -19,19 +19,29 @@ public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Numb
 
     @Override
     public CeldaNumber copiaProfunda() {
-        return switch (valor) {
-            case null -> new CeldaNumber(null);
-            case Integer i -> new CeldaNumber(Integer.valueOf(i));
-            case Double d -> new CeldaNumber(Double.valueOf(d));
-            case Float f -> new CeldaNumber(Float.valueOf(f));
-            case Long l -> new CeldaNumber(Long.valueOf(l));
-            case BigDecimal bd -> new CeldaNumber(new BigDecimal(bd.toString()));
-            case Short s -> new CeldaNumber(Short.valueOf(s));
-            case Byte b -> new CeldaNumber(Byte.valueOf(b));
-            //Añadir error al Exceptions despues
-            default -> throw new IllegalArgumentException("Unexpected value: " + valor);
-    };
+        if (valor == null) {
+            return new CeldaNumber(null);
+        }
+    
+        if (valor instanceof Integer) {
+            return new CeldaNumber((Integer) valor);
+        } else if (valor instanceof Double) {
+            return new CeldaNumber((Double) valor);
+        } else if (valor instanceof Float) {
+            return new CeldaNumber((Float) valor);
+        } else if (valor instanceof Long) {
+            return new CeldaNumber((Long) valor);
+        } else if (valor instanceof BigDecimal) {
+            return new CeldaNumber(new BigDecimal(((BigDecimal) valor).toString()));
+        } else if (valor instanceof Short) {
+            return new CeldaNumber((Short) valor);
+        } else if (valor instanceof Byte) {
+            return new CeldaNumber((Byte) valor);
+        } else {
+            throw new IllegalArgumentException("Unexpected value: " + valor);
+        }
 }
+
 
     @Override
     public void establecerValor(Object valor) {
@@ -39,4 +49,19 @@ public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Numb
         throw new UnsupportedOperationException("Unimplemented method 'establecerValor'");
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true; 
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false; 
+        }
+        
+
+        CeldaNumber other = (CeldaNumber) obj;
+        return this.obtenerValor() == other.obtenerValor();
+    }
+
+    
 }

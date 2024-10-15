@@ -1,7 +1,7 @@
-package Columna;
+package Columnas;
 
-public class ColumnaString {
-    
+public class ColumnaNumber {
+
     public Boolean validar(Object valor) {
         Boolean respuesta = true;
         return respuesta;
@@ -11,5 +11,4 @@ public class ColumnaString {
         String respuesta = "Algo";
         return respuesta;
     }
-
 }
