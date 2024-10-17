@@ -25,7 +25,7 @@ public abstract class Celda<T> {
 
     @Override
     public String toString() {
-        return String.valueOf(valor);
+        return String.valueOf(this.valor);
     }
 
     @Override

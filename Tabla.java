@@ -1,5 +1,6 @@
 import Celda.Celda;
 import Columnas.Columna;
+import util.ImputarFaltantes;
 
 public class Tabla implements ImputarFaltantes {
     private Fila[] filas;

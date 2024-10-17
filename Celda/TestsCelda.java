@@ -1,6 +1,6 @@
 package Celda;
 
-public class MainClass { // Cambia "MainClass" al nombre que desees
+public class TestsCelda { // Cambia "MainClass" al nombre que desees
     public static void main(String[] args) {
 
         // Pruebas para CeldaNumber
