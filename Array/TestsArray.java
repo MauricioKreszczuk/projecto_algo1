@@ -22,7 +22,7 @@ public class TestsArray {
 
         // borro el ultimo y imprimo devuelta
         lista.eliminarCelda(2);
-        System.out.println("__________________________________________________");
+        System.out.println("___________________________________________________");
         for (int indice = 0; indice < lista.obtenerTamaño(); indice++) {
             System.out.println(lista.obtenerCelda(indice));
         }
@@ -32,7 +32,7 @@ public class TestsArray {
         lista.asignarEtiquetas(etiquetas);
 
         // Imprimo celdas usando etiquetas
-        System.out.println("__________________________________________________");
+        System.out.println("___________________________________________________");
         System.out.println(lista.obtenerCelda("entero"));
         System.out.println(lista.obtenerCelda("NA"));
         System.out.println(lista.obtenerCelda("AntesBoolean"));
