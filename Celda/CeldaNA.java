@@ -3,7 +3,7 @@ package Celda;
 public class CeldaNA extends Celda<String> {
 
     public CeldaNA() {
-        super();
+        super(null);
     }
 
     @Override
@@ -17,22 +17,21 @@ public class CeldaNA extends Celda<String> {
     }
 
     @Override
-    public boolean equals(Object obj) { // Mantén la firma de Object
-        if (this == obj) {
-            return true; // Verifica si son el mismo objeto
-        }
-        if (obj == null || !(obj instanceof CeldaNA)) {
-            return false; // Verifica si obj es null o no es del tipo esperado
-        }
-        // Cast seguro a CeldaNA para la comparación
-        CeldaNA otraCelda = (CeldaNA) obj; 
-        return true; // Aquí puedes agregar lógica adicional si es necesario
-    }
-
-    @Override
     public int hashCode() {
         return java.util.Objects.hash("NA");
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || !(obj instanceof CeldaNA)) {
+            return false;
+        }
+        return true;  // Todas las celdas NA son iguales
+    }
+
 
     @Override
     public CeldaNA copiaProfunda() {

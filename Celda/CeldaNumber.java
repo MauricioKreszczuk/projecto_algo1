@@ -2,11 +2,8 @@ package Celda;
 
 import java.math.BigDecimal;
 
-public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Number>, definirCelda {
+public class CeldaNumber extends Celda<Number> implements definirCelda<Number> {
 
-    public CeldaNumber(){
-        super();
-    }
 
     public CeldaNumber(Number valor) {
         super(valor);
@@ -15,6 +12,11 @@ public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Numb
     @Override
     public Number obtenerValor() {
         return this.valor;
+    }
+    
+    @Override
+    public void establecerValor(Number valor) {
+        this.valor = valor;
     }
 
     @Override
@@ -44,24 +46,30 @@ public class CeldaNumber extends Celda<Number> implements obtenerValorCelda<Numb
 
 
     @Override
-    public void establecerValor(Object valor) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'establecerValor'");
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
-            return true; 
+            return true;
         }
         if (obj == null || getClass() != obj.getClass()) {
-            return false; 
+            return false;
         }
-        
-
         CeldaNumber other = (CeldaNumber) obj;
-        return this.obtenerValor() == other.obtenerValor();
+        if (this.valor == null || other.valor == null) {
+            return this.valor == other.valor;  // Ambos son null
+        }
+        return Double.compare(this.valor.doubleValue(), other.valor.doubleValue()) == 0;
     }
+
+
+    @Override
+    public int hashCode(){
+        if (valor==null){
+            return 0;
+        }
+
+        return Double.hashCode(valor.doubleValue());
+    }
+
 
     
 }

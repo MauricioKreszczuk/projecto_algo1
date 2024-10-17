@@ -10,34 +10,18 @@ public abstract class Celda<T> {
         this.valor = valor;
     }
 
-    public Celda() {
-        this.valor = null;
-    }
-
-
-    public void definirValor(T valor) {
-        this.valor = valor;
-    }
-
     public String obtenerTipo() {
         return tipo;
     }
 
+    public T obtenerValor(){
+        return this.valor;
+    }
+
+    
     public abstract Celda<T> copiaProfunda();  
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true; 
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false; 
-        }
-        
 
-        Celda<T> other = (Celda<T>) obj;
-        return this.obtenerValorCelda() == other.obte
-    }
 
     @Override
     public String toString() {
@@ -46,7 +30,13 @@ public abstract class Celda<T> {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(valor);
+        return java.util.Objects.hash(valor, tipo);
     }
+    
+
+
+
+
+
 
 }

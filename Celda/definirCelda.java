@@ -1,5 +1,5 @@
 package Celda;
 
-public interface definirCelda {
-    void establecerValor(Object valor);
+public interface definirCelda<T> {
+    void establecerValor(T valor);
 }

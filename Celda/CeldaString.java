@@ -1,11 +1,8 @@
 package Celda;
 
 
-public class CeldaString extends Celda<String> implements obtenerValorCelda<String>, definirCelda {
+public class CeldaString extends Celda<String> implements definirCelda<String> {
 
-    public CeldaString(){
-        super();
-    }
 
     public CeldaString(String valor) {
         super(valor);
@@ -22,10 +19,22 @@ public class CeldaString extends Celda<String> implements obtenerValorCelda<Stri
     }
 
     @Override
-    public void establecerValor(Object valor) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'establecerValor'");
+    public void establecerValor(String valor) {
+        this.valor = valor;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        CeldaString other = (CeldaString) obj;
+        return valor.equals(other.valor);  // Usa equals() de String para comparar
+    }
+
 
 
 }

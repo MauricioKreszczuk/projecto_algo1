@@ -1,19 +1,11 @@
 package Celda;
 
-public class CeldaBoolean extends Celda<Boolean> implements obtenerValorCelda<Boolean>, definirCelda {
-
-    public CeldaBoolean(){
-        super();
-    }
+public class CeldaBoolean extends Celda<Boolean> implements definirCelda<Boolean> {
 
     public CeldaBoolean(Boolean valor) {
         super(valor);
     }
     
-    @Override
-    public Boolean obtenerValor() {
-        return this.valor;
-    }
     
     @Override
     public CeldaBoolean copiaProfunda() {
@@ -21,10 +13,22 @@ public class CeldaBoolean extends Celda<Boolean> implements obtenerValorCelda<Bo
     }
 
     @Override
-    public void establecerValor(Object valor) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'establecerValor'");
+    public void establecerValor(Boolean valor) {
+        this.valor = valor;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        CeldaBoolean other = (CeldaBoolean) obj;
+        return valor.equals(other.valor);  // Usa equals() para comparar valores booleanos
+    }
+
 
 
 }
