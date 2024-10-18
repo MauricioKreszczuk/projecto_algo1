@@ -59,5 +59,12 @@ public class TestsCelda { // Cambia "MainClass" al nombre que desees
         System.out.println("\n=== PRUEBAS DE MODIFICACIÓN ===");
         verdadero.establecerValor(false);
         System.out.println("Valor de CeldaBoolean modificado: " + verdadero.obtenerValor());  // false
+
+
+        CeldaString s1 = new CeldaString("jaja");
+        CeldaString s2 = new CeldaString("jadsja");
+        CeldaString s3 = s2;
+
+        System.out.println(s1.equals(s3));
     }
 }

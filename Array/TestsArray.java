@@ -37,5 +37,13 @@ public class TestsArray {
         System.out.println(lista.obtenerCelda("NA"));
         System.out.println(lista.obtenerCelda("AntesBoolean"));
 
+
+        // Pruebo imputar NA
+        lista.imputarNA(new CeldaNumber(2.323123123));
+        System.out.println("___________________________________________________");
+        System.out.println(lista.obtenerCelda("entero"));
+        System.out.println(lista.obtenerCelda("NA"));
+        System.out.println(lista.obtenerCelda("AntesBoolean"));
+        System.out.println(lista.obtenerCelda("enteros"));
     }
 }

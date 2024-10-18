@@ -88,7 +88,7 @@ public class ArrayCelda implements util.ImputarFaltantes {
     public <T extends Celda<?>> void imputarNA(T nuevaCelda) {
         for (int indice = 0; indice < tamaño; indice++) {
             if (celdas.get(indice) instanceof CeldaNA) {
-                celdas.set(indice, (Celda<?>) nuevaCelda.copiaProfunda()); // Asegúrate de que nuevaCelda sea del tipo adecuado
+                celdas.set(indice, nuevaCelda.copiaProfunda()); // Asegúrate de que nuevaCelda sea del tipo adecuado
             }
         }
     }
@@ -102,7 +102,7 @@ public class ArrayCelda implements util.ImputarFaltantes {
 
 
     protected void castearArray(<String, Integer> etiqueta, <String, Integer, Boolean> nuevoTipo){
-        // Hay que resolver con cuidado este método
+        // Hay que resolver con cuidado este método, seria de columna?
 
     }
 */
