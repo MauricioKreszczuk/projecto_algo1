@@ -9,7 +9,7 @@ public class Columna extends ArrayCelda{
     private Class<? extends Celda<?>> tipoDeDato;
 
     public Columna(){
-        
+        super();
     }
     
 }
