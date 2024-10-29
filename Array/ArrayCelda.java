@@ -20,6 +20,11 @@ public class ArrayCelda implements util.ImputarFaltantes {
         this.etiquetas = new HashMap<>();
     }
 
+    public ArrayCelda(List<Celda<?>> celdas, HashMap<Integer, String> etiquetas){
+        this.celdas = celdas;
+        this.etiquetas = etiquetas;
+    }
+
     public Celda<?> obtenerCelda(Integer etiqueta){
         int indice = etiqueta;
         indiceValido(indice);
@@ -91,6 +96,17 @@ public class ArrayCelda implements util.ImputarFaltantes {
                 celdas.set(indice, nuevaCelda.copiaProfunda()); // Asegúrate de que nuevaCelda sea del tipo adecuado
             }
         }
+    }
+
+    @Override //Llevar metodo a clase más especifica si no se implementa en todos los hijos
+    public boolean equals(Object otroArrayCelda){
+        if (otroArrayCelda == null || !(otroArrayCelda instanceof ArrayCelda)) {
+            return false;
+        }
+
+        ArrayCelda casteado = (ArrayCelda) otroArrayCelda;
+        return this.celdas.equals(casteado.celdas);
+
     }
     
 
