@@ -1,4 +1,4 @@
-package Columnas;
+package Array.Columnas;
 
 import Celda.CeldaBoolean;
 import Celda.CeldaNA;

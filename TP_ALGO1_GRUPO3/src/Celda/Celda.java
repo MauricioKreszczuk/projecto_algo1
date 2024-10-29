@@ -32,6 +32,8 @@ public abstract class Celda<T> {
     public int hashCode() {
         return java.util.Objects.hash(valor, tipo);
     }
+
+
     
 
 

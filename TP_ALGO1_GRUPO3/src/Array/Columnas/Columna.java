@@ -1,7 +1,6 @@
-package Columnas;
+package Array.Columnas;
 
 import Celda.*;
-
 import Array.ArrayCelda;
 
 public class Columna extends ArrayCelda{
@@ -10,6 +9,23 @@ public class Columna extends ArrayCelda{
 
     public Columna(){
         super();
+    }
+
+    public Columna(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void asignarNombre(String nombre){
+        this.nombre = nombre;
+    }
+
+    public String obtenerNombre(){
+        return nombre;
+    }
+
+    @Override
+    public String toString() {
+        return nombre;
     }
     
 }

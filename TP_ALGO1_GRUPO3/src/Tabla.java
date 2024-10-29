@@ -1,9 +1,10 @@
 import Celda.Celda;
 import Celda.CeldaNA;
 import Celda.CeldaBoolean;
+import Array.Fila;
 import Celda.CeldaNumber;
 import Celda.CeldaString;
-import Columnas.Columna;
+import Array.Columnas.Columna;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,76 +16,140 @@ import java.io.IOException;
 
 
 
-public class Tabla implements util.ImputarFaltantes {
+public class Tabla {
     private List<Fila> filas = new ArrayList<>();
     private List<Columna> columnas = new ArrayList<>();
 
 
+    // public Tabla cargarDesdeCSV(String path, boolean tieneEncabezado) throws IOException {
+    //     Tabla tabla = new Tabla();
+    //     String linea;
+    //     BufferedReader br = new BufferedReader(new FileReader(path));
+
+    //     if ((linea = br.readLine()) != null && tieneEncabezado) {
+    //         String[] encabezados = linea.split(",");
+    //         for (String encabezado : encabezados) {
+    //             Columna columna = new Columna();
+    //             columna.asignarNombre(encabezado);
+    //             tabla.columnas.add(columna);
+    //         }
+    //     }
+
+    //     while ((linea = br.readLine()) != null) {
+    //         String[] valores = linea.split(",");
+    //         Fila fila = new Fila();
+
+    //         for (int i = 0; i < valores.length; i++) {
+    //             String valor = valores[i];
+    //             Celda<?> celda;
+
+    //             if (valor.isEmpty() || valor.equalsIgnoreCase("null")) {
+    //                 // celda = new CeldaNA();
+    //                 valor = null;
+    //             } else if (esBoolean(valor)) {
+    //                 // celda = new CeldaBoolean(Boolean.parseBoolean(valor)); // Ver bien esto, como toma True/true/TRue, etc
+    //                 // Boolean valor = Boolean.parseBoolean(valor); // Ver bien esto, como toma True/true/TRue, etc
+    //             } else if (esEntero(valor)) {
+    //                 // celda = new CeldaNumber(Integer.parseInt(valor)); // Ver bien radix 10
+    //             } else if (esDecimal(valor)) {
+    //                 // celda = new CeldaNumber(Double.parseDouble(valor));
+    //             } else {
+    //                 // celda = new CeldaString(valor);
+    //                 continue;
+    //             }
+
+    //             fila.agregarValor(valor);
+    //             if (tabla.columnas.size() > i) {
+    //                 tabla.columnas.get(i).agregarValor(valor); //Hay que hacer bien la importacion desde Columna
+    //             }
+    //         }
+    //         tabla.filas.add(fila);
+    //     }
+    //     br.close();
+    //     return tabla;
+    // }
+
+    // private boolean esBoolean(String valor) {
+    //     return valor.equalsIgnoreCase("true") || valor.equalsIgnoreCase("false");
+    // }
+
+    // private boolean esEntero(String valor) {
+    //     try {
+    //         Integer.parseInt(valor);
+    //         return true;
+    //     } catch (NumberFormatException e) {
+    //         return false;
+    //     }
+    // }
+
+    // private boolean esDecimal(String valor) {
+    //     try {
+    //         Double.parseDouble(valor);
+    //         return true;
+    //     } catch (NumberFormatException e) {
+    //         return false;
+    //     }
+    // }
+
+
+
+
+
     public Tabla cargarDesdeCSV(String path, boolean tieneEncabezado) throws IOException {
-        Tabla tabla = new Tabla();
         String linea;
         BufferedReader br = new BufferedReader(new FileReader(path));
 
         if ((linea = br.readLine()) != null && tieneEncabezado) {
             String[] encabezados = linea.split(",");
             for (String encabezado : encabezados) {
-                Columna columna = new Columna(encabezado);
-                tabla.columnas.add(columna);
+                Columna columna = new Columna();
+                columna.asignarNombre(encabezado);
+                columnas.add(columna);
             }
         }
 
+        // Leer datos
         while ((linea = br.readLine()) != null) {
             String[] valores = linea.split(",");
             Fila fila = new Fila();
 
-            for (int i = 0; i < valores.length; i++) {
-                String valor = valores[i];
-                Celda<?> celda;
-
-                if (valor.isEmpty() || valor.equalsIgnoreCase("null")) {
-                    celda = new CeldaNA();
-                } else if (esBoolean(valor)) {
-                    celda = new CeldaBoolean(Boolean.parseBoolean(valor)); // Ver bien esto, como toma True/true/TRue, etc
-                } else if (esEntero(valor)) {
-                    celda = new CeldaNumber(Integer.parseInt(valor)); // Ver bien radix 10
-                } else if (esDecimal(valor)) {
-                    celda = new CeldaNumber(Double.parseDouble(valor));
-                } else {
-                    celda = new CeldaString(valor);
-                }
-
-                fila.agregarCelda(celda);
-                if (tabla.columnas.size() > i) {
-                    tabla.columnas.get(i).agregarCelda(celda); //Hay que hacer bien la importacion desde Columna
-                }
+            // Agregar cada valor como String directamente a la fila
+            for (String valor : valores) {
+                fila.agregarValor(valor);  // Ahora se agregan valores en lugar de celdas
             }
-            tabla.filas.add(fila);
+            filas.add(fila);
         }
         br.close();
-        return tabla;
+        return this;
     }
 
-    private boolean esBoolean(String valor) {
-        return valor.equalsIgnoreCase("true") || valor.equalsIgnoreCase("false");
-    }
+    public void imprimirTabla() {
+        // Imprimir encabezado
+        for (Columna columna : columnas) {
+            System.out.print(String.format("%-15s", columna) + " | ");
+        }
+        System.out.println();
 
-    private boolean esEntero(String valor) {
-        try {
-            Integer.parseInt(valor);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
+        // Crear separador
+        StringBuilder separador = new StringBuilder();
+        int ancho = columnas.size() * 18;
+        for (int i = 0; i < ancho; i++) {
+            separador.append("-");
+        }
+        System.out.println(separador.toString());
+
+        // Imprimir filas
+        for (Fila fila : filas) {
+            System.out.println(fila);
+            System.out.println();
         }
     }
 
-    private boolean esDecimal(String valor) {
-        try {
-            Double.parseDouble(valor);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
-    }
+
+    
+
+
+
 
     public List<Fila> getFilas() {
         return filas;
@@ -120,12 +185,10 @@ public class Tabla implements util.ImputarFaltantes {
         // Implementación
     }
 
-    public Celda obtenerCelda(int fila, String columna) {
-        // implementación
-    }
 
     public Tabla filtrar() {
         // Pendiente
+        return null;
     }
 
     public void ordenar(String columna, Boolean ascendente, Boolean inplace) {
@@ -135,24 +198,71 @@ public class Tabla implements util.ImputarFaltantes {
     public Tabla concatenar(Tabla tabla1){
         // Faltan más argumentos
         // Implementación
+        return null;
     }
 
-    public void imprimirTabla() {
-        System.out.println("A definir y completar");
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        if (!columnas.isEmpty()) {
+            for (Columna columna : columnas) {
+                builder.append(columna.obtenerNombre()).append("\t");
+            }
+            builder.append("\n");
+        }
+
+        for (Fila fila : filas) {
+            
+            
+
+            // for (Celda<?> celda : fila.agregarValor() {
+            //     builder.append(celda.toString()).append("\t");  // Agregar cada celda con tabulación
+            // }
+            builder.append(fila.toString()).append("\t");
+            // builder.append("\n");  // Nueva línea después de cada fila
+        }
+
+        System.out.println(builder.toString());
+        return builder.toString();
     }
+
+    // public void imprimirTabla() {
+    //     // Imprimir encabezado
+    //     for (Columna columna : columnas) {
+    //         System.out.print(String.format("%-15s", columna.obtenerNombre()) + " | ");
+    //     }
+    //     System.out.println();
+    
+    //     // Crear manualmente la línea de separación
+    //     StringBuilder separador = new StringBuilder();
+    //     int ancho = columnas.size() * 18; // Ajusta el ancho según el número de columnas y el formato
+    //     for (int i = 0; i < ancho; i++) {
+    //         separador.append("-");
+    //     }
+    //     System.out.println(separador.toString());
+    
+    //     // Imprimir cada fila
+    //     for (Fila fila : filas) {
+    //         System.out.println(fila);
+    //     }
+    // }
 
     public Fila[] muestreo(double porcentaje){
         // Implementación
+        return null;
     }
 
     public Tabla crearVista() {
         // Implementación
+        return null;
     }
 
-    @Override
-    public void imputarNA() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
-    }
+
+    // @Override
+    // public void imputarNA() {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
+    // }
 
 }

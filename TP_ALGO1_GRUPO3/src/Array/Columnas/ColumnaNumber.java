@@ -1,4 +1,4 @@
-package Columnas;
+package Array.Columnas;
 
 public class ColumnaNumber {
 

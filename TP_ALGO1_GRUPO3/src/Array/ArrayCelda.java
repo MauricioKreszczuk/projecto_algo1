@@ -6,12 +6,16 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ArrayCelda implements util.ImputarFaltantes{
-    private List<Celda<?>> celdas;
+    protected List<Celda<?>> celdas;
     private HashMap<Integer, String> etiquetas;
 
     public ArrayCelda() {
         this.celdas = new ArrayList<>(); 
         this.etiquetas = new HashMap<>(); 
+    }
+
+    public List<Celda<?>> obtenerCeldas() {
+        return celdas;
     }
 
     public Celda<?> obtenerCelda(String etiqueta) {
