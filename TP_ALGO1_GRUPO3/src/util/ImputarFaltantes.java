@@ -1,5 +1,7 @@
 package util;
-import Celda.*;
+
 public interface ImputarFaltantes {
-    public <T extends Celda<?>>void imputarNA(T nuevaCelda);
+    public void imputarNA(Number nuevaCelda);
+    public void imputarNA(Boolean nuevaCelda);
+    public void imputarNA(String nuevaCelda);
 }

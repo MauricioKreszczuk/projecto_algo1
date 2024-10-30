@@ -1,10 +1,14 @@
 package Array.Columnas;
 
-public class ColumnaBoolean {
-    
-    public Boolean validar(Object valor) {
-        Boolean respuesta = true;
-        return respuesta;
+public class ColumnaBoolean extends Columna<Boolean> {
+
+    public ColumnaBoolean(String nombre) {
+        super(nombre, Boolean.class);
     }
 
+    @Override
+    public void agregarValor(Boolean valor) {
+        validarTipo(valor); // Validar el tipo
+        super.agregarValor(valor);
+    }
 }

@@ -17,6 +17,11 @@ public class CeldaNA extends Celda<String> {
     }
 
     @Override
+    public String obtenerValor(){
+        return null;
+    }
+
+    @Override
     public int hashCode() {
         return java.util.Objects.hash("NA");
     }
