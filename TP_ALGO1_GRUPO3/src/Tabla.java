@@ -4,7 +4,7 @@ import Celda.CeldaBoolean;
 import Array.Fila;
 import Celda.CeldaNumber;
 import Celda.CeldaString;
-import Array.Columnas.Columna;
+import Array.Columnas.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +19,7 @@ import java.io.IOException;
 public class Tabla {
     private List<Fila> filas = new ArrayList<>();
     private List<Columna> columnas = new ArrayList<>();
+    private List<String> encabezados = new ArrayList<>();
 
 
     // public Tabla cargarDesdeCSV(String path, boolean tieneEncabezado) throws IOException {
@@ -91,39 +92,73 @@ public class Tabla {
     //     }
     // }
 
+    // private inferirTipoDeDato(){
 
+    // }
 
+    public List<Fila> getFilas() {
+        return filas;
+    }
 
+    public List<Columna> getColumnas() {
+        return columnas;
+    }
+
+    public void testeo(){
+        for (Columna<?> columna : columnas){
+            System.out.println(columna.obtenerNombre());
+            for (Celda<?> celda : columna.obtenerCeldas()){
+                System.out.println(celda.obtenerValor());
+            }
+        }
+    }
 
     public Tabla cargarDesdeCSV(String path, boolean tieneEncabezado) throws IOException {
         String linea;
         BufferedReader br = new BufferedReader(new FileReader(path));
-
-        if ((linea = br.readLine()) != null && tieneEncabezado) {
+    
+        // Leer encabezado si existe, y crear columnas
+        if (tieneEncabezado && (linea = br.readLine()) != null) {
             String[] encabezados = linea.split(",");
             for (String encabezado : encabezados) {
-                Columna columna = new Columna();
+                ColumnaString columna = new ColumnaString(encabezado);
                 columna.asignarNombre(encabezado);
                 columnas.add(columna);
             }
         }
-
-        // Leer datos
+    
+        // Leer datos y crear columnas si no hay encabezado
+        int contador = 0;
         while ((linea = br.readLine()) != null) {
             String[] valores = linea.split(",");
-            Fila fila = new Fila();
-
-            // Agregar cada valor como String directamente a la fila
-            for (String valor : valores) {
-                fila.agregarValor(valor);  // Ahora se agregan valores en lugar de celdas
+    
+            // Crear columnas si no se crearon con encabezado
+            if (columnas.isEmpty()) {
+                for (int i = 0; i < valores.length; i++) {
+                    ColumnaString columna = new ColumnaString("Columna" + i);
+                    columnas.add(columna);
+                }
             }
-            filas.add(fila);
+    
+            // Verificar que el número de valores coincida con el número de columnas
+            if (valores.length != columnas.size()) {
+                System.out.println(columnas.size());
+                System.out.println(valores.length);
+                throw new IOException("El número de valores no coincide con el número de columnas.");
+            }
+    
+            // Asignar cada valor a la columna correspondiente
+            for (int i = 0; i < valores.length; i++) {
+                columnas.get(i).agregarValor(valores[i]);
+            }
+            contador++;
         }
         br.close();
         return this;
     }
 
-    public void imprimirTabla() {
+    public void imprimirTabla() { //Arreglarlo
+        
         // Imprimir encabezado
         for (Columna columna : columnas) {
             System.out.print(String.format("%-15s", columna) + " | ");
@@ -144,29 +179,6 @@ public class Tabla {
             System.out.println();
         }
     }
-
-
-    
-
-
-
-
-    public List<Fila> getFilas() {
-        return filas;
-    }
-
-    public List<Columna> getColumnas() {
-        return columnas;
-    }
-
-
-
-
-
-
-
-
-
 
     public void agregarFila(Fila fila){
         filas.add(fila);

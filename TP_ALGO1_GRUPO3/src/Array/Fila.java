@@ -12,6 +12,7 @@ public class Fila extends ArrayCelda {
         sb.append(nombre).append(" | "); // Agrega el nombre de la fila seguido de un separador
         
         for (int i = 0; i < obtenerTamaño(); i++) {
+            //Fijarse que imprima NA en los lugares vacios 
             sb.append(obtenerValor(i) != null ? obtenerValor(i).toString() : "null").append(" | ");
         }
         

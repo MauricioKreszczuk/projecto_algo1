@@ -3,12 +3,16 @@ package Array.Columnas;
 import Celda.*;
 import Array.ArrayCelda;
 
-public abstract class Columna<T> extends ArrayCelda {
-    private Class<T> tipoDeDato;
+public class Columna<T> extends ArrayCelda {
+    private Class<?> tipoDeDato;
 
     public Columna(String nombre, Class<T> tipoDeDato) {
         super(nombre);
         this.tipoDeDato = tipoDeDato;
+    }
+
+    public Columna(String nombre) {
+        super(nombre);
     }
 
     @Override
@@ -21,10 +25,6 @@ public abstract class Columna<T> extends ArrayCelda {
         T valor = super.obtenerValor(etiqueta);
         return valor;
     }
-
-
-
-    public abstract void agregarValor(T valor);
 
     public void agregarValor() {
         super.agregarValor();

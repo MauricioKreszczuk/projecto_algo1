@@ -76,6 +76,7 @@ public class ArrayCelda implements util.ImputarFaltantes {
 
     // Método para agregar un valor de tipo String y asignar etiqueta por defecto
     public void agregarValor(String valor) {
+        
         celdas.add(new CeldaString(valor)); // Agrega una nueva celda de tipo cadena
         identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1); // Asigna etiqueta por defecto
     }
@@ -93,6 +94,10 @@ public class ArrayCelda implements util.ImputarFaltantes {
         }
         nuevaArray.asignarEtiquetas(identificadores.obtenerEtiquetas()); // Suponiendo que Identificadores tiene un método copiaProfunda
         return nuevaArray;
+    }
+
+    public List<Celda<?>> obtenerCeldas(){
+        return this.celdas;
     }
 
     public void imputarNA(Number nuevoValor) {
