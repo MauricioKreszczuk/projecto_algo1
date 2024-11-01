@@ -62,6 +62,12 @@ public class ArrayCelda implements util.ImputarFaltantes {
         int indice = identificadores.indiceDeEtiqueta(etiqueta);
         return obtenerValor(indice);
     }
+    
+    public void agregarCelda(Celda<?> celda){
+        celdas.add(celda);
+        identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1);
+    }
+    
     // Método para agregar un valor de tipo Number y asignar etiqueta por defecto
     public void agregarValor(Number valor) {
         celdas.add(new CeldaNumber(valor)); // Agrega una nueva celda de tipo número

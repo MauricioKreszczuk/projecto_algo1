@@ -1,11 +1,11 @@
 public class App {
     public static void main(String[] args) throws Exception {
-        String path = "C:/Users/ariel/OneDrive/Escritorio/Varios/UNSAM/Algoritmos_1/TP_FINAL_REPO/grupo3Algoritmos1/sample.CSV";
+        String path = "/home/tareas/Documents/TP_ALGO1_GRUPO3/grupo3Algoritmos1/TP_ALGO1_GRUPO3/src/test.csv";
 
         Tabla tabla = new Tabla();
-        tabla.cargarDesdeCSV(path, false);
+        tabla.cargarDesdeCSV(path, true);
 
-        // tabla.imprimirTabla();
+        // // tabla.imprimirTabla();
 
         tabla.testeo();
 

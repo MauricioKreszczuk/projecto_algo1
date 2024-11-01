@@ -9,6 +9,32 @@ public class CeldaNumber extends Celda<Number> implements definirCelda<Number> {
         super(valor);
     }
 
+    public CeldaNumber(Number valor, Boolean convertir){
+        super(convertirANumeroEspecifico(valor));
+    }
+
+    public static Number convertirANumeroEspecifico(Number numero) {
+        // Si es decimal, conviértelo a Float o Double
+        if (numero.doubleValue() % 1 != 0) { // Si tiene decimales
+        if (numero.doubleValue() >= Float.MIN_VALUE && numero.doubleValue() <= Float.MAX_VALUE) {
+        return numero.floatValue(); // Devuelve Float si cabe
+        }
+        return numero.doubleValue(); // Devuelve Double si no cabe en Float
+        } else {
+        // Si es entero, conviértelo a Byte, Short, Integer o Long
+        long longValue = numero.longValue();
+        
+        if (longValue >= Byte.MIN_VALUE && longValue <= Byte.MAX_VALUE) {
+        return numero.byteValue(); // Devuelve Byte si cabe
+        } else if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
+        return numero.shortValue(); // Devuelve Short si cabe
+        } else if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
+        return numero.intValue(); // Devuelve Integer si cabe
+        }
+        return longValue; // Devuelve Long si no cabe en tipos más bajos
+        }
+    }
+
     @Override
     public Number obtenerValor() {
         return this.valor;
