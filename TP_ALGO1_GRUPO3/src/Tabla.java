@@ -5,15 +5,18 @@ import Array.ArrayCelda;
 import Array.Fila;
 import Celda.CeldaNumber;
 import Celda.CeldaString;
+//import util.ImputarFaltantes;
 import Array.Columnas.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 //Carga de CSV
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Tabla {
+public class Tabla{
     private List<Fila> filas = new ArrayList<>();
     private List<Columna> columnas = new ArrayList<>();
     private List<String> encabezados = new ArrayList<>();
@@ -141,8 +144,35 @@ public class Tabla {
         return null;
     }
 
-    public void ordenar(String columna, Boolean ascendente, Boolean inplace) {
-        // Implementación 
+     public void ordenarPorColumnas(List<String> nombresColumnas, boolean ascendente) {
+        Comparator<Fila> comparator = (fila1, fila2) -> {
+            for (String nombreColumna : nombresColumnas) {
+                int columnaIndex = this.obtenerIndiceDeColumna(nombreColumna);
+                if (columnaIndex == -1) {
+                    throw new IllegalArgumentException("Columna " + nombreColumna + " no encontrada.");
+                }
+                Comparable valor1 = (Comparable) fila1.obtenerCelda(columnaIndex).obtenerValor();
+                Comparable valor2 = (Comparable) fila2.obtenerCelda(columnaIndex).obtenerValor();
+
+                int resultadoComparacion = valor1.compareTo(valor2);
+                if (resultadoComparacion != 0) {
+                    return ascendente ? resultadoComparacion : -resultadoComparacion;
+                }
+            }
+            return 0;
+        };
+        
+        Collections.sort(this.filas, comparator);
+    }
+    
+    // Método auxiliar para obtener el índice de una columna según su nombre
+    private int obtenerIndiceDeColumna(String nombreColumna) {
+        for (int i = 0; i < this.encabezados.size(); i++) {
+            if (this.encabezados.get(i).equals(nombreColumna)) {
+                return i;
+            }  
+        }
+        return -1;
     }
 
     public Tabla concatenar(Tabla tabla1){
@@ -183,12 +213,6 @@ public class Tabla {
         // Implementación
         return null;
     }
-
-    // @Override
-    // public void imputarNA() {
-    //     // TODO Auto-generated method stub
-    //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
-    // }
 
     private void AutoCasteoColumna(ArrayCelda columna){
         boolean columnaAgregada = false; // Flag para evitar duplicado de columnas
@@ -250,6 +274,23 @@ public class Tabla {
         return new CeldaString(valorCelda);            
     }
 
+    // @Override
+    // public void imputarNA(Number nuevaCelda) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
+    // }
+
+    // @Override
+    // public void imputarNA(Boolean nuevaCelda) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
+    // }
+
+    // @Override
+    // public void imputarNA(String nuevaCelda) {
+    //     // TODO Auto-generated method stub
+    //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
+    // }
 
 
 }

@@ -1,9 +1,21 @@
 package Array;
 
+import java.util.List;
+
+import Celda.Celda;
+
 public class Fila extends ArrayCelda {
 
-    public Fila(String nombre) {
-        super(nombre);
+    public Fila(List<Celda<?>> fila1Celdas) {
+        super(fila1Celdas);
+    }
+
+    public Fila(String etiqueta) {
+		super(etiqueta);
+	}
+
+	public Celda<?> obtenerCelda(int indice){
+        return this.celdas.get(indice);
     }
 
     @Override

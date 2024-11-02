@@ -17,6 +17,10 @@ public class ArrayCelda implements util.ImputarFaltantes {
         this.nombre = nombre;
     }
 
+    public ArrayCelda(List<Celda<?>> celdas){
+        this.celdas = celdas;
+    }
+
     @SuppressWarnings("unchecked") // Ya se limita lo que se obtiene por lo que se mete
     public <T> T obtenerValor(int indice) {
         identificadores.indiceValido(indice);
