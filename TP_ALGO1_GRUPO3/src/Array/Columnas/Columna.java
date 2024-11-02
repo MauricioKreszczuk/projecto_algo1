@@ -1,6 +1,9 @@
 package Array.Columnas;
 
 import Celda.*;
+
+import java.util.List;
+
 import Array.ArrayCelda;
 
 public class Columna<T> extends ArrayCelda {
@@ -13,6 +16,11 @@ public class Columna<T> extends ArrayCelda {
 
     public Columna(String nombre) {
         super(nombre);
+    }
+    
+       public Columna(String nombre, List<Celda<?>> Celdas) {
+        super(nombre);
+        this.celdas = Celdas;
     }
 
     @Override

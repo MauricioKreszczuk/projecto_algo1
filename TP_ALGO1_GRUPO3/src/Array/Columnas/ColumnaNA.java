@@ -1,9 +1,17 @@
 package Array.Columnas;
 
+import java.util.List;
+
+import Celda.Celda;
+
 public class ColumnaNA extends Columna<String> {
 
     public ColumnaNA(String nombre) {
         super(nombre, String.class);
+    }
+
+    public ColumnaNA(String nombre, List<Celda<?>> Celdas){
+        super(nombre, Celdas);
     }
 
     @Override

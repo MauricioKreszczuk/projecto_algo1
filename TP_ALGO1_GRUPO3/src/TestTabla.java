@@ -21,7 +21,7 @@ public class TestTabla {
         };
 
         // Cargar datos desde la matriz
-        tabla.cargarDesdeMatriz(matriz);
+        //tabla.cargarDesdeMatriz(matriz);
 
         // Imprimir la tabla, limitando a un número específico de filas y columnas
         int limiteFilas = 5;  // Por ejemplo, imprimir las primeras 5 filas

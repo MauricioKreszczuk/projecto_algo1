@@ -8,148 +8,41 @@ import Celda.CeldaString;
 import Array.Columnas.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 //Carga de CSV
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-
-
-
 
 public class Tabla {
     private List<Fila> filas = new ArrayList<>();
     private List<Columna> columnas = new ArrayList<>();
     private List<String> encabezados = new ArrayList<>();
 
-
-    private boolean esBoolean(String valor) {
-        return valor.equalsIgnoreCase("true") || valor.equalsIgnoreCase("false");
+    public List<Fila> obtenerFilas() {
+        return this.filas;
     }
 
-    private boolean esDecimal(String valor) {
-        try {
-            Double.parseDouble(valor);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
+    public List<Columna> obtenerColumnas() {
+        return this.columnas;
     }
 
-    // private inferirTipoDeDato(){
-
-    // }
-
-    public List<Fila> getFilas() {
-        return filas;
+    public List<String> obtenerEncabezados(){
+        return this.encabezados;
     }
-
-    public List<Columna> getColumnas() {
-        return columnas;
-    }
-
-    public void testeo(){
-        for (Columna<?> columna : columnas){
-            System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
-            for (Celda<?> celda : columna.obtenerCeldas()){
-                System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
-            }
-        }
-    }
-
-    private Celda<?> inferirTipoDeDato(String valorCelda){
-        if (valorCelda.toLowerCase() == "true"){
-        return new CeldaBoolean(true);
-        }
-        else if (valorCelda.toLowerCase() == "false"){
-        return new CeldaBoolean(false);
-        }
-        
-        if (this.esDecimal(valorCelda)){
-        return new CeldaNumber(Double.parseDouble(valorCelda), true);
-        }
-        
-        if (valorCelda.length() == "".length() || valorCelda.toLowerCase() == "na"|| valorCelda == null ){ // infintas opciones mas
-        return new CeldaNA();
-        }
-        
-        return new CeldaString(valorCelda);
-        
-        
-    }
-
-    // public boolean esBoolean(ArrayCelda columna){
-    //     boolean booleano = true;
-    //     for (int i = 0; i < columna.obtenerTamaño(); i++){
-    //         if (columna.obtenerCeldas().get(i) instanceof CeldaBoolean ||
-    //         columna.obtenerCeldas().get(i) instanceof CeldaNA){
-    //             booleano = true;
-    //         }
-    //         else{
-    //             booleano = false;
-    //         }
-            
-    //     return booleano
-    // }
-
-    private Columna<?> AutoCasteoColumna(Columna<?> columna){
-        for (int i = 0; i < columna.obtenerTamaño(); i++){
-            if (!(columna.obtenerCeldas().get(i) instanceof CeldaNA)){
-                if (columna.obtenerCeldas().get(i) instanceof CeldaBoolean){
-                    ColumnaBoolean cboolean = new ColumnaBoolean(columna.obtenerNombre());
-                    for (CeldaBoolean bboolean : columna.obtenerCeldas()){
-                        
-                    }
-                }
-                else if (columna.obtenerCeldas().get(i) instanceof CeldaNumber){
-                    Columna<Number> columnat = (Columna<Number>) columna;
-                    ColumnaNumber columnaB = (ColumnaNumber) columnat;
-                    return columnaB;
-                }
-                else if (columna.obtenerCeldas().get(i) instanceof CeldaString){
-                    Columna<String> columnat = (Columna<String>) columna;
-                    ColumnaString columnaB = (ColumnaString) columnat;
-                    return columnaB;
-                }
-            }
-
-        }
-        return (ColumnaNA) columna;
-    }
-
-    // private Boolean esColumnaBoolean(Columna ){}
-
-    // private Columna<?> obtenerTipoColumna(ArrayCelda columna){
-    //     for (int i = 0; i < columna.obtenerTamaño(); i++){
-    //         if (!(columna.obtenerCeldas().get(i) instanceof CeldaNA)){
-    //             if (columna.obtenerCeldas().get(i) instanceof CeldaBoolean){
-    //                 return new ColumnaBoolean("");
-    //             }
-    //             else if (columna.obtenerCeldas().get(i) instanceof CeldaNumber){
-    //                 return (ColumnaNumber) columna;
-    //             }
-    //             else if (columna.obtenerCeldas().get(i) instanceof CeldaString){
-    //                 return (ColumnaString) columna;
-    //             }
-    //         }
-
-    //     }
-    //     return (ColumnaNA) columna;
-    // }
-
-
 
     public Tabla cargarDesdeCSV(String path, boolean tieneEncabezado) throws IOException {
         String linea;
         BufferedReader br = new BufferedReader(new FileReader(path));
+        ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
     
         // Leer encabezado si existe, y crear columnas
         if (tieneEncabezado && (linea = br.readLine()) != null) {
             String[] encabezados = linea.split(",");
             for (String encabezado : encabezados) {
-                Columna<?> columna = new Columna(encabezado);
+                ArrayCelda columna = new ArrayCelda(encabezado); // Creo arreglos que simulen las columnas para almecenar celdas, hasta tener la verificaciones de tipos hecha. Luego crearemos cada columna según el tipo correspondiente.
                 columna.asignarNombre(encabezado);
-                columnas.add(columna);
+                columnasCastear.add(columna);
+                //columnas.add(columna);
             }
         }
     
@@ -159,15 +52,16 @@ public class Tabla {
             String[] valores = linea.split(",");
     
             // Crear columnas si no se crearon con encabezado
-            if (columnas.isEmpty()) {
+            if (tieneEncabezado == false) {
                 for (int i = 0; i < valores.length; i++) {
-                    Columna<?> columna = new Columna("Columna" + i);
-                    columnas.add(columna);
-                }
+                    ArrayCelda columna = new ArrayCelda("Columna" + i);
+                    columnasCastear.add(columna);
+                    //columnas.add(columna);
+                } 
             }
     
             // Verificar que el número de valores coincida con el número de columnas
-            if (valores.length != columnas.size()) {
+            if (valores.length != columnasCastear.size()) {
                 System.out.println(columnas.size());
                 System.out.println(valores.length);
                 throw new IOException("El número de valores no coincide con el número de columnas.");
@@ -176,19 +70,15 @@ public class Tabla {
             // Asignar cada valor a la columna correspondiente
 
             for (int i = 0; i < valores.length; i++) {
-
-
-
                 Celda<?> celda = this.inferirTipoDeDato(valores[i]);
-                columnas.get(i).agregarCelda(celda);
+                columnasCastear.get(i).agregarCelda(celda);
             }
             contador++;
         }
         br.close();
 
-        for (Columna<?> columna : this.columnas) {
+        for (ArrayCelda columna : columnasCastear) {
             AutoCasteoColumna(columna);
-            
         }
             
         return this;
@@ -218,22 +108,33 @@ public class Tabla {
     }
 
     public void agregarFila(Fila fila){
-        filas.add(fila);
-        // implementación
+        this.filas.add(fila);
+    }
+
+    public Tabla obtenerFila(String etiqueta){
+        Fila fila = new Fila(etiqueta);
+        int indiceColumna = 0;
+        for (Columna columna : this.columnas){
+            fila.agregarCelda(columna.obtenerCeldas().get(indiceColumna));
+            indiceColumna++;
+        }
+
+        Tabla nuevaTabla = new Tabla();
+        nuevaTabla.obtenerFilas().add(fila);
+        return nuevaTabla;
     }
 
     public void eliminarFila(int indice){
-        // Implementación
+        this.filas.remove(indice);
     }
 
     public void agregarColumna(Columna columna){
-        // Implementación
+        this.columnas.add(columna);
     }
 
     public void eliminarColumna(String nombre){
-        // Implementación
+        this.columnas.remove(nombre);
     }
-
 
     public Tabla filtrar() {
         // Pendiente
@@ -262,9 +163,6 @@ public class Tabla {
         }
 
         for (Fila fila : filas) {
-            
-            
-
             // for (Celda<?> celda : fila.agregarValor() {
             //     builder.append(celda.toString()).append("\t");  // Agregar cada celda con tabulación
             // }
@@ -276,42 +174,82 @@ public class Tabla {
         return builder.toString();
     }
 
-    // public void imprimirTabla() {
-    //     // Imprimir encabezado
-    //     for (Columna columna : columnas) {
-    //         System.out.print(String.format("%-15s", columna.obtenerNombre()) + " | ");
-    //     }
-    //     System.out.println();
-    
-    //     // Crear manualmente la línea de separación
-    //     StringBuilder separador = new StringBuilder();
-    //     int ancho = columnas.size() * 18; // Ajusta el ancho según el número de columnas y el formato
-    //     for (int i = 0; i < ancho; i++) {
-    //         separador.append("-");
-    //     }
-    //     System.out.println(separador.toString());
-    
-    //     // Imprimir cada fila
-    //     for (Fila fila : filas) {
-    //         System.out.println(fila);
-    //     }
-    // }
-
     public Fila[] muestreo(double porcentaje){
         // Implementación
         return null;
     }
 
-    public Tabla crearVista() {
+    public Tabla crearVista() { //Podríamos no hacer este método
         // Implementación
         return null;
     }
-
 
     // @Override
     // public void imputarNA() {
     //     // TODO Auto-generated method stub
     //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
     // }
+
+    private void AutoCasteoColumna(ArrayCelda columna){
+        boolean columnaAgregada = false; // Flag para evitar duplicado de columnas
+
+        for (int i=0; i < columna.obtenerTamaño(); i++){
+            if (!(columna.obtenerCeldas().get(i) instanceof CeldaNA)){
+                if (columna.obtenerCeldas().get(i) instanceof CeldaBoolean){
+                    ColumnaBoolean CBoolean = new ColumnaBoolean(columna.obtenerNombre(), columna.obtenerCeldas());
+                    this.columnas.add(CBoolean);
+                    columnaAgregada = true;
+                    break;
+                }
+                else if (columna.obtenerCeldas().get(i) instanceof CeldaNumber){
+                    ColumnaNumber CNumber = new ColumnaNumber(columna.obtenerNombre(), columna.obtenerCeldas());
+                    this.columnas.add(CNumber);
+                    columnaAgregada = true;
+                    break;
+                }
+                else if (columna.obtenerCeldas().get(i) instanceof CeldaString){
+                    ColumnaString CString = new ColumnaString(columna.obtenerNombre(), columna.obtenerCeldas());
+                    this.columnas.add(CString);
+                    columnaAgregada = true;
+                    break;
+                }
+            }
+        }
+
+        if (columnaAgregada == false){ // Sí el estado no cambió, creo y agrego una columnaNA al atributo celdas de la Tabla. (No uso !columnaAgregada para evitar error de lógica.)
+            ColumnaNA CNA = new ColumnaNA(columna.obtenerNombre(), columna.obtenerCeldas());
+            this.columnas.add(CNA);
+        }
+    }
+
+    private boolean esDecimal(String valor) {
+        try {
+            Double.parseDouble(valor);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private Celda<?> inferirTipoDeDato(String valorCelda){
+        if (valorCelda.toLowerCase() == "true"){
+        return new CeldaBoolean(true);
+        }
+        else if (valorCelda.toLowerCase() == "false"){
+        return new CeldaBoolean(false);
+        }
+        
+        if (this.esDecimal(valorCelda)){
+        return new CeldaNumber(Double.parseDouble(valorCelda), true);
+        }
+        
+        if (valorCelda.length() == "".length() || valorCelda.toLowerCase() == "na"|| valorCelda == null ){ // infintas opciones mas
+        return new CeldaNA();
+        }
+        
+        return new CeldaString(valorCelda);            
+    }
+
+
 
 }
