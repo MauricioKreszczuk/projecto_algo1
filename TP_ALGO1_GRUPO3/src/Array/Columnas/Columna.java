@@ -23,6 +23,10 @@ public class Columna<T> extends ArrayCelda {
         this.celdas = Celdas;
     }
 
+    public void establecerCeldas(List<Celda<?>> nuevasCeldas) {
+        this.celdas = nuevasCeldas;
+    }
+
     @Override
     public T obtenerValor(int indice){
         T valor = super.obtenerValor(indice);

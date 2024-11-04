@@ -1,6 +1,6 @@
 Nombre,Edad,Ciudad,Profesión,Pais
 Alice,30,Nueva York,Ingeniera,EE.UU.
-Bob,,,Londres,Diseñador,
+Bob,,n/a,Londres,Diseñador,
 Carlos,28,,Profesor,España
 Diana,32,Bogotá,,Colombia
 ,Eva,París,Artista,Francia

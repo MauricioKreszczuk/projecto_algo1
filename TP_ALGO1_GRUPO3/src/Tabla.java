@@ -40,17 +40,17 @@ public class Tabla{
     
         // Leer encabezado si existe, y crear columnas
         if (tieneEncabezado && (linea = br.readLine()) != null) {
-            String[] encabezados = linea.split(",");
-            for (String encabezado : encabezados) {
+            String[] encabezadosArray = linea.split(",");
+            for (String encabezado : encabezadosArray) {
                 ArrayCelda columna = new ArrayCelda(encabezado); // Creo arreglos que simulen las columnas para almecenar celdas, hasta tener la verificaciones de tipos hecha. Luego crearemos cada columna según el tipo correspondiente.
                 columna.asignarNombre(encabezado);
+                this.encabezados.add(encabezado);
                 columnasCastear.add(columna);
                 //columnas.add(columna);
             }
         }
     
         // Leer datos y crear columnas si no hay encabezado
-        int contador = 0;
         while ((linea = br.readLine()) != null) {
             String[] valores = linea.split(",");
     
@@ -58,6 +58,7 @@ public class Tabla{
             if (tieneEncabezado == false) {
                 for (int i = 0; i < valores.length; i++) {
                     ArrayCelda columna = new ArrayCelda("Columna" + i);
+                    this.encabezados.add("Columna" + i);
                     columnasCastear.add(columna);
                     //columnas.add(columna);
                 } 
@@ -70,13 +71,14 @@ public class Tabla{
                 throw new IOException("El número de valores no coincide con el número de columnas.");
             }
     
-            // Asignar cada valor a la columna correspondiente
-
+            // Asignar cada valor a la columna y fila correspondiente
+            Fila fila = new Fila("Fila" + (filas.size() + 1));
             for (int i = 0; i < valores.length; i++) {
                 Celda<?> celda = this.inferirTipoDeDato(valores[i]);
                 columnasCastear.get(i).agregarCelda(celda);
+                fila.agregarCelda(celda);
             }
-            contador++;
+            this.filas.add(fila);
         }
         br.close();
 
@@ -86,29 +88,30 @@ public class Tabla{
             
         return this;
     }
+    
 
-    public void imprimirTabla() { //Arreglarlo
+    // public void imprimirTabla() { //Arreglarlo
         
-        // Imprimir encabezado
-        for (Columna columna : columnas) {
-            System.out.print(String.format("%-15s", columna) + " | ");
-        }
-        System.out.println();
+    //     // Imprimir encabezado
+    //     for (Columna columna : columnas) {
+    //         System.out.print(String.format("%-15s", columna) + " | ");
+    //     }
+    //     System.out.println();
 
-        // Crear separador
-        StringBuilder separador = new StringBuilder();
-        int ancho = columnas.size() * 18;
-        for (int i = 0; i < ancho; i++) {
-            separador.append("-");
-        }
-        System.out.println(separador.toString());
+    //     // Crear separador
+    //     StringBuilder separador = new StringBuilder();
+    //     int ancho = columnas.size() * 18;
+    //     for (int i = 0; i < ancho; i++) {
+    //         separador.append("-");
+    //     }
+    //     System.out.println(separador.toString());
 
-        // Imprimir filas
-        for (Fila fila : filas) {
-            System.out.println(fila);
-            System.out.println();
-        }
-    }
+    //     // Imprimir filas
+    //     for (Fila fila : filas) {
+    //         System.out.println(fila);
+    //         System.out.println();
+    //     }
+    // }
 
     public void agregarFila(Fila fila){
         this.filas.add(fila);
@@ -144,15 +147,24 @@ public class Tabla{
         return null;
     }
 
-     public void ordenarPorColumnas(List<String> nombresColumnas, boolean ascendente) {
+    public void ordenarPorColumnas(List<String> nombresColumnas, boolean ascendente) {
         Comparator<Fila> comparator = (fila1, fila2) -> {
             for (String nombreColumna : nombresColumnas) {
-                int columnaIndex = this.obtenerIndiceDeColumna(nombreColumna);
-                if (columnaIndex == -1) {
+                int indiceColumna = this.obtenerIndiceDeColumna(nombreColumna);
+                if (indiceColumna == -1) {
                     throw new IllegalArgumentException("Columna " + nombreColumna + " no encontrada.");
                 }
-                Comparable valor1 = (Comparable) fila1.obtenerCelda(columnaIndex).obtenerValor();
-                Comparable valor2 = (Comparable) fila2.obtenerCelda(columnaIndex).obtenerValor();
+
+                if ((fila1.obtenerCelda(indiceColumna) instanceof CeldaNA && fila2.obtenerCelda(indiceColumna) instanceof CeldaNA)) {
+                    continue; 
+                } else if (fila1.obtenerCelda(indiceColumna) instanceof CeldaNA) {
+                    return 1; 
+                } else if (fila2.obtenerCelda(indiceColumna) instanceof CeldaNA) {
+                    return -1; 
+                }
+
+                Comparable valor1 = (Comparable) fila1.obtenerCelda(indiceColumna).obtenerValor();
+                Comparable valor2 = (Comparable) fila2.obtenerCelda(indiceColumna).obtenerValor();
 
                 int resultadoComparacion = valor1.compareTo(valor2);
                 if (resultadoComparacion != 0) {
@@ -161,8 +173,17 @@ public class Tabla{
             }
             return 0;
         };
-        
+    
         Collections.sort(this.filas, comparator);
+
+        for (int i = 0; i < columnas.size(); i++) {
+            Columna columna = columnas.get(i);
+            List<Celda<?>> celdasOrdenadas = new ArrayList<>();
+            for (Fila fila : this.filas) {
+                celdasOrdenadas.add(fila.obtenerCelda(i));
+            }
+            columna.establecerCeldas(celdasOrdenadas);  
+        }
     }
     
     // Método auxiliar para obtener el índice de una columna según su nombre
@@ -267,7 +288,8 @@ public class Tabla{
         return new CeldaNumber(Double.parseDouble(valorCelda), true);
         }
         
-        if (valorCelda.length() == "".length() || valorCelda.toLowerCase() == "na"|| valorCelda == null ){ // infintas opciones mas
+        if (valorCelda.length() == "".length() || valorCelda.toLowerCase() == "na"|| 
+        valorCelda == null || valorCelda.toLowerCase() == "n/a"){ // infintas opciones mas
         return new CeldaNA();
         }
         
