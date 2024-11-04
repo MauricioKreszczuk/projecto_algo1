@@ -44,10 +44,13 @@ public class App {
         }
         System.out.println("\n");
 
-        List<String> lista = new ArrayList<>();
-        lista.add("Edad");
-        lista.add("Peso");
-        tabla.ordenarPorColumnas(lista, false);
+        List<String> listaInt = new ArrayList<>();
+        listaInt.add("Edad");
+        listaInt.add("Peso");
+        List<String> listaString = new ArrayList<>();
+        listaString.add("Ciudad");
+        listaString.add("Pais");
+        tabla.ordenarPorColumnas(listaString, true);
 
 
         for (Columna<?> columna : tabla.obtenerColumnas()){
