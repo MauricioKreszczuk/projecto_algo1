@@ -84,6 +84,10 @@ public class Tabla{
 
         for (ArrayCelda columna : columnasCastear) {
             AutoCasteoColumna(columna);
+            int indiceCol = this.obtenerColumnas().indexOf(columna);
+            if (!(esConsistente(this.obtenerColumnas().get(indiceCol)))){
+                reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
+            }
         }
             
         return this;
@@ -294,6 +298,61 @@ public class Tabla{
         }
         
         return new CeldaString(valorCelda);            
+    }
+
+    private boolean esConsistente(Columna columna){
+        if (columna instanceof ColumnaNA){
+            for (Celda celda : columna.obtenerCeldas()){
+                if (!(celda instanceof CeldaNA)){
+                    return false;
+                }
+            }
+        }
+
+        int i = 1;
+        for (Celda celda : columna.obtenerCeldas()){
+            if ((!(celda instanceof CeldaNA)) && (celda.getClass() != columna.obtenerCeldas().get(i-1).getClass())){
+                return false;
+            }
+            i++;
+        }
+        return true;
+    }
+
+    private void reemplazarIncosistencias(Columna columna){
+        int indiceColumna = this.obtenerColumnas().indexOf(columna);
+        if (columna instanceof ColumnaNA){
+            for ( Celda celda : columna.obtenerCeldas()){
+                if (!(celda instanceof CeldaNA)){
+                    CeldaNA nuevaCeldaNA = new CeldaNA();
+                    this.obtenerColumnas().get(indiceColumna).obtenerCeldas().set(indiceColumna, nuevaCeldaNA);
+                }
+            }
+        }
+        else if (columna instanceof ColumnaString){
+            for (Celda celda : columna.obtenerCeldas()){
+                if ((!(celda instanceof CeldaString)) && (!(celda instanceof CeldaNA))){
+                    CeldaNA nuevaCeldaNA = new CeldaNA();
+                    this.obtenerColumnas().get(indiceColumna).obtenerCeldas().set(indiceColumna, nuevaCeldaNA);
+                }
+            }
+        }
+        else if (columna instanceof ColumnaBoolean){
+            for (Celda celda : columna.obtenerCeldas()){
+                if ((!(celda instanceof CeldaBoolean)) && (!(celda instanceof CeldaNA))){
+                    CeldaNA nuevaCeldaNA = new CeldaNA();
+                    this.obtenerColumnas().get(indiceColumna).obtenerCeldas().set(indiceColumna, nuevaCeldaNA);
+                }
+            }
+        }
+        else if (columna instanceof ColumnaNumber){
+            for (Celda celda : columna.obtenerCeldas()){
+                if ((!(celda instanceof CeldaNumber)) && (!(celda instanceof CeldaNA))){
+                    CeldaNA nuevaCeldaNA = new CeldaNA();
+                    this.obtenerColumnas().get(indiceColumna).obtenerCeldas().set(indiceColumna, nuevaCeldaNA);
+                }
+            }
+        }
     }
 
     // @Override
