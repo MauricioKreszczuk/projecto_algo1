@@ -6,6 +6,10 @@ import Celda.Celda;
 
 public class ColumnaNA extends Columna<String> {
 
+    public ColumnaNA(){
+        super("");
+    }
+
     public ColumnaNA(String nombre) {
         super(nombre, String.class);
     }

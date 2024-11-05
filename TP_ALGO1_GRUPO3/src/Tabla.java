@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 //Carga de CSV
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -20,6 +21,30 @@ public class Tabla{
     private List<Fila> filas = new ArrayList<>();
     private List<Columna> columnas = new ArrayList<>();
     private List<String> encabezados = new ArrayList<>();
+
+    public Tabla(){
+        
+    }
+
+    public Tabla(List<Columna> columnas, List<Fila> filas){
+        this.columnas = columnas;
+        this.filas = filas;
+        for (Columna col : this.columnas){
+            this.encabezados.add(col.obtenerNombre());
+        } 
+    }
+    
+    public Tabla(Celda[][] matriz){
+        //Implementar
+    }
+
+    public Tabla(HashMap Dict){
+        //Implementar
+    }
+
+    public Tabla(ArrayList ArregloDeListas){
+        //Implementar
+    }
 
     public List<Fila> obtenerFilas() {
         return this.filas;
@@ -92,30 +117,6 @@ public class Tabla{
             
         return this;
     }
-    
-
-    // public void imprimirTabla() { //Arreglarlo
-        
-    //     // Imprimir encabezado
-    //     for (Columna columna : columnas) {
-    //         System.out.print(String.format("%-15s", columna) + " | ");
-    //     }
-    //     System.out.println();
-
-    //     // Crear separador
-    //     StringBuilder separador = new StringBuilder();
-    //     int ancho = columnas.size() * 18;
-    //     for (int i = 0; i < ancho; i++) {
-    //         separador.append("-");
-    //     }
-    //     System.out.println(separador.toString());
-
-    //     // Imprimir filas
-    //     for (Fila fila : filas) {
-    //         System.out.println(fila);
-    //         System.out.println();
-    //     }
-    // }
 
     public void agregarFila(Fila fila){
         this.filas.add(fila);
@@ -130,7 +131,13 @@ public class Tabla{
         }
 
         Tabla nuevaTabla = new Tabla();
+        nuevaTabla.encabezados = this.encabezados;
         nuevaTabla.obtenerFilas().add(fila);
+
+        for (Celda celda : fila.obtenerCeldas()){
+            nuevaTabla.obtenerColumnas().get(indiceColumna).agregarCelda(celda);
+        }
+
         return nuevaTabla;
     }
 
@@ -200,10 +207,35 @@ public class Tabla{
         return -1;
     }
 
-    public Tabla concatenar(Tabla tabla1){
-        // Faltan más argumentos
-        // Implementación
-        return null;
+    public Tabla concatenar(Tabla tabla1, Tabla tabla2){
+        Tabla copiaTabla1 = tabla1.copiaProfunda();
+        Tabla copiaTabla2 = tabla2.copiaProfunda();
+        Tabla concatenada = new Tabla();
+
+        if (copiaTabla1.obtenerColumnas().size() != copiaTabla2.obtenerColumnas().size()){
+            //throw new Excepción nuestra ("mensaje");
+        }
+
+        if (!(copiaTabla1.obtenerEncabezados().equals(copiaTabla2.obtenerEncabezados()))){
+            //throw new Excepción nuestra ("mensaje");
+        }
+
+        concatenada.encabezados.addAll(copiaTabla1.obtenerEncabezados());
+
+        for (Columna columna : copiaTabla2.obtenerColumnas()){
+            int i = copiaTabla1.obtenerColumnas().indexOf(columna);
+            for (Celda celda : copiaTabla2.obtenerColumnas().get(i).obtenerCeldas()){
+                Celda copiaCelda = celda.copiaProfunda();
+                concatenada.obtenerColumnas().get(i).agregarCelda(copiaCelda);
+            }
+        }
+
+        for (Fila fila : copiaTabla2.obtenerFilas()){
+            //Como uso la copia profunda de tabla2, no hace falta crear la copia de la fila, ya está copiada en profundidad.
+            concatenada.filas.add(fila);
+        }
+
+        return concatenada;
     }
 
     @Override
@@ -236,6 +268,14 @@ public class Tabla{
 
     public Tabla crearVista() { //Podríamos no hacer este método
         // Implementación
+        return null;
+    }
+
+    public Tabla copiaProfunda(){
+        // Tabla copia = new Tabla();
+        // for (Columna columna : this.obtenerColumnas()){
+        //     copia.obtenerColumnas().add(columna.copiaProfunda());
+        // } 
         return null;
     }
 
