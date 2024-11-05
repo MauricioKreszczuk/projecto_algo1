@@ -33,6 +33,10 @@ public class Tabla{
             this.encabezados.add(col.obtenerNombre());
         } 
     }
+
+    public Tabla(List<Columna> columnas,){
+
+    }
     
     public Tabla(Celda[][] matriz){
         //Implementar
@@ -45,6 +49,33 @@ public class Tabla{
     public Tabla(ArrayList ArregloDeListas){
         //Implementar
     }
+
+    public void crearFilasPorColumnas(List<Columna> columnas) {
+
+        int tamaño = columnas.get(0).obtenerTamaño();
+        List<String> etiquetas = columnas.get(0).obtenerEtiquetas();
+        // Iterar sobre los valores de cada columna para formar las filas
+        for (int indice = 0; indice < tamaño; indice++) {
+            String etiquetaFila = etiquetas.get(indice); 
+            Fila filaTemporal = new Fila(etiquetaFila); // Asignar nombre a la fila
+            for (Columna columna : columnas) {
+                Celda<?> celda = columna.obtenerCeldas().get(indice); // Obtener la celda correspondiente en este índice
+                filaTemporal.agregarCelda(celda); // Agregar la celda a la fila
+            }
+    
+            // Una vez que la fila está completa, agregarla a la tabla
+            this.filas.add(filaTemporal);
+        }
+    }
+    
+    private void actualizarFilas(){
+        crearFilasPorColumnas(this.columnas);
+    }
+    
+    public <T> T obtenerValor(int indiceColumna, int IndiceFila){
+        return (T) columnas.get(indiceColumna).obtenerValor(IndiceFila);
+    }
+
 
     public List<Fila> obtenerFilas() {
         return this.filas;
@@ -118,6 +149,7 @@ public class Tabla{
         return this;
     }
 
+    
     public void agregarFila(Fila fila){
         this.filas.add(fila);
     }

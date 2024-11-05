@@ -66,6 +66,7 @@ public class ArrayCelda implements util.ImputarFaltantes {
         int indice = identificadores.indiceDeEtiqueta(etiqueta);
         return obtenerValor(indice);
     }
+
     
     public void agregarCelda(Celda<?> celda){
         celdas.add(celda);
