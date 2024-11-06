@@ -34,38 +34,58 @@ public class Tabla{
         } 
     }
 
-    public Tabla(List<Columna> columnas){
-        
+    public Tabla(List<List<Object>> listaDeFilas, Boolean tieneEncabezado){
+        // Hacer excepcion de si se pasa una lista vacia y si tienen distintos largos
+        ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
 
-    }    
+        if (tieneEncabezado){
+            Object[] encabezadosObject = listaDeFilas.get(0).toArray();
+            for (Object encabezado : encabezadosObject) {
+                String encabezadoString = (String) encabezado;
+                this.encabezados.add(encabezadoString);
+                ArrayCelda columna = new ArrayCelda(encabezadoString);
+                columnasCastear.add(columna);
+            }
+        }
+        else if (!(tieneEncabezado)){
+            int numeroColumnas = listaDeFilas.get(0).size();
+            for (int i = 0; i < numeroColumnas; i++) {
+                this.encabezados.add("Columna" + i);
+                ArrayCelda columna = new ArrayCelda("Columna" + i);
+                columnasCastear.add(columna);
+            }
+        }
 
-    public Tabla(Object[][] matriz){
+        int filaInicio = tieneEncabezado ? 1 : 0;
+        for (int i = filaInicio; i < listaDeFilas.size(); i++) {
+            if (listaDeFilas.get(i).size() != columnasCastear.size()) {
+                throw new IllegalArgumentException("La fila " + i + " no coincide con el número de columnas.");
+                //Modificar para que la excepcion diga el número de la fila
+            }
+    
+            Fila fila = new Fila("Fila" + (filas.size() + 1));
+            for (int j = 0; j < columnasCastear.size(); j++) {
+                Object valor = listaDeFilas.get(i).get(j);
+                Celda<?> celda = inferirTipoDesdeObject(valor);
+                columnasCastear.get(j).agregarCelda(celda);
+                fila.agregarCelda(celda);
+            }
+            filas.add(fila);
+        }
+
+        for (ArrayCelda columna : columnasCastear) {
+            AutoCasteoColumna(columna);
+            int indiceCol = this.obtenerColumnas().indexOf(columna);
+            if (!esConsistente(this.obtenerColumnas().get(indiceCol))) {
+                reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
+            }
+        }
     }
 
-    private Celda<?> inferirTipoDesdeObject(Object valor){
-        
-        if (valor == null || valor.equals("na")) return new CeldaNA();
-        
-        if (valor instanceof Number) {
-            Number valorNumber = (Number) valor;
-            return new CeldaNumber(valorNumber);
-        }
-
-        if (valor instanceof Boolean) {
-            Boolean valorBoolean = (Boolean) valor;
-            return new CeldaBoolean(valorBoolean);
-        }
-
-        else {
-            String valorString = (String) valor;
-            return new CeldaString(valorString);
-        }
-    }
-
-    public Tabla cargarDesdeMatriz(Object[][] matriz, Boolean tieneEncabezado) { 
+    public Tabla(Object[][] matriz, Boolean tieneEncabezado) { 
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
         
-        if (matriz.length == 0) return null; {// CrearExepcion
+        if (matriz.length == 0) {// CrearExepcion
         }
 
         if (tieneEncabezado) {
@@ -113,15 +133,26 @@ public class Tabla{
             }
         }
 
-        return this;
     }
 
-    public Tabla(HashMap Dict){
-        //Implementar
-    }
+    private Celda<?> inferirTipoDesdeObject(Object valor){
+        
+        if (valor == null || valor.equals("na")) return new CeldaNA();
+        
+        if (valor instanceof Number) {
+            Number valorNumber = (Number) valor;
+            return new CeldaNumber(valorNumber);
+        }
 
-    public Tabla(ArrayList ArregloDeListas){
-        //Implementar
+        if (valor instanceof Boolean) {
+            Boolean valorBoolean = (Boolean) valor;
+            return new CeldaBoolean(valorBoolean);
+        }
+
+        else {
+            String valorString = (String) valor;
+            return new CeldaString(valorString);
+        }
     }
 
     public void crearFilasPorColumnas(List<Columna> columnas) {
@@ -163,55 +194,56 @@ public class Tabla{
         return this.encabezados;
     }
 
-    public Tabla cargarDesdeCSV(String path, boolean tieneEncabezado) throws IOException {
+    public Tabla(String path, boolean tieneEncabezado) throws IOException {
         String linea;
         String delimitador = ",";
-        BufferedReader br = new BufferedReader(new FileReader(path));
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
-    
-        // Leer encabezado si existe, y crear columnas
-        if (tieneEncabezado && (linea = br.readLine()) != null) {
-            String[] encabezadosArray = linea.split(delimitador);
-            for (String encabezado : encabezadosArray) {
-                ArrayCelda columna = new ArrayCelda(encabezado); // Creo arreglos que simulen las columnas para almecenar celdas, hasta tener la verificaciones de tipos hecha. Luego crearemos cada columna según el tipo correspondiente.
-                columna.asignarNombre(encabezado);
-                this.encabezados.add(encabezado);
-                columnasCastear.add(columna);
-                //columnas.add(columna);
-            }
-        }
-    
-        // Leer datos y crear columnas si no hay encabezado
-        while ((linea = br.readLine()) != null) {
-            String[] valores = linea.split(delimitador);
-    
-            // Crear columnas si no se crearon con encabezado
-            if (tieneEncabezado == false) {
-                for (int i = 0; i < valores.length; i++) {
-                    ArrayCelda columna = new ArrayCelda("Columna" + i);
-                    this.encabezados.add("Columna" + i);
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path))){
+
+            // Leer encabezado si existe, y crear columnas
+            if (tieneEncabezado && (linea = br.readLine()) != null) {
+                String[] encabezadosArray = linea.split(delimitador);
+                for (String encabezado : encabezadosArray) {
+                    ArrayCelda columna = new ArrayCelda(encabezado); // Creo arreglos que simulen las columnas para almecenar celdas, hasta tener la verificaciones de tipos hecha. Luego crearemos cada columna según el tipo correspondiente.
+                    columna.asignarNombre(encabezado);
+                    this.encabezados.add(encabezado);
                     columnasCastear.add(columna);
                     //columnas.add(columna);
-                } 
+                }
             }
-    
-            // Verificar que el número de valores coincida con el número de columnas
-            if (valores.length != columnasCastear.size()) {
-                System.out.println(columnas.size());
-                System.out.println(valores.length);
-                throw new IOException("El número de valores no coincide con el número de columnas.");
+        
+            // Leer datos y crear columnas si no hay encabezado
+            while ((linea = br.readLine()) != null) {
+                String[] valores = linea.split(delimitador);
+        
+                // Crear columnas si no se crearon con encabezado
+                if (tieneEncabezado == false) {
+                    for (int i = 0; i < valores.length; i++) {
+                        ArrayCelda columna = new ArrayCelda("Columna" + i);
+                        this.encabezados.add("Columna" + i);
+                        columnasCastear.add(columna);
+                        //columnas.add(columna);
+                    } 
+                }
+        
+                // Verificar que el número de valores coincida con el número de columnas
+                if (valores.length != columnasCastear.size()) {
+                    System.out.println(columnas.size());
+                    System.out.println(valores.length);
+                    throw new IOException("El número de valores no coincide con el número de columnas.");
+                }
+        
+                // Asignar cada valor a la columna y fila correspondiente
+                Fila fila = new Fila("Fila" + (filas.size() + 1));
+                for (int i = 0; i < valores.length; i++) {
+                    Celda<?> celda = this.inferirTipoDeDato(valores[i]);
+                    columnasCastear.get(i).agregarCelda(celda);
+                    fila.agregarCelda(celda);
+                }
+                this.filas.add(fila);
             }
-    
-            // Asignar cada valor a la columna y fila correspondiente
-            Fila fila = new Fila("Fila" + (filas.size() + 1));
-            for (int i = 0; i < valores.length; i++) {
-                Celda<?> celda = this.inferirTipoDeDato(valores[i]);
-                columnasCastear.get(i).agregarCelda(celda);
-                fila.agregarCelda(celda);
-            }
-            this.filas.add(fila);
         }
-        br.close();
 
         for (ArrayCelda columna : columnasCastear) {
             AutoCasteoColumna(columna);
@@ -220,58 +252,57 @@ public class Tabla{
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
             }
         }
-            
-        return this;
     }
     
-    public Tabla cargarDesdeCSV(String path, boolean tieneEncabezado, String delimitador) throws IOException {
+    public Tabla(String path, boolean tieneEncabezado, String delimitador) throws IOException {
         String linea;
-        BufferedReader br = new BufferedReader(new FileReader(path));
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path))){
     
-        // Leer encabezado si existe, y crear columnas
-        if (tieneEncabezado && (linea = br.readLine()) != null) {
-            String[] encabezadosArray = linea.split(delimitador);
-            for (String encabezado : encabezadosArray) {
-                ArrayCelda columna = new ArrayCelda(encabezado); // Creo arreglos que simulen las columnas para almecenar celdas, hasta tener la verificaciones de tipos hecha. Luego crearemos cada columna según el tipo correspondiente.
-                columna.asignarNombre(encabezado);
-                this.encabezados.add(encabezado);
-                columnasCastear.add(columna);
-                //columnas.add(columna);
-            }
-        }
-    
-        // Leer datos y crear columnas si no hay encabezado
-        while ((linea = br.readLine()) != null) {
-            String[] valores = linea.split(delimitador);
-    
-            // Crear columnas si no se crearon con encabezado
-            if (!(tieneEncabezado)) {
-                for (int i = 0; i < valores.length; i++) {
-                    ArrayCelda columna = new ArrayCelda("Columna" + i);
-                    this.encabezados.add("Columna" + i);
+            // Leer encabezado si existe, y crear columnas
+            if (tieneEncabezado && (linea = br.readLine()) != null) {
+                String[] encabezadosArray = linea.split(delimitador);
+                for (String encabezado : encabezadosArray) {
+                    ArrayCelda columna = new ArrayCelda(encabezado); // Creo arreglos que simulen las columnas para almecenar celdas, hasta tener la verificaciones de tipos hecha. Luego crearemos cada columna según el tipo correspondiente.
+                    columna.asignarNombre(encabezado);
+                    this.encabezados.add(encabezado);
                     columnasCastear.add(columna);
                     //columnas.add(columna);
-                } 
+                }
             }
-    
-            // Verificar que el número de valores coincida con el número de columnas
-            if (valores.length != columnasCastear.size()) {
-                System.out.println(columnas.size());
-                System.out.println(valores.length);
-                throw new IOException("El número de valores no coincide con el número de columnas.");
+        
+            // Leer datos y crear columnas si no hay encabezado
+            while ((linea = br.readLine()) != null) {
+                String[] valores = linea.split(delimitador);
+        
+                // Crear columnas si no se crearon con encabezado
+                if (!(tieneEncabezado)) {
+                    for (int i = 0; i < valores.length; i++) {
+                        ArrayCelda columna = new ArrayCelda("Columna" + i);
+                        this.encabezados.add("Columna" + i);
+                        columnasCastear.add(columna);
+                        //columnas.add(columna);
+                    } 
+                }
+        
+                // Verificar que el número de valores coincida con el número de columnas
+                if (valores.length != columnasCastear.size()) {
+                    System.out.println(columnas.size());
+                    System.out.println(valores.length);
+                    throw new IOException("El número de valores no coincide con el número de columnas.");
+                }
+        
+                // Asignar cada valor a la columna y fila correspondiente
+                Fila fila = new Fila("Fila" + (filas.size() + 1));
+                for (int i = 0; i < valores.length; i++) {
+                    Celda<?> celda = this.inferirTipoDeDato(valores[i]);
+                    columnasCastear.get(i).agregarCelda(celda);
+                    fila.agregarCelda(celda);
+                }
+                this.filas.add(fila);
             }
-    
-            // Asignar cada valor a la columna y fila correspondiente
-            Fila fila = new Fila("Fila" + (filas.size() + 1));
-            for (int i = 0; i < valores.length; i++) {
-                Celda<?> celda = this.inferirTipoDeDato(valores[i]);
-                columnasCastear.get(i).agregarCelda(celda);
-                fila.agregarCelda(celda);
-            }
-            this.filas.add(fila);
         }
-        br.close();
 
         for (ArrayCelda columna : columnasCastear) {
             AutoCasteoColumna(columna);
@@ -280,8 +311,6 @@ public class Tabla{
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
             }
         }
-            
-        return this;
     }
 
     

@@ -14,31 +14,25 @@ public class App {
         String pathBat = "C:\\Users\\ariel\\OneDrive\\Escritorio\\Varios\\UNSAM\\Algoritmos_1\\TP_FINAL_REPO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\testNoTanFeo.csv";
         String pathAle = "C:\\Users\\Lenovo\\Desktop\\cosas de Alejo\\Materias\\Algoritmos I\\a1\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\testNoTanFeo.csv"; 
 
-        Tabla tabla = new Tabla();
         String delimitador = ",";
-        tabla.cargarDesdeCSV(pathLabo, true, delimitador);
+        Tabla tablaDesdeCSV = new Tabla(pathBat, true, delimitador);
 
-        // tabla.imprimirTabla();
+        // tablaDesdeCSV.imprimirTabla();
 
 
     //     List<String> lista = new ArrayList<>();
     //     lista.add("Edad");
-    //     tabla.ordenarPorColumnas(lista, false);
+    //     tablaDesdeCSV.ordenarPorColumnas(lista, false);
+    //     tablaDesdeCSV.imprimirTabla();
+
+
+        // Tabla tablaDesdeCSV2 = new Tabla(pathLabo, true);
+        // tablaDesdeCSV2.imprimirTabla(); // revisar, está fallando el metodo en la salida por pantalla.
+
+
+        // Testeos
         
-    //     tabla.imprimirTabla();
-
-        // Tabla prueba2 = new Tabla();
-        // prueba2.cargarDesdeCSV(path, true);
-
-        // tabla.imprimirTabla(); // revisar, está fallando el metodo en la salida por pantalla.
-
-
-
-
-
-    // public void testeo(){
-        
-        for (Columna<?> columna : tabla.obtenerColumnas()){
+        for (Columna<?> columna : tablaDesdeCSV.obtenerColumnas()){
             System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
             for (Celda<?> celda : columna.obtenerCeldas()){
                 System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
@@ -52,28 +46,16 @@ public class App {
         List<String> listaString = new ArrayList<>();
         listaString.add("Ciudad");
         listaString.add("Pais");
-        tabla.ordenarPorColumnas(listaString, true);
+        tablaDesdeCSV.ordenarPorColumnas(listaString, true);
 
 
-        for (Columna<?> columna : tabla.obtenerColumnas()){
+        for (Columna<?> columna : tablaDesdeCSV.obtenerColumnas()){
             System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
             for (Celda<?> celda : columna.obtenerCeldas()){
                 System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
             }
         }
 
-
-
-    // }
-
-        // -- Chequeo las columnas y su contenido --
-
-        // System.out.println(prueba2.obtenerColumnas());
-        // for (Columna<?> columna : prueba2.obtenerColumnas()){
-        //     System.out.println(columna.obtenerCeldas());
-        // }
-
-        // -- Fin del chequeo ---
 
 
         // List<Columna<?>> columnas = tabla.getColumnas();
