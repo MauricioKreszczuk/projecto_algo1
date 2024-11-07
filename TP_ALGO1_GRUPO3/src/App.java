@@ -32,13 +32,13 @@ public class App {
 
         // Testeos
         
-        for (Columna<?> columna : tablaDesdeCSV.obtenerColumnas()){
-            System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
-            for (Celda<?> celda : columna.obtenerCeldas()){
-                System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
-            }
-        }
-        System.out.println("\n");
+        // for (Columna<?> columna : tablaDesdeCSV.obtenerColumnas()){
+        //     System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
+        //     for (Celda<?> celda : columna.obtenerCeldas()){
+        //         System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
+        //     }
+        // }
+        // System.out.println("\n");
 
         List<String> listaInt = new ArrayList<>();
         listaInt.add("Edad");
@@ -49,12 +49,16 @@ public class App {
         tablaDesdeCSV.ordenarPorColumnas(listaString, true);
 
 
-        for (Columna<?> columna : tablaDesdeCSV.obtenerColumnas()){
-            System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
-            for (Celda<?> celda : columna.obtenerCeldas()){
-                System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
-            }
-        }
+        // for (Columna<?> columna : tablaDesdeCSV.obtenerColumnas()){
+        //     System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
+        //     for (Celda<?> celda : columna.obtenerCeldas()){
+        //         System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
+        //     }
+        // }
+
+        System.out.println("\n" + tablaDesdeCSV);
+        System.out.println("");
+        tablaDesdeCSV.head(5);
 
 
 

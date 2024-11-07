@@ -53,32 +53,34 @@ public class TestTabla {
 
         // Cargar desde una secuencia lineal nativa de java
         List<List<Object>> listaDeFilas = new ArrayList<>();
-        listaDeFilas.add(Arrays.asList("ID", "Nombre", "Edad"));
-        listaDeFilas.add(Arrays.asList(1, "Alice", 30));
-        listaDeFilas.add(Arrays.asList(2, "Bob", 25));
-        listaDeFilas.add(Arrays.asList(3, "Charlie", 35));
+        listaDeFilas.add(Arrays.asList("ID", "Nombre", "Edad", "Ciudad Autonoma de Buenos Aires"));
+        listaDeFilas.add(Arrays.asList(1, "Alice", 30, true));
+        listaDeFilas.add(Arrays.asList(2, "Bob", 25, true));
+        listaDeFilas.add(Arrays.asList(3, "Charlie", 35, false));
         
         Tabla tablaDesdeSecuenciaLineal = new Tabla(listaDeFilas, true);
 
         // Verificacion del funcionamiento
-        for (Columna<?> columna : tablaDesdeSecuenciaLineal.obtenerColumnas()){
-            System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
-            for (Celda<?> celda : columna.obtenerCeldas()){
-                System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
-            }
-        }
-        System.out.println("\n");
+        // for (Columna<?> columna : tablaDesdeSecuenciaLineal.obtenerColumnas()){
+        //     System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
+        //     for (Celda<?> celda : columna.obtenerCeldas()){
+        //         System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
+        //     }
+        // }
+        // System.out.println("\n");
 
         List<String> listaInt = new ArrayList<>();
         listaInt.add("Edad");
         tablaDesdeSecuenciaLineal.ordenarPorColumnas(listaInt, true);
 
-        for (Columna<?> columna : tablaDesdeSecuenciaLineal.obtenerColumnas()){
-            System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
-            for (Celda<?> celda : columna.obtenerCeldas()){
-                System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
-            }
-        }
+        // for (Columna<?> columna : tablaDesdeSecuenciaLineal.obtenerColumnas()){
+        //     System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
+        //     for (Celda<?> celda : columna.obtenerCeldas()){
+        //         System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
+        //     }
+        // }
+
+        System.out.println("\n" + tablaDesdeSecuenciaLineal);
 
     }
 }

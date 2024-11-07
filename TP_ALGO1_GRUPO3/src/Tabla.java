@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class Tabla{
     private List<Fila> filas = new ArrayList<>();
@@ -199,7 +200,7 @@ public class Tabla{
         String delimitador = ",";
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(path))){
+        try (BufferedReader br = new BufferedReader(new FileReader(path, StandardCharsets.UTF_8))){
 
             // Leer encabezado si existe, y crear columnas
             if (tieneEncabezado && (linea = br.readLine()) != null) {
@@ -258,7 +259,7 @@ public class Tabla{
         String linea;
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(path))){
+        try (BufferedReader br = new BufferedReader(new FileReader(path, StandardCharsets.UTF_8))){
     
             // Leer encabezado si existe, y crear columnas
             if (tieneEncabezado && (linea = br.readLine()) != null) {
@@ -432,28 +433,72 @@ public class Tabla{
         return concatenada;
     }
 
+    public void head(int cantFilas){
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < cantFilas && i < this.filas.size(); i++) {
+            builder.append(this.filas.get(i).toString()).append("\n");
+        }
+
+        System.out.println(builder.toString());
+    }
+
+    // @Override
+    // public String toString() {
+    //     StringBuilder builder = new StringBuilder();
+
+    //     if (!(this.columnas.isEmpty())) {
+    //         for (Columna columna : columnas) {
+    //             builder.append(columna.obtenerNombre()).append("\t");
+    //         }
+    //         builder.append("\n");
+    //     }
+
+    //     for (Fila fila : filas) {
+    //         // for (Celda<?> celda : fila.agregarValor() {
+    //         //     builder.append(celda.toString()).append("\t");  // Agregar cada celda con tabulación
+    //         // }
+    //         builder.append(fila.toString()).append("\t");
+    //         builder.append("\n");  // Nueva línea después de cada fila
+    //     }
+
+    //     return builder.toString();
+    // }
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
+        int[] maxWidths = new int[columnas.size()];
 
+        // Máximo de caracteres
+        for (int col = 0; col < columnas.size(); col++) {
+            int maxWidth = columnas.get(col).obtenerNombre().length();
+            for (Fila fila : filas) {
+                String cellValue = fila.obtenerValor(col) != null ? fila.obtenerValor(col).toString() : "null";
+                maxWidth = Math.max(maxWidth, cellValue.length());
+            }
+            maxWidths[col] = maxWidth;
+        }
+
+        // Encabezado
         if (!columnas.isEmpty()) {
-            for (Columna columna : columnas) {
-                builder.append(columna.obtenerNombre()).append("\t");
+            for (int col = 0; col < columnas.size(); col++) {
+                String nombreColumna = columnas.get(col).obtenerNombre();
+                builder.append(String.format("%-" + maxWidths[col] + "s", nombreColumna)).append(" | ");
             }
             builder.append("\n");
         }
 
+        // Filas
         for (Fila fila : filas) {
-            // for (Celda<?> celda : fila.agregarValor() {
-            //     builder.append(celda.toString()).append("\t");  // Agregar cada celda con tabulación
-            // }
-            builder.append(fila.toString()).append("\t");
-            // builder.append("\n");  // Nueva línea después de cada fila
+            for (int col = 0; col < columnas.size(); col++) {
+                String cellValue = fila.obtenerValor(col) != null ? fila.obtenerValor(col).toString() : "null";
+                builder.append(String.format("%-" + maxWidths[col] + "s", cellValue)).append(" | ");
+            }
+            builder.append("\n");
         }
 
-        System.out.println(builder.toString());
         return builder.toString();
     }
+
 
 
     public Fila[] muestreo(double porcentaje){
