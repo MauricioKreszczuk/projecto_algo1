@@ -27,6 +27,10 @@ public class Columna<T> extends ArrayCelda {
         this.celdas = nuevasCeldas;
     }
 
+    public Class<?> obtenerTipoDato() {
+        return tipoDeDato;
+    }
+
     @Override
     public T obtenerValor(int indice){
         T valor = super.obtenerValor(indice);

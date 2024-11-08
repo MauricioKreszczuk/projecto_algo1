@@ -5,6 +5,7 @@ import Array.ArrayCelda;
 import Array.Fila;
 import Celda.CeldaNumber;
 import Celda.CeldaString;
+import ExcepcionTabla.*;
 //import util.ImputarFaltantes;
 import Array.Columnas.*;
 import java.util.List;
@@ -200,7 +201,7 @@ public class Tabla{
         String delimitador = ",";
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(path, StandardCharsets.UTF_8))){
+        try (BufferedReader br = new BufferedReader(new FileReader(path))){
 
             // Leer encabezado si existe, y crear columnas
             if (tieneEncabezado && (linea = br.readLine()) != null) {
@@ -259,7 +260,7 @@ public class Tabla{
         String linea;
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(path, StandardCharsets.UTF_8))){
+        try (BufferedReader br = new BufferedReader(new FileReader(path))){
     
             // Leer encabezado si existe, y crear columnas
             if (tieneEncabezado && (linea = br.readLine()) != null) {
@@ -433,13 +434,58 @@ public class Tabla{
         return concatenada;
     }
 
-    public void head(int cantFilas){
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < cantFilas && i < this.filas.size(); i++) {
-            builder.append(this.filas.get(i).toString()).append("\n");
+    public void info() {
+        System.out.println("Información de la Tabla:");
+        System.out.println("Cantidad de filas: " + filas.size());
+        System.out.println("Cantidad de columnas: " + columnas.size());
+        
+        System.out.println("\nColumnas:");
+        for (Columna columna : columnas) {
+            System.out.println("Nombre: " + columna.obtenerNombre() + 
+                               ", Tipo de Dato: " + columna.obtenerTipoDato());
         }
+    }
 
-        System.out.println(builder.toString());
+    // Método para mostrar las primeras n filas de la tabla
+    public void head(int n)  {
+
+        try {
+            VerificadorDeRango.verificarLimite(n, filas.size());
+            System.out.println("Primeras " + n + " filas de la Tabla:");
+            for (int i = 0; i < Math.min(n, filas.size()); i++) {
+                System.out.println(filas.get(i));
+            }
+        } catch (IndiceFueraDeRangoExcepcion e) {
+            System.out.println("Error en head: Índice fuera de rango - " + e.getMessage());
+        }
+    }
+
+    // Método para mostrar las últimas n filas de la tabla
+    public void tail(int n) {
+
+        try {
+            VerificadorDeRango.verificarLimite(n, filas.size());
+            System.out.println("Últimas " + n + " filas de la Tabla:");
+            for (int i = Math.max(0, filas.size() - n); i < filas.size(); i++) {
+                System.out.println(filas.get(i));
+            }
+        } catch (IndiceFueraDeRangoExcepcion e) {
+            System.out.println("Error en tail: Índice fuera de rango - " + e.getMessage());
+        }
+    }
+
+    // Método para mostrar un rango de filas entre los índices start y end
+    public void mostrarRango(int start, int end) throws IndiceFueraDeRangoExcepcion{
+
+        try {
+            VerificadorDeRango.verificarRango(start, end, filas.size());
+            System.out.println("Filas de " + start + " a " + end + " de la Tabla:");
+            for (int i = start; i < Math.min(end, filas.size()); i++) {
+                System.out.println(filas.get(i));
+            }
+        } catch (IndiceFueraDeRangoExcepcion e) {
+            throw new IndiceFueraDeRangoExcepcion("Error en head: " + e.obtenerMensaje());
+        }
     }
 
     // @Override

@@ -10,12 +10,12 @@ import Celda.CeldaString;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        String pathLabo = "/home/tareas/Documents/TP_ALGO1_GRUPO3/grupo3Algoritmos1/TP_ALGO1_GRUPO3/src/testNoTanFeo.csv";
+        String pathLabo = "/home/tareas/Documents/ALGO1_GRUPO3/grupo3Algoritmos1/TP_ALGO1_GRUPO3/src/testNoTanFeo.csv";
         String pathBat = "C:\\Users\\ariel\\OneDrive\\Escritorio\\Varios\\UNSAM\\Algoritmos_1\\TP_FINAL_REPO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\testNoTanFeo.csv";
         String pathAle = "C:\\Users\\Lenovo\\Desktop\\cosas de Alejo\\Materias\\Algoritmos I\\a1\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\testNoTanFeo.csv"; 
 
         String delimitador = ",";
-        Tabla tablaDesdeCSV = new Tabla(pathBat, true, delimitador);
+        Tabla tablaDesdeCSV = new Tabla(pathLabo, true, delimitador);
 
         // tablaDesdeCSV.imprimirTabla();
 

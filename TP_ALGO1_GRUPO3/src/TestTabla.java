@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+
 import Array.Columnas.Columna;
 import Array.Columnas.ColumnaNumber;
 import Array.Columnas.ColumnaString;
@@ -57,6 +58,8 @@ public class TestTabla {
         listaDeFilas.add(Arrays.asList(1, "Alice", 30, true));
         listaDeFilas.add(Arrays.asList(2, "Bob", 25, true));
         listaDeFilas.add(Arrays.asList(3, "Charlie", 35, false));
+        listaDeFilas.add(Arrays.asList(4, "Roman", 35, false));
+        listaDeFilas.add(Arrays.asList(5, "Juan", 40, true));
         
         Tabla tablaDesdeSecuenciaLineal = new Tabla(listaDeFilas, true);
 
@@ -80,7 +83,12 @@ public class TestTabla {
         //     }
         // }
 
-        System.out.println("\n" + tablaDesdeSecuenciaLineal);
+        // System.out.println("\n" + tablaDesdeSecuenciaLineal);
+        // tablaDesdeSecuenciaLineal.head(2);
+        // tablaDesdeSecuenciaLineal.tail(2);
+        tablaDesdeSecuenciaLineal.mostrarRango(1, 6);
+        // System.out.println(tablaDesdeSecuenciaLineal.obtenerFilas().toString());
+
 
     }
 }
