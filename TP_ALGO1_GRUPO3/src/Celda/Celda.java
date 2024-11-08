@@ -21,7 +21,9 @@ public abstract class Celda<T> {
     
     public abstract Celda<T> copiaProfunda();  
 
-
+    public void definirValor(T valor){
+        this.valor = valor;
+    }
 
     @Override
     public String toString() {

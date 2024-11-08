@@ -139,20 +139,23 @@ public class Tabla{
 
     private Celda<?> inferirTipoDesdeObject(Object valor){
         
-        if (valor == null || valor.equals("na")) return new CeldaNA();
-        
         if (valor instanceof Number) {
             Number valorNumber = (Number) valor;
             return new CeldaNumber(valorNumber);
         }
 
-        if (valor instanceof Boolean) {
+        else if (valor instanceof Boolean) {
             Boolean valorBoolean = (Boolean) valor;
             return new CeldaBoolean(valorBoolean);
         }
 
+        String valorString = (String) valor;
+        if (valorString == null || valorString.equalsIgnoreCase("na") || 
+        valorString.equalsIgnoreCase("n/a") || valorString.equals("")) {
+            return new CeldaNA();
+        }
+
         else {
-            String valorString = (String) valor;
             return new CeldaString(valorString);
         }
     }
@@ -320,36 +323,83 @@ public class Tabla{
         this.filas.add(fila);
     }
 
+    public Tabla obtenerFila(int indice){
+        actualizarFilas();
+        Tabla nuevaTabla = new Tabla();
+        Fila nuevaFila = (Fila) filas.get(indice).copiaProfunda();
+        nuevaTabla.agregarFila(nuevaFila);
+        return nuevaTabla;
+    }
+
     public Tabla obtenerFila(String etiqueta){
         Fila fila = new Fila(etiqueta);
         int indiceColumna = 0;
         for (Columna columna : this.columnas){
-            fila.agregarCelda(columna.obtenerCeldas().get(indiceColumna));
-            indiceColumna++;
+        fila.agregarCelda(columna.obtenerCeldas().get(indiceColumna));
+        indiceColumna++;
         }
-
+        
         Tabla nuevaTabla = new Tabla();
         nuevaTabla.encabezados = this.encabezados;
         nuevaTabla.obtenerFilas().add(fila);
-
+        
         for (Celda celda : fila.obtenerCeldas()){
-            nuevaTabla.obtenerColumnas().get(indiceColumna).agregarCelda(celda);
+        nuevaTabla.obtenerColumnas().get(indiceColumna).agregarCelda(celda);
         }
-
+        
         return nuevaTabla;
     }
 
-    public void eliminarFila(int indice){
-        this.filas.remove(indice);
+    public void eliminarFila(int indiceFila){
+        this.filas.remove(indiceFila);
     }
+    
+    public void eliminarFila(String etiqueta){
+        actualizarFilas();
+        int indiceFila = this.obtenerIndiceDeFila(etiqueta);
+        eliminarFila(indiceFila);
+    }
+
+    public int obtenerIndiceDeFila(String etiqueta){
+        actualizarFilas();
+        for(Fila fila : this.filas){
+            if(fila.obtenerNombre().equals(etiqueta)){
+                return this.filas.indexOf(fila);
+            }
+        }
+        throw new IllegalArgumentException("No encontrada");
+    }
+
+
 
     public void agregarColumna(Columna columna){
         this.columnas.add(columna);
     }
 
-    public void eliminarColumna(String nombre){
-        this.columnas.remove(nombre);
+    public void insertarColumna(Tabla columna){
+        if (columna.obtenerColumnas().size() == 1)
+        {
+            this.columnas.addAll(columna.obtenerColumnas());
+        }
+        else {
+            throw new IllegalArgumentException("La tabla a insertar debe tener una sola columna.");
+        }
     }
+
+    public void insertarColumna(List<Object> columna){
+        //CONTINUAR
+    }
+
+    public void eliminarColumna(int indiceColumna){
+        this.columnas.remove(indiceColumna);
+    }
+
+    public void eliminarColumna(String nombre){
+        int indiceColumna = this.obtenerIndiceDeColumna(nombre);
+        eliminarColumna(indiceColumna);
+    }
+
+    
 
     public Tabla filtrar() {
         // Pendiente
@@ -405,6 +455,42 @@ public class Tabla{
         return -1;
     }
 
+    public Tabla obtenerColumna(int indice){
+        Tabla nuevaTabla = new Tabla();
+        nuevaTabla.agregarColumna(this.columnas.get(indice));
+        return nuevaTabla;
+    }
+
+    public Tabla obtenerColumna(String etiqueta){
+        int indice = obtenerIndiceDeColumna(etiqueta);
+        return obtenerColumna(indice);
+    }
+
+    public <T> void definirValor(int indiceColumna, int indiceFila, T valor){
+        actualizarFilas();
+        if (this.columnas.get(indiceColumna) instanceof ColumnaNumber && valor instanceof Number){
+           CeldaNumber celda =(CeldaNumber)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
+           celda.definirValor((Number)valor);
+        }
+        else if (this.columnas.get(indiceColumna) instanceof ColumnaBoolean && valor instanceof Boolean){
+           CeldaBoolean celda =(CeldaBoolean)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
+           celda.definirValor((Boolean)valor);
+        }
+        else if (this.columnas.get(indiceColumna) instanceof ColumnaString && valor instanceof String){
+           CeldaString celda =(CeldaString)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
+           celda.definirValor((String)valor);
+        }
+        else{
+            throw new IllegalArgumentException("El tipo de dato no coincide con el tipo de la celda.");
+        }
+    }
+
+    public void definirComoNA(int indiceColumna, int indiceFila){
+        this.columnas.get(indiceColumna).obtenerCeldas().set(indiceFila, new CeldaNA());
+    }
+
+    
+
     public Tabla concatenar(Tabla tabla1, Tabla tabla2){
         Tabla copiaTabla1 = tabla1.copiaProfunda();
         Tabla copiaTabla2 = tabla2.copiaProfunda();
@@ -434,6 +520,39 @@ public class Tabla{
         return concatenada;
     }
 
+    private String formatearFilasParaImprimir(List<Fila> filas) {
+        // Agregar Columnas al print
+
+        if (filas.isEmpty()) {
+            return ""; // Si no hay filas, devuelve una cadena vacía
+        }
+    
+        int numColumnas = columnas.size();
+        int[] maxAnchoPorColumna = new int[numColumnas];
+    
+        // Calcular el ancho máximo de cada columna en las filas proporcionadas
+        for (Fila fila : filas) {
+            for (int j = 0; j < numColumnas; j++) {
+                String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
+                maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], valor.length());
+            }
+        }
+    
+        // Construir el string formateado con columnas alineadas
+        StringBuilder sb = new StringBuilder();
+        for (Fila fila : filas) {
+            sb.append("| ");
+            for (int j = 0; j < numColumnas; j++) {
+                String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
+                sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", valor)).append(" | ");
+            }
+            sb.append("\n"); // Salto de línea después de cada fila
+        }
+        
+        return sb.toString();
+    }
+    
+
     public void info() {
         System.out.println("Información de la Tabla:");
         System.out.println("Cantidad de filas: " + filas.size());
@@ -441,74 +560,60 @@ public class Tabla{
         
         System.out.println("\nColumnas:");
         for (Columna columna : columnas) {
-            System.out.println("Nombre: " + columna.obtenerNombre() + 
-                               ", Tipo de Dato: " + columna.obtenerTipoDato());
+            if (columna instanceof ColumnaString){
+                System.out.println("Etiqueta: " + columna.obtenerNombre()+ ", Tipo de dato: String");
+            }
+            else if (columna instanceof ColumnaNumber) {
+                System.out.println("Etiqueta: " + columna.obtenerNombre()+ ", Tipo de dato: Numérico");
+            }
+            else if (columna instanceof ColumnaBoolean) {
+                System.out.println("Etiqueta: " + columna.obtenerNombre()+ ", Tipo de dato: Booleano");
+            }
+            else if (columna instanceof ColumnaNA){
+                System.out.println("Etiqueta: " + columna.obtenerNombre()+ ", Tipo de dato: NA");
+            }
         }
     }
 
     // Método para mostrar las primeras n filas de la tabla
-    public void head(int n)  {
-
+    public void head(int n) {
         try {
             VerificadorDeRango.verificarLimite(n, filas.size());
+            List<Fila> filasParaMostrar = filas.subList(0, n);
             System.out.println("Primeras " + n + " filas de la Tabla:");
-            for (int i = 0; i < Math.min(n, filas.size()); i++) {
-                System.out.println(filas.get(i));
-            }
+            System.out.print(formatearFilasParaImprimir(filasParaMostrar));
         } catch (IndiceFueraDeRangoExcepcion e) {
-            System.out.println("Error en head: Índice fuera de rango - " + e.getMessage());
+            System.out.println("Error en head: Índice fuera de rango - " + e.obtenerMensaje());
         }
     }
 
     // Método para mostrar las últimas n filas de la tabla
     public void tail(int n) {
-
         try {
             VerificadorDeRango.verificarLimite(n, filas.size());
+            List<Fila> filasParaMostrar = filas.subList(Math.max(0, filas.size() - n), filas.size());
             System.out.println("Últimas " + n + " filas de la Tabla:");
-            for (int i = Math.max(0, filas.size() - n); i < filas.size(); i++) {
-                System.out.println(filas.get(i));
-            }
+            System.out.print(formatearFilasParaImprimir(filasParaMostrar));
         } catch (IndiceFueraDeRangoExcepcion e) {
-            System.out.println("Error en tail: Índice fuera de rango - " + e.getMessage());
+            System.out.println("Error en tail: Índice fuera de rango - " + e.obtenerMensaje());
         }
     }
 
     // Método para mostrar un rango de filas entre los índices start y end
-    public void mostrarRango(int start, int end) throws IndiceFueraDeRangoExcepcion{
-
+    public void seleccionar(int start, int end, List<String> columnas) {
         try {
             VerificadorDeRango.verificarRango(start, end, filas.size());
+            
+            // Obtener las filas en el rango especificado
+            List<Fila> filasParaMostrar = filas.subList(start, Math.min(end, filas.size()));
+            
             System.out.println("Filas de " + start + " a " + end + " de la Tabla:");
-            for (int i = start; i < Math.min(end, filas.size()); i++) {
-                System.out.println(filas.get(i));
-            }
+            System.out.print(formatearFilasParaImprimir(filasParaMostrar));
         } catch (IndiceFueraDeRangoExcepcion e) {
-            throw new IndiceFueraDeRangoExcepcion("Error en head: " + e.obtenerMensaje());
+            System.out.println("Error en mostrarRango: índice fuera de rango - " + e.obtenerMensaje());
         }
     }
 
-    // @Override
-    // public String toString() {
-    //     StringBuilder builder = new StringBuilder();
-
-    //     if (!(this.columnas.isEmpty())) {
-    //         for (Columna columna : columnas) {
-    //             builder.append(columna.obtenerNombre()).append("\t");
-    //         }
-    //         builder.append("\n");
-    //     }
-
-    //     for (Fila fila : filas) {
-    //         // for (Celda<?> celda : fila.agregarValor() {
-    //         //     builder.append(celda.toString()).append("\t");  // Agregar cada celda con tabulación
-    //         // }
-    //         builder.append(fila.toString()).append("\t");
-    //         builder.append("\n");  // Nueva línea después de cada fila
-    //     }
-
-    //     return builder.toString();
-    // }
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -628,6 +733,7 @@ public class Tabla{
     }
 
     private Celda<?> inferirTipoDeDato(String valorCelda){
+
         if (valorCelda.toLowerCase() == "true"){
         return new CeldaBoolean(true);
         }
@@ -638,9 +744,8 @@ public class Tabla{
         if (this.esDecimal(valorCelda)){
         return new CeldaNumber(Double.parseDouble(valorCelda), true);
         }
-        
-        if (valorCelda.length() == "".length() || valorCelda.toLowerCase() == "na"|| 
-        valorCelda == null || valorCelda.toLowerCase() == "n/a"){ // infintas opciones mas
+        if (valorCelda.equals("") || valorCelda.equalsIgnoreCase("NA") || 
+        valorCelda == null || valorCelda.equalsIgnoreCase("N/A")){ // infintas opciones mas
         return new CeldaNA();
         }
         

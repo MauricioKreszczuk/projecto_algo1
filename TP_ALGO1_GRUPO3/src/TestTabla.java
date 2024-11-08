@@ -54,12 +54,12 @@ public class TestTabla {
 
         // Cargar desde una secuencia lineal nativa de java
         List<List<Object>> listaDeFilas = new ArrayList<>();
-        listaDeFilas.add(Arrays.asList("ID", "Nombre", "Edad", "Ciudad Autonoma de Buenos Aires"));
-        listaDeFilas.add(Arrays.asList(1, "Alice", 30, true));
-        listaDeFilas.add(Arrays.asList(2, "Bob", 25, true));
-        listaDeFilas.add(Arrays.asList(3, "Charlie", 35, false));
-        listaDeFilas.add(Arrays.asList(4, "Roman", 35, false));
-        listaDeFilas.add(Arrays.asList(5, "Juan", 40, true));
+        listaDeFilas.add(Arrays.asList("Apellido", "ID", "Nombre", "Edad", "Vive", "Columna vacía"));
+        listaDeFilas.add(Arrays.asList("Henry",1, "Alice", 30, true, null));
+        listaDeFilas.add(Arrays.asList("Nazario",2, "Bob", 25, true, "NA"));
+        listaDeFilas.add(Arrays.asList("Domingo",3, "Charlie", 35, false, "na"));
+        listaDeFilas.add(Arrays.asList("Hernandez",4, "Roman", 35, false, null));
+        listaDeFilas.add(Arrays.asList("Se",5, "Juan", 40, true, ""));
         
         Tabla tablaDesdeSecuenciaLineal = new Tabla(listaDeFilas, true);
 
@@ -84,9 +84,17 @@ public class TestTabla {
         // }
 
         // System.out.println("\n" + tablaDesdeSecuenciaLineal);
-        // tablaDesdeSecuenciaLineal.head(2);
+        // tablaDesdeSecuenciaLineal.head(5);
         // tablaDesdeSecuenciaLineal.tail(2);
-        tablaDesdeSecuenciaLineal.mostrarRango(1, 6);
+
+        //////////////// TERMINAR 
+        /// 
+        /// Agregar nombre de las columnas
+        List<String> listaColumnas = new ArrayList<String>();
+        listaColumnas.add("Nombre");
+        listaColumnas.add("Apellido");
+        tablaDesdeSecuenciaLineal.seleccionar(0, 5, listaColumnas);
+        // tablaDesdeSecuenciaLineal.info();
         // System.out.println(tablaDesdeSecuenciaLineal.obtenerFilas().toString());
 
 
