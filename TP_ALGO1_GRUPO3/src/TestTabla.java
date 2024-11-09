@@ -54,7 +54,7 @@ public class TestTabla {
 
         // Cargar desde una secuencia lineal nativa de java
         List<List<Object>> listaDeFilas = new ArrayList<>();
-        listaDeFilas.add(Arrays.asList("Apellido", "ID", "Nombre", "Edad", "Vive", "Columna vacía"));
+        listaDeFilas.add(Arrays.asList("Apellido", "ID", "Nombre", "Edad", "Vive", "Columna vacia"));
         listaDeFilas.add(Arrays.asList("Henry",1, "Alice", 30, true, null));
         listaDeFilas.add(Arrays.asList("Nazario",2, "Bob", 25, true, "NA"));
         listaDeFilas.add(Arrays.asList("Domingo",3, "Charlie", 35, false, "na"));
@@ -76,27 +76,15 @@ public class TestTabla {
         listaInt.add("Edad");
         tablaDesdeSecuenciaLineal.ordenarPorColumnas(listaInt, true);
 
-        // for (Columna<?> columna : tablaDesdeSecuenciaLineal.obtenerColumnas()){
-        //     System.out.println(columna.obtenerNombre() +  String.valueOf(columna.getClass()) );
-        //     for (Celda<?> celda : columna.obtenerCeldas()){
-        //         System.out.println(celda.obtenerValor() + String.valueOf(celda.getClass()));
-        //     }
-        // }
-
-        // System.out.println("\n" + tablaDesdeSecuenciaLineal);
         // tablaDesdeSecuenciaLineal.head(5);
-        // tablaDesdeSecuenciaLineal.tail(2);
-
-        //////////////// TERMINAR 
-        /// 
-        /// Agregar nombre de las columnas
+        tablaDesdeSecuenciaLineal.tail(2);
+        System.out.println("");
         List<String> listaColumnas = new ArrayList<String>();
         listaColumnas.add("Nombre");
         listaColumnas.add("Apellido");
-        tablaDesdeSecuenciaLineal.seleccionar(0, 5, listaColumnas);
+        listaColumnas.add("Edad"); 
+        tablaDesdeSecuenciaLineal.seleccionar(1, 4, listaColumnas);
         // tablaDesdeSecuenciaLineal.info();
-        // System.out.println(tablaDesdeSecuenciaLineal.obtenerFilas().toString());
-
 
     }
 }

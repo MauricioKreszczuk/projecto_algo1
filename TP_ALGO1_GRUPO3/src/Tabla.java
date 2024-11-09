@@ -520,38 +520,110 @@ public class Tabla{
         return concatenada;
     }
 
-    private String formatearFilasParaImprimir(List<Fila> filas) {
-        // Agregar Columnas al print
+    private String formatearFilasParaImprimir(List<Fila> filasParaMostrar, List<String> nombresColumnas) {
+        // Agregar excepción si la columna no se encuentra
 
-        if (filas.isEmpty()) {
-            return ""; // Si no hay filas, devuelve una cadena vacía
+        if (filasParaMostrar.isEmpty()) {
+            return ""; // Hacer excepcion
+        }
+
+        if (nombresColumnas == null || nombresColumnas.isEmpty()) {
+            nombresColumnas = new ArrayList<>();
+            for (Columna columna : this.columnas) {
+                nombresColumnas.add(columna.obtenerNombre());
+            }
         }
     
         int numColumnas = columnas.size();
         int[] maxAnchoPorColumna = new int[numColumnas];
-    
-        // Calcular el ancho máximo de cada columna en las filas proporcionadas
-        for (Fila fila : filas) {
-            for (int j = 0; j < numColumnas; j++) {
-                String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
-                maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], valor.length());
+
+        if (nombresColumnas.size() == this.encabezados.size()) {
+            // Calculamos ancho máximo de cada columna
+            for (Fila fila : filasParaMostrar) {
+                for (int j = 0; j < numColumnas; j++) {
+                    String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
+                    maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], valor.length());
+                }
             }
-        }
-    
-        // Construir el string formateado con columnas alineadas
-        StringBuilder sb = new StringBuilder();
-        for (Fila fila : filas) {
+            StringBuilder sb = new StringBuilder();
             sb.append("| ");
-            for (int j = 0; j < numColumnas; j++) {
-                String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
-                sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", valor)).append(" | ");
+            for (int j = 0; j < numColumnas; j++){
+                maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], columnas.get(j).obtenerNombre().length());
+                sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", columnas.get(j).obtenerNombre())).append(" | ");
             }
-            sb.append("\n"); // Salto de línea después de cada fila
-        }
+            sb.append("\n");
+
+            // Agregamos linea separadora
+            sb.append("|");
+            for (int j = 0; j < numColumnas; j++) {
+                sb.append("-".repeat(maxAnchoPorColumna[j] + 2)).append("|");
+            }
+            sb.append("\n");
         
-        return sb.toString();
-    }
-    
+            // Agregamos las filas a la impresion
+            for (Fila fila : filasParaMostrar) {
+                sb.append("| ");
+                for (int j = 0; j < numColumnas; j++) {
+                    String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
+                    sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", valor)).append(" | ");
+                }
+                sb.append("\n"); 
+            }
+            
+            return sb.toString();
+        }
+        else{
+            // Buscamos índices a mostrar
+            List<Integer> indicesColumnas = new ArrayList<>();
+            for (String nombre : nombresColumnas) {
+                boolean columnaEncontrada = false;
+                for (int i = 0; i < columnas.size(); i++) {
+                    if (columnas.get(i).obtenerNombre().equals(nombre)) {
+                        indicesColumnas.add(i);
+                        columnaEncontrada = true;
+                        break;
+                    }
+                }
+                if (!columnaEncontrada) {
+                    throw new IllegalArgumentException("La columna '" + nombre + "' no se encuentra en la tabla.");
+                }
+            }
+
+            // Calculamos ancho máximo de cada columna
+            for (Fila fila : filasParaMostrar) {
+                for (int indice : indicesColumnas) {
+                    String valor = fila.obtenerValor(indice) != null ? fila.obtenerValor(indice).toString() : "NA";
+                    maxAnchoPorColumna[indice] = Math.max(maxAnchoPorColumna[indice], valor.length());
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("| ");
+            for (int indice : indicesColumnas){
+                maxAnchoPorColumna[indice] = Math.max(maxAnchoPorColumna[indice], columnas.get(indice).obtenerNombre().length());
+                sb.append(String.format("%-" + maxAnchoPorColumna[indice] + "s", columnas.get(indice).obtenerNombre())).append(" | ");
+            }
+            sb.append("\n");
+
+            // Agregamos linea separadora
+            sb.append("|");
+            for (int indice : indicesColumnas) {
+                sb.append("-".repeat(maxAnchoPorColumna[indice] + 2)).append("|");
+            }
+            sb.append("\n");
+            
+            // Agregamos las filas seleccionadas a la impresión
+            for (Fila fila : filasParaMostrar) {
+                sb.append("| ");
+                for (int indice : indicesColumnas) {
+                    String valor = fila.obtenerValor(indice) != null ? fila.obtenerValor(indice).toString() : "NA";
+                    sb.append(String.format("%-" + maxAnchoPorColumna[indice] + "s", valor)).append(" | ");
+                }
+                sb.append("\n");
+            }
+
+            return sb.toString();
+        }
+    }    
 
     public void info() {
         System.out.println("Información de la Tabla:");
@@ -581,7 +653,7 @@ public class Tabla{
             VerificadorDeRango.verificarLimite(n, filas.size());
             List<Fila> filasParaMostrar = filas.subList(0, n);
             System.out.println("Primeras " + n + " filas de la Tabla:");
-            System.out.print(formatearFilasParaImprimir(filasParaMostrar));
+            System.out.print(formatearFilasParaImprimir(filasParaMostrar, this.encabezados)); 
         } catch (IndiceFueraDeRangoExcepcion e) {
             System.out.println("Error en head: Índice fuera de rango - " + e.obtenerMensaje());
         }
@@ -593,22 +665,18 @@ public class Tabla{
             VerificadorDeRango.verificarLimite(n, filas.size());
             List<Fila> filasParaMostrar = filas.subList(Math.max(0, filas.size() - n), filas.size());
             System.out.println("Últimas " + n + " filas de la Tabla:");
-            System.out.print(formatearFilasParaImprimir(filasParaMostrar));
+            System.out.print(formatearFilasParaImprimir(filasParaMostrar, encabezados));
         } catch (IndiceFueraDeRangoExcepcion e) {
             System.out.println("Error en tail: Índice fuera de rango - " + e.obtenerMensaje());
         }
     }
 
-    // Método para mostrar un rango de filas entre los índices start y end
-    public void seleccionar(int start, int end, List<String> columnas) {
+    public void seleccionar(int comienzoRango, int finalRango, List<String> nombresColumnas) {
         try {
-            VerificadorDeRango.verificarRango(start, end, filas.size());
-            
-            // Obtener las filas en el rango especificado
-            List<Fila> filasParaMostrar = filas.subList(start, Math.min(end, filas.size()));
-            
-            System.out.println("Filas de " + start + " a " + end + " de la Tabla:");
-            System.out.print(formatearFilasParaImprimir(filasParaMostrar));
+            VerificadorDeRango.verificarRango(comienzoRango, finalRango, filas.size());
+            List<Fila> filasParaMostrar = filas.subList(comienzoRango, Math.min(finalRango, filas.size()));
+            System.out.print(formatearFilasParaImprimir(filasParaMostrar, nombresColumnas));
+
         } catch (IndiceFueraDeRangoExcepcion e) {
             System.out.println("Error en mostrarRango: índice fuera de rango - " + e.obtenerMensaje());
         }
