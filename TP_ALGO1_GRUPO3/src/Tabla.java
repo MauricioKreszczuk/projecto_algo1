@@ -9,6 +9,7 @@ import ExcepcionTabla.*;
 //import util.ImputarFaltantes;
 import Array.Columnas.*;
 import java.util.List;
+import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -395,9 +396,9 @@ public class Tabla{
         }
     }
 
-    public void insertarColumna(List<Object> columna, boolean tieneencabezado ){
+    public void insertarColumna(List<Object> columna, boolean tieneEncabezado ){
         ArrayCelda nuevaColumna = new ArrayCelda("null");
-        if (tieneencabezado){
+        if (tieneEncabezado){
             nuevaColumna.asignarEtiquetas(String.valueOf(columna.get(0)));
             columna.remove(0);
         }
@@ -594,24 +595,7 @@ public class Tabla{
     public void definirComoNA(int indiceColumna, int indiceFila){
         this.columnas.get(indiceColumna).obtenerCeldas().set(indiceFila, new CeldaNA());
     }
-
-    public void muestreo(int porcentaje) {
-        if (porcentaje < 0 || porcentaje > 99) {
-            throw new IllegalArgumentException("El porcentaje debe estar entre 0 y 99.");
-        }
-        double porcentajed = porcentaje / 100;
-        actualizarFilas();
-        int numeroFilasMuestra = (int) Math.round(this.filas.size() * porcentajed);
-        List<Fila> filasMuestra = new ArrayList<>(this.filas);
-        Collections.shuffle(filasMuestra); // Mezclar las filas para seleccionar aleatoriamente
-        // Seleccionar solo el número de filas correspondiente al porcentaje
-        filasMuestra = filasMuestra.subList(0, numeroFilasMuestra);
-        // Crear una nueva Tabla con las columnas y filas seleccionadas
-        Tabla tablaMuestra = new Tabla(this.columnas, filasMuestra);
-        System.out.println(tablaMuestra);
-    }
-    
-
+ 
     public Tabla concatenar(Tabla tabla1, Tabla tabla2){
         Tabla copiaTabla1 = tabla1.copiaProfunda();
         Tabla copiaTabla2 = tabla2.copiaProfunda();
@@ -957,6 +941,52 @@ public class Tabla{
             this.columnas.add(CNA);
         }
     }
+
+    public void muestreo(int porcentaje){
+        int porcentajeDeMuestreo = (int) Math.floor(porcentaje * 0.01 * this.filas.size());
+        Random random = new Random();
+
+        List<Fila> listaFilas = new ArrayList<>();
+        for(int indice = 0; indice < this.filas.size(); indice++){
+            ArrayCelda array = this.filas.get(indice).copiaProfunda();
+            Fila nuevaFila = new Fila(array);
+            listaFilas.add(nuevaFila);
+        }
+        
+        List<Fila> FilasAMostrar = new ArrayList<>();
+        for(int i = 0; i < porcentajeDeMuestreo; i++){
+            int indiceAleatorio = random.nextInt(listaFilas.size());
+            Fila filaAMostrar = listaFilas.remove(indiceAleatorio);
+            FilasAMostrar.add(filaAMostrar);
+        }
+        
+        System.out.println("Muestreo de filas:");
+        System.out.print(formatearFilasParaImprimir(FilasAMostrar, this.encabezados)); 
+    }
+
+    public void muestreo(double porcentaje){
+        int porcentajeDeMuestreo = (int) Math.floor(porcentaje * this.filas.size());
+        Random random = new Random();
+
+        List<Fila> listaFilas = new ArrayList<>();
+        for(int indice = 0; indice < this.filas.size(); indice++){
+            ArrayCelda array = this.filas.get(indice).copiaProfunda();
+            Fila nuevaFila = new Fila(array);
+            listaFilas.add(nuevaFila); 
+        }
+        
+        List<Fila> FilasAMostrar = new ArrayList<>();
+        for(int i = 0; i < porcentajeDeMuestreo; i++){
+            int indiceAleatorio = random.nextInt(listaFilas.size());
+            Fila filaAMostrar = listaFilas.remove(indiceAleatorio);
+            FilasAMostrar.add(filaAMostrar);
+        }
+        
+        System.out.println("Muestreo de filas:");
+        System.out.print(formatearFilasParaImprimir(FilasAMostrar, this.encabezados)); 
+
+    }
+
 
     private boolean esDecimal(String valor) {
         try {
