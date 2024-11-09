@@ -399,17 +399,18 @@ public class Tabla{
     public void insertarColumna(List<Object> columna, boolean tieneEncabezado ){
         ArrayCelda nuevaColumna = new ArrayCelda("null");
         if (tieneEncabezado){
-            nuevaColumna.asignarEtiquetas(String.valueOf(columna.get(0)));
+            nuevaColumna.asignarNombre(String.valueOf(columna.get(0)));
             columna.remove(0);
         }
         else{
-            nuevaColumna.asignarEtiquetas("Columna " + this.columnas.size());
+            nuevaColumna.asignarNombre("Columna " + this.columnas.size());
         }
 
         for (Object cosa : columna){
             nuevaColumna.agregarCelda(inferirTipoDesdeObject(cosa)); 
         }
         this.AutoCasteoColumna(nuevaColumna);
+        actualizarFilas();
     }
 
     public <T> void imputarNA(String nombreColumna, T valor) {

@@ -11,7 +11,7 @@ import Celda.Celda;
 
 public class TestTabla {
     public static void main(String[] args) throws IOException {
-        String pathbat = "C:/Users/ariel/OneDrive/Escritorio/Varios/UNSAM/Algoritmos_1/TP_FINAL_REPO/grupo3Algoritmos1/TP_ALGO1_GRUPO3/src/testNoTanFeo.csv";
+        String pathbat = "C:\\Users\\MAURICIO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\testNoTanFeo.csv";
         Tabla tabla = new Tabla(pathbat,true);
         // System.out.println(tabla);
         // tabla.guardarComoCSV("C:\\Users\\MAURICIO\\Downloads\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\escritura.csv");
@@ -20,7 +20,7 @@ public class TestTabla {
         // tabla.imputarNA("Edad", "1");
         // tabla.imputarNA("Ciudad", "nada");
         // System.out.println(tabla);
-        tabla.muestreo(0.5);
+
         List<Object> lista = new ArrayList<>();
         lista.add("Edad");
         lista.add(30);
@@ -29,9 +29,9 @@ public class TestTabla {
         lista.add(650);
         lista.add(60);
         lista.add(10);
+        tabla.insertarColumna(lista, true);
 
-        // tabla.insertarColumna(lista, true);
-        tabla.muestreo(0.1);
+        System.out.println(tabla);
 
         // System.out.println(tabla);
 
