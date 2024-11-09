@@ -42,6 +42,9 @@ public class Columna<T> extends ArrayCelda {
         super.agregarValor();
     }
 
+
+
+
     // Cambia el contenido de dos celdas dado sus índices
     public void intercambiarCeldas(int indice1, int indice2) {
         identificadores.indiceValido(indice1);

@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.io.FileWriter;
 
 public class Tabla{
     private List<Fila> filas = new ArrayList<>();
@@ -386,9 +387,74 @@ public class Tabla{
         }
     }
 
-    public void insertarColumna(List<Object> columna){
-        //CONTINUAR
+    public void insertarColumna(List<Object> columna, boolean tieneencabezado ){
+        ArrayCelda nuevaColumna = new ArrayCelda("null");
+        if (tieneencabezado){
+            nuevaColumna.asignarEtiquetas(String.valueOf(columna.get(0)));
+            columna.remove(0);
+        }
+        else{
+            nuevaColumna.asignarEtiquetas("Columna " + this.columnas.size());
+        }
+
+        for (Object cosa : columna){
+            nuevaColumna.agregarCelda(inferirTipoDesdeObject(cosa)); 
+        }
+        this.AutoCasteoColumna(nuevaColumna);
     }
+
+    public <T> void imputarNA(String nombreColumna, T valor) {
+        // Obtener el índice de la columna por nombre
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        if (columnas.get(indiceColumna) instanceof ColumnaNumber){
+            ColumnaNumber columna = (ColumnaNumber) columnas.get(indiceColumna).copiaProfunda();
+            columna.imputarNA(Double.valueOf(String.valueOf(valor)));
+            this.columnas.set(indiceColumna, columna);
+        }
+        else if( columnas.get(indiceColumna) instanceof ColumnaString){
+            ColumnaString columna = (ColumnaString) columnas.get(indiceColumna).copiaProfunda();
+            columna.imputarNA(String.valueOf(valor));
+            this.columnas.set(indiceColumna, columna);
+        }
+        else if(columnas.get(indiceColumna) instanceof ColumnaBoolean){
+            ColumnaBoolean columna = (ColumnaBoolean) columnas.get(indiceColumna).copiaProfunda();
+            columna.imputarNA(Boolean.valueOf(String.valueOf(valor)));
+            this.columnas.set(indiceColumna, columna);
+        }
+
+    
+    }
+    
+
+    public void guardarComoCSV(String rutaArchivo) throws IOException {
+        try (FileWriter writer = new FileWriter(rutaArchivo)) {
+            // Escribir encabezados separados por comas
+            for (int i = 0; i < encabezados.size(); i++) {
+                writer.append(encabezados.get(i));
+                if (i < encabezados.size() - 1) {
+                    writer.append(",");
+                }
+            }
+            writer.append("\n");
+    
+            // Escribir datos de las filas
+            for (Fila fila : filas) {
+                List<Celda<?>> celdas = fila.obtenerCeldas();
+                for (int j = 0; j < celdas.size(); j++) {
+                    writer.append(celdas.get(j).toString());
+                    if (j < celdas.size() - 1) {
+                        writer.append(",");
+                    }
+                }
+                writer.append("\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Error al escribir en el archivo CSV: " + e.getMessage());
+            throw e;
+        }
+    }
+
+
 
     public void eliminarColumna(int indiceColumna){
         this.columnas.remove(indiceColumna);
@@ -489,6 +555,21 @@ public class Tabla{
         this.columnas.get(indiceColumna).obtenerCeldas().set(indiceFila, new CeldaNA());
     }
 
+    public void muestreo(int porcentaje) {
+        if (porcentaje < 0 || porcentaje > 99) {
+            throw new IllegalArgumentException("El porcentaje debe estar entre 0 y 99.");
+        }
+        double porcentajed = porcentaje / 100;
+        actualizarFilas();
+        int numeroFilasMuestra = (int) Math.round(this.filas.size() * porcentajed);
+        List<Fila> filasMuestra = new ArrayList<>(this.filas);
+        Collections.shuffle(filasMuestra); // Mezclar las filas para seleccionar aleatoriamente
+        // Seleccionar solo el número de filas correspondiente al porcentaje
+        filasMuestra = filasMuestra.subList(0, numeroFilasMuestra);
+        // Crear una nueva Tabla con las columnas y filas seleccionadas
+        Tabla tablaMuestra = new Tabla(this.columnas, filasMuestra);
+        System.out.println(tablaMuestra);
+    }
     
 
     public Tabla concatenar(Tabla tabla1, Tabla tabla2){
@@ -682,41 +763,101 @@ public class Tabla{
         }
     }
 
-    @Override
-    public String toString() {
+    public void visualizar(int maxColumnas, int maxFilas, int maxCaracteres){
+        // Hacer excepcion de si los parámetros se pasan del máximo de columnas o filas.
+
         StringBuilder builder = new StringBuilder();
-        int[] maxWidths = new int[columnas.size()];
+        int[] maxAnchosPorColumna = new int[maxColumnas];
 
         // Máximo de caracteres
-        for (int col = 0; col < columnas.size(); col++) {
-            int maxWidth = columnas.get(col).obtenerNombre().length();
-            for (Fila fila : filas) {
-                String cellValue = fila.obtenerValor(col) != null ? fila.obtenerValor(col).toString() : "null";
-                maxWidth = Math.max(maxWidth, cellValue.length());
+        for (int col = 0; col < maxColumnas; col++) {
+            int maxAnchoPorColumna = columnas.get(col).obtenerNombre().length();
+            for (int fila = 0; fila < maxFilas; fila++){
+                String valor = this.filas.get(fila).obtenerValor(col) != null ? this.filas.get(fila).obtenerValor(col).toString() : "null";
+                maxAnchoPorColumna = Math.max(maxAnchoPorColumna, valor.length());
             }
-            maxWidths[col] = maxWidth;
+            maxAnchoPorColumna = Math.min(maxAnchoPorColumna, maxCaracteres);
+            maxAnchosPorColumna[col] = maxAnchoPorColumna;
         }
 
         // Encabezado
+        builder.append("| ");
         if (!columnas.isEmpty()) {
-            for (int col = 0; col < columnas.size(); col++) {
-                String nombreColumna = columnas.get(col).obtenerNombre();
-                builder.append(String.format("%-" + maxWidths[col] + "s", nombreColumna)).append(" | ");
+            for (int col = 0; col < maxColumnas; col++) {
+                String columnaAjustada = columnas.get(col).obtenerNombre().length() > maxAnchosPorColumna[col] ? columnas.get(col).obtenerNombre().substring(0, maxAnchosPorColumna[col]) : columnas.get(col).obtenerNombre();
+                builder.append(String.format("%-" + maxAnchosPorColumna[col] + "s", columnaAjustada)).append(" | ");
+            }
+            builder.append("\n");
+            
+        }
+
+        // Lineas separadoras
+        builder.append("|");
+        for (int j = 0; j < maxColumnas; j++) {
+            builder.append("-".repeat(maxAnchosPorColumna[j] + 2)).append("|");
+        }
+        builder.append("\n");
+        System.out.println("Llegue");
+
+        // Filas
+        for (int fila = 0; fila < maxFilas; fila++) {
+            builder.append("| ");
+            for (int col = 0; col < maxColumnas; col++) {
+                String valor = this.filas.get(fila).obtenerValor(col) != null ? this.filas.get(fila).obtenerValor(col).toString() : "null";
+                String valorAjustado = valor.length() > maxAnchosPorColumna[col] ? valor.substring(0, maxAnchosPorColumna[col]) : valor;
+                builder.append(String.format("%-" + maxAnchosPorColumna[col] + "s", valorAjustado)).append(" | ");
             }
             builder.append("\n");
         }
 
+        System.out.println(builder.toString());
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        int[] maxAnchosPorColumna = new int[columnas.size()];
+
+        // Máximo de caracteres
+        for (int col = 0; col < columnas.size(); col++) {
+            int maxAnchoPorColumna = columnas.get(col).obtenerNombre().length();
+            for (Fila fila : filas) {
+                String valor = fila.obtenerValor(col) != null ? fila.obtenerValor(col).toString() : "null";
+                maxAnchoPorColumna = Math.max(maxAnchoPorColumna, valor.length());
+            }
+            maxAnchosPorColumna[col] = maxAnchoPorColumna;
+        }
+
+        // Encabezado
+        builder.append("| ");
+        if (!columnas.isEmpty()) {
+            for (int col = 0; col < columnas.size(); col++) {
+                String nombreColumna = columnas.get(col).obtenerNombre();
+                builder.append(String.format("%-" + maxAnchosPorColumna[col] + "s", nombreColumna)).append(" | ");
+            }
+            builder.append("\n");
+        }
+
+        // Lineas separadoras
+        builder.append("|");
+            for (int j = 0; j < this.columnas.size(); j++) {
+                builder.append("-".repeat(maxAnchosPorColumna[j] + 2)).append("|");
+            }
+            builder.append("\n");
+
         // Filas
         for (Fila fila : filas) {
+            builder.append("| ");
             for (int col = 0; col < columnas.size(); col++) {
                 String cellValue = fila.obtenerValor(col) != null ? fila.obtenerValor(col).toString() : "null";
-                builder.append(String.format("%-" + maxWidths[col] + "s", cellValue)).append(" | ");
+                builder.append(String.format("%-" + maxAnchosPorColumna[col] + "s", cellValue)).append(" | ");
             }
             builder.append("\n");
         }
 
         return builder.toString();
     }
+
 
 
 

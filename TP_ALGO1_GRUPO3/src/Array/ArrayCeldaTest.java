@@ -1,6 +1,5 @@
 package Array;
 
-import Array.ArrayCelda;
 
 public class ArrayCeldaTest {
 

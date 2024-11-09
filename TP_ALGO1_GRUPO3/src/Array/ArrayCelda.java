@@ -103,7 +103,7 @@ public class ArrayCelda implements util.ImputarFaltantes {
         for (Celda<?> celda : celdas) {
             nuevaArray.celdas.add(celda.copiaProfunda());
         }
-        nuevaArray.asignarEtiquetas(identificadores.obtenerEtiquetas()); // Suponiendo que Identificadores tiene un método copiaProfunda
+        nuevaArray.asignarEtiquetas(identificadores.obtenerEtiquetas()); 
         return nuevaArray;
     }
 
