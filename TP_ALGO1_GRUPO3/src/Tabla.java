@@ -943,7 +943,7 @@ public class Tabla{
     }
 
     public void muestreo(int porcentaje){
-        int porcentajeDeMuestreo = (int) Math.floor(porcentaje * 0.01 * this.filas.size());
+        int porcentajeDeMuestreo = (int) Math.ceil(porcentaje * 0.01 * this.filas.size());
         Random random = new Random();
 
         List<Fila> listaFilas = new ArrayList<>();
@@ -965,7 +965,7 @@ public class Tabla{
     }
 
     public void muestreo(double porcentaje){
-        int porcentajeDeMuestreo = (int) Math.floor(porcentaje * this.filas.size());
+        int porcentajeDeMuestreo = (int) Math.ceil(porcentaje * this.filas.size());
         Random random = new Random();
 
         List<Fila> listaFilas = new ArrayList<>();

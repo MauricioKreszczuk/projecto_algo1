@@ -30,9 +30,10 @@ public class TestTabla {
         lista.add(60);
         lista.add(10);
 
-        tabla.insertarColumna(lista, true);
+        // tabla.insertarColumna(lista, true);
+        tabla.muestreo(0.1);
 
-        System.out.println(tabla);
+        // System.out.println(tabla);
 
 
 
