@@ -7,10 +7,16 @@ import java.util.List;
 
 public class Identificadores {
     private HashMap<Integer, String> etiquetas;
+    boolean etiquetasPersonalizadas;
 
     public Identificadores() {
         this.etiquetas = new HashMap<>();
     }
+
+    public boolean tieneEtiquetasPersonalizadas() {
+        return etiquetasPersonalizadas;
+    }
+    
 
     // Asigna etiquetas a cada índice de celda
     public void asignarEtiquetas(List<String> listaEtiquetas, int cantidadCeldas) {
@@ -18,10 +24,12 @@ public class Identificadores {
             throw new IllegalArgumentException("La cantidad de etiquetas debe coincidir con el número de celdas.");
         }
         etiquetas.clear();
+        etiquetasPersonalizadas = true;
         for (int i = 0; i < listaEtiquetas.size(); i++) {
             etiquetas.put(i, listaEtiquetas.get(i));
         }
     }
+    
 
     // Asigna una etiqueta por defecto
     public void asignarEtiquetaPorDefecto(int indice) {
@@ -39,19 +47,19 @@ public class Identificadores {
     }
 
     // Verifica si un índice es válido
-    public Boolean indiceValido(int indice) { 
-        if (indice >= 0 && indice < etiquetas.size()) { 
+    public Boolean indiceValido(int indice) {
+        if (indice >= 0 && indice < etiquetas.size()) {
             return true;
         }
-        throw new IndexOutOfBoundsException("Índice fuera de rango: " + indice);
+        throw new IndexOutOfBoundsException("Índice fuera de rango: " + indice + ". El rango válido es de 0 a " + (etiquetas.size() - 1));
     }
+
     
 
         // Método para obtener una lista de las etiquetas
     public List<String> obtenerEtiquetas() {
         return new ArrayList<>(etiquetas.values());
     }
-
     // Asigna o actualiza una etiqueta para un índice específico
     public void asignarEtiqueta(int indice, String etiqueta) {
         if (indiceValido(indice)) {

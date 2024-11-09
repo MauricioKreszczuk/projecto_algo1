@@ -2,9 +2,14 @@ package Array.Columnas;
 
 import java.util.List;
 
+import Array.ArrayCelda;
 import Celda.Celda;
 
 public class ColumnaNA extends Columna<String> {
+
+    public ColumnaNA(ArrayCelda array){
+        super(array);
+    }
 
     public ColumnaNA(){
         super("");

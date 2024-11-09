@@ -21,15 +21,18 @@ public class ArrayCelda implements util.ImputarFaltantes {
         this.celdas = celdas;
     }
 
-    @SuppressWarnings("unchecked") // Ya se limita lo que se obtiene por lo que se mete
+    @SuppressWarnings("unchecked")
     public <T> T obtenerValor(int indice) {
-        identificadores.indiceValido(indice);
+        if (indice < 0 || indice >= celdas.size()) {
+            throw new IndexOutOfBoundsException("Índice fuera de rango: " + indice);
+        }
         Celda<?> celda = celdas.get(indice);
         if (celda instanceof CeldaNA) {
             return null;
         }
         return (T) celda.obtenerValor();
     }
+    
 
     
     public void cambiarPorNA(int indice) {
@@ -68,10 +71,13 @@ public class ArrayCelda implements util.ImputarFaltantes {
     }
 
     
-    public void agregarCelda(Celda<?> celda){
+    public void agregarCelda(Celda<?> celda) {
         celdas.add(celda);
-        identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1);
+        if (!identificadores.tieneEtiquetasPersonalizadas()) {
+            identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1);
+        }
     }
+    
     
     // Método para agregar un valor de tipo Number y asignar etiqueta por defecto
     public void agregarValor(Number valor) {
@@ -100,11 +106,18 @@ public class ArrayCelda implements util.ImputarFaltantes {
 
     public ArrayCelda copiaProfunda() {
         ArrayCelda nuevaArray = new ArrayCelda(this.nombre);
+        int i = 0;
         for (Celda<?> celda : celdas) {
+            identificadores.asignarEtiquetaPorDefecto(i);
             nuevaArray.celdas.add(celda.copiaProfunda());
+            i++;
         }
-        nuevaArray.asignarEtiquetas(identificadores.obtenerEtiquetas()); 
+        List<String> etiquetas = identificadores.obtenerEtiquetas();
+        nuevaArray.asignarEtiquetas(etiquetas); 
         return nuevaArray;
+    }
+
+    public void etiquetasPorDefecto(){
     }
 
     public List<Celda<?>> obtenerCeldas(){
@@ -136,6 +149,15 @@ public class ArrayCelda implements util.ImputarFaltantes {
     }
 
     public List<String> obtenerEtiquetas(){
+        return identificadores.obtenerEtiquetas();
+    }
+
+    public String obtenerEtiqueta(int indice){
+        return identificadores.obtenerEtiqueta(indice);
+    }
+
+    public List<String> obtenerEtiquetasPredefinidas(){
+        identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1);
         return identificadores.obtenerEtiquetas();
     }
 

@@ -14,8 +14,13 @@ public class TestTabla {
         Tabla tabla = new Tabla("C:\\Users\\MAURICIO\\Downloads\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\test.csv",true);
         System.out.println(tabla);
         tabla.guardarComoCSV("C:\\Users\\MAURICIO\\Downloads\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\escritura.csv");
-        tabla.imputarNA("Edad",1);
+        // String nombre = tabla.obtenerValor(0,0);
+        // System.out.println(nombre);
+        tabla.imputarNA("Edad", "1");
+        tabla.imputarNA("Ciudad", "nada");
         System.out.println(tabla);
+
+
 
         // // Agregar columnas a la tabla
         // // tabla.agregarColumna(new ColumnaString("Nombre"));

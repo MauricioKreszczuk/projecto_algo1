@@ -2,9 +2,14 @@ package Array.Columnas;
 
 import java.util.List;
 
+import Array.ArrayCelda;
 import Celda.Celda;
 
 public class ColumnaBoolean extends Columna<Boolean> {
+
+    public ColumnaBoolean(ArrayCelda array){
+        super(array);
+    }
 
     public ColumnaBoolean(String nombre) {
         super(nombre, Boolean.class);

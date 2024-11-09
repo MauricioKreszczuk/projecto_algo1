@@ -6,6 +6,14 @@ import Celda.Celda;
 
 public class Fila extends ArrayCelda {
 
+
+    public Fila(ArrayCelda array){
+        super(array.obtenerNombre());
+        for(Celda<?> celda : array.obtenerCeldas()){
+            agregarCelda(celda);
+        }
+    }
+
     public Fila(List<Celda<?>> fila1Celdas) {
         super(fila1Celdas);
     }

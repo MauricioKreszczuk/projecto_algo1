@@ -9,6 +9,13 @@ import Array.ArrayCelda;
 public class Columna<T> extends ArrayCelda {
     private Class<?> tipoDeDato;
 
+    public Columna(ArrayCelda array){
+        super(array.obtenerNombre());
+        for (Celda<?> celda : array.obtenerCeldas()){
+            this.agregarCelda(celda);
+        }
+    }
+
     public Columna(String nombre, Class<T> tipoDeDato) {
         super(nombre);
         this.tipoDeDato = tipoDeDato;
@@ -43,7 +50,9 @@ public class Columna<T> extends ArrayCelda {
     }
 
 
-
+    public void cambiarCelda(int indice, Celda celda){
+        this.celdas.set(indice, celda);
+    }
 
     // Cambia el contenido de dos celdas dado sus índices
     public void intercambiarCeldas(int indice1, int indice2) {

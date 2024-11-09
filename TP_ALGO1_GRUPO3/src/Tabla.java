@@ -164,11 +164,11 @@ public class Tabla{
     public void crearFilasPorColumnas(List<Columna> columnas) {
 
         int tamaño = columnas.get(0).obtenerTamaño();
-        List<String> etiquetas = columnas.get(0).obtenerEtiquetas();
+        List<String> etiquetas = columnas.get(0).obtenerEtiquetasPredefinidas();
         // Iterar sobre los valores de cada columna para formar las filas
         for (int indice = 0; indice < tamaño; indice++) {
-            String etiquetaFila = etiquetas.get(indice); 
-            Fila filaTemporal = new Fila(etiquetaFila); // Asignar nombre a la fila
+            //String etiquetaFila = etiquetas.get(indice); 
+            Fila filaTemporal = new Fila(String.valueOf(indice)); // Asignar nombre a la fila
             for (Columna columna : columnas) {
                 Celda<?> celda = columna.obtenerCeldas().get(indice); // Obtener la celda correspondiente en este índice
                 filaTemporal.agregarCelda(celda); // Agregar la celda a la fila
@@ -180,12 +180,20 @@ public class Tabla{
     }
 
     private void actualizarFilas(){
+        this.filas.clear();
         crearFilasPorColumnas(this.columnas);
     }
     
     public <T> T obtenerValor(int indiceColumna, int IndiceFila){
+        if (indiceColumna < 0 || indiceColumna >= columnas.size()) {
+            throw new IndexOutOfBoundsException("Índice de columna fuera de rango.");
+        }
+        if (IndiceFila < 0 || IndiceFila >= columnas.get(indiceColumna).obtenerTamaño()) {
+            throw new IndexOutOfBoundsException("Índice de fila fuera de rango.");
+        }
         return (T) columnas.get(indiceColumna).obtenerValor(IndiceFila);
     }
+    
 
 
     public List<Fila> obtenerFilas() {
@@ -407,22 +415,54 @@ public class Tabla{
         // Obtener el índice de la columna por nombre
         int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
         if (columnas.get(indiceColumna) instanceof ColumnaNumber){
-            ColumnaNumber columna = (ColumnaNumber) columnas.get(indiceColumna).copiaProfunda();
-            columna.imputarNA(Double.valueOf(String.valueOf(valor)));
+            Number valo = Double.valueOf(String.valueOf(valor));
+            ArrayCelda array = columnas.get(indiceColumna).copiaProfunda();
+            array.imputarNA(valo);
+            ColumnaNumber columna = new ColumnaNumber(array);
+            for (int indice = 0; indice < columna.obtenerTamaño() ; indice++){
+                if (columna.obtenerCeldas().get(indice) instanceof CeldaNA){
+                    CeldaNumber celda = new CeldaNumber(Double.valueOf(String.valueOf(valor)));
+                    columna.cambiarCelda(indice,celda);
+                }
+            }
             this.columnas.set(indiceColumna, columna);
         }
         else if( columnas.get(indiceColumna) instanceof ColumnaString){
-            ColumnaString columna = (ColumnaString) columnas.get(indiceColumna).copiaProfunda();
-            columna.imputarNA(String.valueOf(valor));
+            String valo = String.valueOf(valor);
+            ArrayCelda array = columnas.get(indiceColumna).copiaProfunda();
+            array.imputarNA(valo);
+            ColumnaString columna = new ColumnaString(array);
+            for (int indice = 0; indice < columna.obtenerTamaño() ; indice++){
+                if (columna.obtenerCeldas().get(indice) instanceof CeldaNA){
+                    CeldaString celda = new CeldaString(String.valueOf(valor));
+                    columna.cambiarCelda(indice,celda);
+                }
+            }
             this.columnas.set(indiceColumna, columna);
         }
         else if(columnas.get(indiceColumna) instanceof ColumnaBoolean){
-            ColumnaBoolean columna = (ColumnaBoolean) columnas.get(indiceColumna).copiaProfunda();
-            columna.imputarNA(Boolean.valueOf(String.valueOf(valor)));
+            Boolean valo = Boolean.valueOf(String.valueOf(valor));
+            ArrayCelda array = columnas.get(indiceColumna).copiaProfunda();
+            array.imputarNA(valo);
+            ColumnaBoolean columna = new ColumnaBoolean(array);
+            for (int indice = 0; indice < columna.obtenerTamaño() ; indice++){
+                if (columna.obtenerCeldas().get(indice) instanceof CeldaNA){
+                    CeldaBoolean celda = new CeldaBoolean(Boolean.valueOf(String.valueOf(valor)));
+                    columna.cambiarCelda(indice,celda);
+                }
+            }
             this.columnas.set(indiceColumna, columna);
         }
+        actualizarFilas();
+    }
 
-    
+    public void testeo() {
+        for (Columna columna : this.columnas) {
+            System.out.println("\nColumna: " + columna.obtenerNombre() + ", Tipo: " + columna.getClass());
+            for (Celda<?> celda : columna.obtenerCeldas()) {
+                System.out.println(celda + ", Tipo: " + celda.getClass());
+            }
+        }
     }
     
 
@@ -859,46 +899,32 @@ public class Tabla{
     }
 
 
-
-
-    public Fila[] muestreo(double porcentaje){
-        // Implementación
-        return null;
-    }
-
-    public Tabla crearVista() { //Podríamos no hacer este método
-        // Implementación
-        return null;
-    }
-
     public Tabla copiaProfunda(){ // Posible método para abarcar verificaciones de 
         Tabla copia = new Tabla();
-        for (int i=0; i <= this.obtenerColumnas().size(); i++){
+        for (int i=0; i < this.obtenerColumnas().size(); i++){
             if (this.obtenerColumnas().get(i) instanceof ColumnaBoolean){
-                ColumnaBoolean nuevBoolean = (ColumnaBoolean) this.obtenerColumnas().get(i).copiaProfunda();
-                copia.obtenerColumnas().add(nuevBoolean);
+                copia.AutoCasteoColumna(this.obtenerColumnas().get(i).copiaProfunda());
             }
             else if (this.obtenerColumnas().get(i) instanceof ColumnaNumber){
-                ColumnaNumber nuevNumber = (ColumnaNumber) this.obtenerColumnas().get(i).copiaProfunda();
-                copia.obtenerColumnas().add(nuevNumber);
+                copia.AutoCasteoColumna(this.obtenerColumnas().get(i).copiaProfunda());
             }
             else if (this.obtenerColumnas().get(i) instanceof ColumnaString){
-                ColumnaString nuevString= (ColumnaString) this.obtenerColumnas().get(i).copiaProfunda();
-                copia.obtenerColumnas().add(nuevString);
+                copia.AutoCasteoColumna(this.obtenerColumnas().get(i).copiaProfunda());
             }
             else if (this.obtenerColumnas().get(i) instanceof ColumnaNA){
-                ColumnaNA nuevNA = (ColumnaNA) this.obtenerColumnas().get(i).copiaProfunda();
-                copia.obtenerColumnas().add(nuevNA);
+                copia.AutoCasteoColumna(this.obtenerColumnas().get(i).copiaProfunda());
             }
         }
         
         for (Fila fila : this.filas){
-            Fila copiaProf = (Fila) fila.copiaProfunda();
-            copia.obtenerFilas().add(copiaProf);
+            ArrayCelda copiaProf = fila.copiaProfunda();
+            Fila filaTemp = new Fila (copiaProf);
+            copia.agregarFila(filaTemp);
 
         }
         return copia;
     }
+
 
     private void AutoCasteoColumna(ArrayCelda columna){
         boolean columnaAgregada = false; // Flag para evitar duplicado de columnas
@@ -954,7 +980,7 @@ public class Tabla{
         return new CeldaNumber(Double.parseDouble(valorCelda), true);
         }
         if (valorCelda.equals("") || valorCelda.equalsIgnoreCase("NA") || 
-        valorCelda == null || valorCelda.equalsIgnoreCase("N/A")){ // infintas opciones mas
+        valorCelda == null || valorCelda.equalsIgnoreCase("N/A") || valorCelda.equalsIgnoreCase("null")){ // infintas opciones mas
         return new CeldaNA();
         }
         
