@@ -21,6 +21,30 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.io.FileWriter;
 
+import Celda.Celda;
+import Celda.CeldaNA;
+import Celda.CeldaBoolean;
+import Array.ArrayCelda;
+import Array.Fila;
+import Celda.CeldaNumber;
+import Celda.CeldaString;
+import ExcepcionTabla.*;
+//import util.ImputarFaltantes;
+import Array.Columnas.*;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Predicate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+//Carga de CSV
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.io.FileWriter;
+
 public class Tabla{
     private List<Fila> filas = new ArrayList<>();
     private List<Columna> columnas = new ArrayList<>();
@@ -180,7 +204,7 @@ public class Tabla{
         }
     }
 
-    private void actualizarFilas(){
+    public void actualizarFilas(){
         this.filas.clear();
         crearFilasPorColumnas(this.columnas);
     }
@@ -1000,10 +1024,10 @@ public class Tabla{
 
     private Celda<?> inferirTipoDeDato(String valorCelda){
 
-        if (valorCelda.toLowerCase() == "true"){
+        if (valorCelda.toLowerCase().equals("true")){
         return new CeldaBoolean(true);
         }
-        else if (valorCelda.toLowerCase() == "false"){
+        else if (valorCelda.toLowerCase().equals( "false")){
         return new CeldaBoolean(false);
         }
         
@@ -1070,6 +1094,70 @@ public class Tabla{
                     this.obtenerColumnas().get(indiceColumna).obtenerCeldas().set(indiceColumna, nuevaCeldaNA);
                 }
             }
+        }
+    }
+
+    public <T> Tabla filtrar(String nombreColumna, Predicate<Object> criterio) {
+        Tabla filtrada = this.copiaProfunda();
+        
+        Columna columna = this.obtenerColumnas().get(this.obtenerIndiceDeColumna(nombreColumna));
+        List<Integer> indicesFiltrados = Filtro.filtrar(columna, criterio);
+        for(int cosa : indicesFiltrados){
+            System.out.println(cosa);
+        }
+        List<Columna> columnasFiltradas = new ArrayList<Columna>(); //Se podia hacer con un columnas.clear() pero preferimos que se más entendible el codigo
+        filtrada.columnas = columnasFiltradas;
+        for (Columna col : this.copiaProfunda().obtenerColumnas()){
+            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
+            for (Integer indice : indicesFiltrados){
+                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
+            }
+            filtrada.AutoCasteoColumna(columnaFiltrada);
+        }
+        filtrada.actualizarFilas();
+        // List<Fila> filasFiltradas = new ArrayList<Fila>();
+        // for (Integer indice : indicesFiltrados){
+        //     filasFiltradas.add(this.obtenerFilas().get(indice));
+        // }
+        // filtrada.filas = filasFiltradas;
+        
+        return filtrada;
+    }
+
+    public <T> void filtrar(String nombreColumna, Predicate<Object> criterio, boolean inplace){
+        Columna columna = this.obtenerColumnas().get(this.obtenerIndiceDeColumna(nombreColumna));
+        List<Integer> indicesFiltrados = Filtro.filtrar(columna, criterio);
+        
+        this.columnas.clear();
+        List<Columna> columnasFiltradas = new ArrayList<>();
+        for (Columna col : this.obtenerColumnas()){
+            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
+            for (Integer indice : indicesFiltrados){
+                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice));
+            }
+            this.AutoCasteoColumna(col);
+        }
+        this.columnas = columnasFiltradas;
+
+        List<Fila> filasFiltradas = new ArrayList<Fila>();
+        for (Integer indice : indicesFiltrados){
+            filasFiltradas.add(this.obtenerFilas().get(indice));
+        }
+        this.filas = filasFiltradas;
+    }
+
+    public <T> Tabla filtrar(List<String> columnas, List<Predicate<Object>> criterios){
+        Tabla copia = this.copiaProfunda();
+        for (int i = 0; i < columnas.size(); i++){
+            copia.filtrar(columnas.get(i), criterios.get(i), true);
+        }
+
+        return copia;
+    }
+
+    public <T> void filtrar(List<String> columnas, List<Predicate<Object>> criterios, boolean inplace){ //Criterio a mejorar, java requiere tipo de retorno y según inplace tenemos distintos
+        for (int i = 0; i <= columnas.size(); i++){
+            this.filtrar(columnas.get(i), criterios.get(i), inplace);
         }
     }
 
