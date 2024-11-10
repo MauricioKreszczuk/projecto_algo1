@@ -389,7 +389,7 @@ public class Tabla{
                 return this.filas.indexOf(fila);
             }
         }
-        throw new IllegalArgumentException("No encontrada");
+        throw new IndiceFueraDeRangoExcepcion("Fila no encontrada");
     }
 
     public Tabla obtenerColumna(int indice){
@@ -505,10 +505,9 @@ public class Tabla{
         this.columnas.add(columna);
     }
 
-    public void insertarColumna(Tabla columna){ //WTF
-        if (columna.obtenerColumnas().size() == 1)
-        {
-            this.columnas.addAll(columna.obtenerColumnas());
+    public void insertarColumna(Tabla columna){
+        if (columna.obtenerColumnas().size() == 1){
+        this.columnas.addAll(columna.obtenerColumnas());
         }
         else {
             throw new IllegalArgumentException("La tabla a insertar debe tener una sola columna.");
