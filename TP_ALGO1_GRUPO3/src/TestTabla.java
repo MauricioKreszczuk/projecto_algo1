@@ -13,6 +13,10 @@ public class TestTabla {
     public static void main(String[] args) throws IOException {
         String pathbat = "C:\\Users\\MAURICIO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\test.csv";
         Tabla tabla = new Tabla(pathbat,true);
+        System.out.println(tabla);
+        tabla.asignarComoIndex("Nombre");
+        System.out.println(tabla);
+
         // System.out.println(tabla);
         // tabla.guardarComoCSV("C:\\Users\\MAURICIO\\Downloads\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\escritura.csv");
         // String nombre = tabla.obtenerValor(0,0);
@@ -40,12 +44,15 @@ public class TestTabla {
         // tabla.resetearIndex();
         // System.out.println(tabla);
 
-        Tabla tabla2 = tabla.copiaProfunda();
-        System.out.println(tabla);
-        System.out.println(tabla2);
-        tabla2.definirValor(0, 0, "Juan");
-        System.out.println(tabla2);
-        System.out.println(tabla.equals(tabla2));
+        // Tabla tabla2 = tabla.copiaProfunda();
+        // System.out.println(tabla);
+        // System.out.println(tabla2);
+        // tabla2.definirValor(0, 0, "Juan");
+        // System.out.println(tabla2);
+        // System.out.println(tabla.equals(tabla2));
+        // tabla2.asignarComoIndex("Nombre");
+        // System.out.println(tabla2);
+        // System.out.println(    tabla2.obtenerValorString("Edad", "Juan")      );
 
 
 

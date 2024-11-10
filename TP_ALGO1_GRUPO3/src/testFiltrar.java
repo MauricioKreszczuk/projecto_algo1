@@ -14,7 +14,6 @@ public class testFiltrar {
         Tabla tabla = new Tabla("C:\\Users\\MAURICIO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\testNoTanFeo.csv", true);
 
         System.out.println(tabla);
-        tabla.testeo();
 
 
         Predicate<Object> criterioCiudad = Ciudad -> (String.valueOf(Ciudad)).equals("París");
@@ -25,10 +24,9 @@ public class testFiltrar {
         //     return false;
         // };
         
-        Tabla nuevaTabla = tabla.filtrar("Ciudad", criterioCiudad);
-
-        System.out.println(nuevaTabla);
-
+        Predicate<Object> criterio = (Tabla.condicion("!=", "París"));
+        Tabla filtrada = tabla.filtrar("Ciudad", criterio);
+        System.out.println(filtrada);
 
 
         // tablaDesdeCSV.imprimirTabla();

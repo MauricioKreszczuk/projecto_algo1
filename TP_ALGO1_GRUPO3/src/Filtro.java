@@ -30,5 +30,5 @@ public class Filtro{
         //En Tabla se llama y se crea una tabla nueva o sobreescribe la primera segun un inplace
     }
 
-    // Falta ver como permitir anidar criterios
+
 }

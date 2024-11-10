@@ -9,55 +9,37 @@ import ExcepcionTabla.*;
 //import util.ImputarFaltantes;
 import Array.Columnas.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 //Carga de CSV
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.io.FileWriter;
 
-import Celda.Celda;
-import Celda.CeldaNA;
-import Celda.CeldaBoolean;
-import Array.ArrayCelda;
-import Array.Fila;
-import Celda.CeldaNumber;
-import Celda.CeldaString;
-import ExcepcionTabla.*;
-//import util.ImputarFaltantes;
-import Array.Columnas.*;
-import java.util.List;
-import java.util.Random;
 import java.util.function.Predicate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-//Carga de CSV
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.io.FileWriter;
 
 public class Tabla{
-    private List<Fila> filas = new ArrayList<>();
-    private List<Columna> columnas = new ArrayList<>();
-    private List<String> encabezados = new ArrayList<>();
-    private String nombreIndex = "";
+    private List<Fila> filas;
+    private List<Columna> columnas;
+    private List<String> encabezados;
+    private String nombreIndex;
 
     public Tabla(){
-        
+        this.filas = new ArrayList<>();
+        this.columnas = new ArrayList<>();
+        this.encabezados = new ArrayList<>();
+        this.nombreIndex = "";
     }
 
     public Tabla(List<Columna> columnas, List<Fila> filas){
+        this.filas = new ArrayList<>();
+        this.columnas = new ArrayList<>();
+        this.encabezados = new ArrayList<>();
+        this.nombreIndex = "";
         this.columnas = columnas;
         this.filas = filas;
         for (Columna col : this.columnas){
@@ -66,6 +48,10 @@ public class Tabla{
     }
 
     public Tabla(List<List<Object>> listaDeFilas, Boolean tieneEncabezado){
+        this.filas = new ArrayList<>();
+        this.columnas = new ArrayList<>();
+        this.encabezados = new ArrayList<>();
+        this.nombreIndex = "";
         // Hacer excepcion de si se pasa una lista vacia y si tienen distintos largos
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
 
@@ -114,6 +100,11 @@ public class Tabla{
     }
 
     public Tabla(Object[][] matriz, Boolean tieneEncabezado) { 
+        this.filas = new ArrayList<>();
+        this.columnas = new ArrayList<>();
+        this.encabezados = new ArrayList<>();
+        this.nombreIndex = "";
+
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
         
         if (matriz.length == 0) {// CrearExepcion
@@ -219,6 +210,11 @@ public class Tabla{
         }
     }
 
+    public void asignarComoIndex(String encabezado){
+        int indiceColumna = obtenerIndiceDeColumna(encabezado);
+        asignarComoIndex(indiceColumna);
+    }
+
     public void resetearIndex(){
         actualizarFilas();
         this.nombreIndex = "";
@@ -282,6 +278,12 @@ public class Tabla{
         T valor = obtenerValor(indiceColumna, IndiceFila);
         return String.valueOf(String.valueOf(valor));
     }
+
+    public <T> String obtenerValorString(String nombreColumna, String nombreFila){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        int indiceFila = obtenerIndiceDeFila(nombreFila);
+        return obtenerValorString(indiceColumna, indiceFila);
+    }
     
 
 
@@ -307,6 +309,11 @@ public class Tabla{
     }
 
     public Tabla(String path, boolean tieneEncabezado) throws IOException {
+        this.filas = new ArrayList<>();
+        this.columnas = new ArrayList<>();
+        this.encabezados = new ArrayList<>();
+        this.nombreIndex = "";
+
         String linea;
         String delimitador = ",";
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
@@ -369,6 +376,11 @@ public class Tabla{
     }
     
     public Tabla(String path, boolean tieneEncabezado, String delimitador) throws IOException {
+        this.filas = new ArrayList<>();
+        this.columnas = new ArrayList<>();
+        this.encabezados = new ArrayList<>();
+        this.nombreIndex = "";
+
         String linea;
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
 
@@ -654,8 +666,8 @@ public class Tabla{
     
     // Método auxiliar para obtener el índice de una columna según su nombre
     private int obtenerIndiceDeColumna(String nombreColumna) {
-        for (int i = 0; i < this.encabezados.size(); i++) {
-            if (this.encabezados.get(i).equals(nombreColumna)) {
+        for (int i = 0; i < obtenerEncabezados().size(); i++) {
+            if (obtenerEncabezados().get(i).equals(nombreColumna)) {
                 return i;
             }  
         }
@@ -1226,10 +1238,7 @@ public class Tabla{
         
         Columna columna = this.obtenerColumnas().get(this.obtenerIndiceDeColumna(nombreColumna));
         List<Integer> indicesFiltrados = Filtro.filtrar(columna, criterio);
-        for(int cosa : indicesFiltrados){
-            System.out.println(cosa);
-        }
-        List<Columna> columnasFiltradas = new ArrayList<Columna>(); //Se podia hacer con un columnas.clear() pero preferimos que se más entendible el codigo
+        List<Columna> columnasFiltradas = new ArrayList<Columna>(); 
         filtrada.columnas = columnasFiltradas;
         for (Columna col : this.copiaProfunda().obtenerColumnas()){
             Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
@@ -1238,13 +1247,7 @@ public class Tabla{
             }
             filtrada.AutoCasteoColumna(columnaFiltrada);
         }
-        filtrada.actualizarFilas();
-        // List<Fila> filasFiltradas = new ArrayList<Fila>();
-        // for (Integer indice : indicesFiltrados){
-        //     filasFiltradas.add(this.obtenerFilas().get(indice));
-        // }
-        // filtrada.filas = filasFiltradas;
-        
+        filtrada.actualizarFilas();        
         return filtrada;
     }
 
@@ -1317,4 +1320,53 @@ public class Tabla{
 
 
 
+    // Método estático para crear un Predicate con una condición personalizada, considerando diferentes tipos y nulos
+    public static Predicate<Object> condicion(String operador, Object limite) {
+        return valor -> {
+            // Manejar valores nulos de manera específica
+            if (valor == null || limite == null) {
+                if (operador.equals("==")) {
+                    return valor == null && limite == null; // Ambos deben ser nulos para ser "iguales"
+                } else if (operador.equals("!=")) {
+                    return !(valor == null && limite == null); // Verdadero si uno es nulo y el otro no
+                } else {
+                    return false; // Otros operadores no aplican a valores nulos
+                }
+            }
+    
+            // Evaluar la condición según el operador si ambos valores no son nulos
+            switch (operador) {
+                case "<":
+                    return compararValores(valor, limite) < 0;
+                case ">":
+                    return compararValores(valor, limite) > 0;
+                case "==":
+                    return compararValores(valor, limite) == 0;
+                case "!=":
+                    return compararValores(valor, limite) != 0;
+                case "<=":
+                    return compararValores(valor, limite) <= 0;
+                case ">=":
+                    return compararValores(valor, limite) >= 0;
+                default:
+                    throw new IllegalArgumentException("Operador no válido: " + operador);
+            }
+        };
+    }
+    
+
+    // Método auxiliar para comparar dos valores de tipo genérico (números, strings y booleanos)
+    private static int compararValores(Object valor, Object limite) {
+        if (valor instanceof Number && limite instanceof Number) {
+            double valorDouble = ((Number) valor).doubleValue();
+            double limiteDouble = ((Number) limite).doubleValue();
+            return Double.compare(valorDouble, limiteDouble);
+        } else if (valor instanceof String && limite instanceof String) {
+            return ((String) valor).compareTo((String) limite);
+        } else if (valor instanceof Boolean && limite instanceof Boolean) {
+            return Boolean.compare((Boolean) valor, (Boolean) limite);
+        } else {
+            throw new IllegalArgumentException("Tipos incompatibles: " + valor.getClass() + " y " + limite.getClass());
+        }
+    }
 }
