@@ -28,23 +28,13 @@ public class Tabla{
     private List<String> encabezados;
     private String nombreIndex;
 
+
+/// Construcores
     public Tabla(){
         this.filas = new ArrayList<>();
         this.columnas = new ArrayList<>();
         this.encabezados = new ArrayList<>();
         this.nombreIndex = "";
-    }
-
-    public Tabla(List<Columna> columnas, List<Fila> filas){
-        this.filas = new ArrayList<>();
-        this.columnas = new ArrayList<>();
-        this.encabezados = new ArrayList<>();
-        this.nombreIndex = "";
-        this.columnas = columnas;
-        this.filas = filas;
-        for (Columna col : this.columnas){
-            this.encabezados.add(col.obtenerNombre());
-        } 
     }
 
     public Tabla(List<List<Object>> listaDeFilas, Boolean tieneEncabezado){
@@ -97,6 +87,7 @@ public class Tabla{
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
             }
         }
+        actualizarFilas();
     }
 
     public Tabla(Object[][] matriz, Boolean tieneEncabezado) { 
@@ -154,158 +145,8 @@ public class Tabla{
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
             }
         }
-
-    }
-
-    private Celda<?> inferirTipoDesdeObject(Object valor){
-        
-        if (valor instanceof Number) {
-            Number valorNumber = (Number) valor;
-            return new CeldaNumber(valorNumber);
-        }
-
-        else if (valor instanceof Boolean) {
-            Boolean valorBoolean = (Boolean) valor;
-            return new CeldaBoolean(valorBoolean);
-        }
-
-        String valorString = (String) valor;
-        if (valorString == null || valorString.equalsIgnoreCase("na") || 
-        valorString.equalsIgnoreCase("n/a") || valorString.equals("")) {
-            return new CeldaNA();
-        }
-
-        else {
-            return new CeldaString(valorString);
-        }
-    }
-
-    public List<String> obtenerLabels(){
-        List<String> laList = new ArrayList<String>();
-        for(Fila fila : this.filas){
-            laList.add(fila.obtenerNombre());
-        }
-        return laList;
-    }
-
-    public void asignarLabels(List<String> labels){
-        if (labels.size()!= this.filas.size()) {
-            throw new IllegalArgumentException("El número de labels no coincide con el número de filas.");
-        }
-        for(Fila fila : this.filas){
-            fila.asignarNombre(labels.get(this.filas.indexOf(fila)));
-        }
-    }
-
-    public void asignarComoIndex(int indiceColumna){
-        this.nombreIndex = String.valueOf(columnas.get(indiceColumna).obtenerNombre());
-        for (int indiceFila = 0; indiceFila < this.columnas.get(indiceColumna).obtenerTamaño(); indiceFila++){
-            this.filas.get(indiceFila).asignarNombre(obtenerValorString(indiceColumna, indiceFila));
-        }
-        this.columnas.remove(indiceColumna);
         actualizarFilas();
-        if(obtenerLabels().size() != obtenerLabels().stream().distinct().count()){
-            resetearIndex();
-            throw new IllegalArgumentException("Error: No se permiten labels repetidos");
-        }
-    }
 
-    public void asignarComoIndex(String encabezado){
-        int indiceColumna = obtenerIndiceDeColumna(encabezado);
-        asignarComoIndex(indiceColumna);
-    }
-
-    public void resetearIndex(){
-        actualizarFilas();
-        this.nombreIndex = "";
-        for(Fila fila : this.filas){
-            fila.asignarNombre(String.valueOf(filas.indexOf(fila)));
-        }
-        actualizarFilas();
-    }
-
-    public void crearFilasPorColumnas(List<Columna> columnas) {
-        List<String> labels = obtenerLabels();
-        int tamaño = columnas.get(0).obtenerTamaño();
-        List<Fila> filasTemporal = new ArrayList<Fila>();
-        // Iterar sobre los valores de cada columna para formar las filas
-        for (int indice = 0; indice < tamaño; indice++) {
-            //String etiquetaFila = etiquetas.get(indice); 
-            Fila filaTemporal = new Fila("");
-            if(labels.size() == tamaño){
-                filaTemporal = new Fila(labels.get(indice));
-            }
-            else {
-                filaTemporal = new Fila(String.valueOf(indice)); // Asignar nombre a la fila
-            }
-            for (Columna columna : columnas) {
-                Celda<?> celda = columna.obtenerCeldas().get(indice); // Obtener la celda correspondiente en este índice
-                filaTemporal.agregarCelda(celda); // Agregar la celda a la fila
-            }
-    
-            // Una vez que la fila está completa, agregarla a la tabla
-            filasTemporal.add(filaTemporal);
-        }
-        this.filas = filasTemporal;
-    }
-
-    public void actualizarFilas(){
-        crearFilasPorColumnas(this.columnas);
-    }
-    
-    @SuppressWarnings("unchecked")
-    public <T> T obtenerValor(int indiceColumna, int IndiceFila){
-        if (indiceColumna < 0 || indiceColumna >= columnas.size()) {
-            throw new IndexOutOfBoundsException("Índice de columna fuera de rango.");
-        }
-        if (IndiceFila < 0 || IndiceFila >= columnas.get(indiceColumna).obtenerTamaño()) {
-            throw new IndexOutOfBoundsException("Índice de fila fuera de rango.");
-        }
-        return (T) columnas.get(indiceColumna).obtenerValor(IndiceFila);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T obtenerValor(String EtiquetaColumna, String EtiquetaFila){
-        int indiceColumna = obtenerIndiceDeColumna(EtiquetaColumna);
-        int indiceFila = obtenerIndiceDeFila(EtiquetaFila);
-        return (T) obtenerValor(indiceColumna, indiceFila);
-    }
-
-    public <T> String obtenerValorString(int indiceColumna, int IndiceFila){
-        if(obtenerValor(indiceColumna, IndiceFila) instanceof String){
-            return (String) obtenerValor(indiceColumna, IndiceFila);
-        }
-        T valor = obtenerValor(indiceColumna, IndiceFila);
-        return String.valueOf(String.valueOf(valor));
-    }
-
-    public <T> String obtenerValorString(String nombreColumna, String nombreFila){
-        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
-        int indiceFila = obtenerIndiceDeFila(nombreFila);
-        return obtenerValorString(indiceColumna, indiceFila);
-    }
-    
-
-
-    public List<Fila> obtenerFilas() {
-        return this.filas;
-    }
-
-    public List<Columna> obtenerColumnas() {
-        return this.columnas;
-    }
-
-    public void actualizarEncabezados(){
-        List<String> encabezados = new ArrayList<>();
-        for (Columna columna : this.columnas) {
-            encabezados.add(columna.obtenerNombre());
-        } 
-        this.encabezados = encabezados;
-    }
-
-    public List<String> obtenerEncabezados(){
-        actualizarEncabezados();
-        return this.encabezados;
     }
 
     public Tabla(String path, boolean tieneEncabezado) throws IOException {
@@ -439,11 +280,10 @@ public class Tabla{
         }
     }
 
-    
-    public void agregarFila(Fila fila){
-        this.filas.add(fila);
-    }
 
+
+
+// Getters
     public Tabla obtenerFila(int indice){
         actualizarFilas();
         Tabla nuevaTabla = new Tabla();
@@ -471,14 +311,49 @@ public class Tabla{
         return nuevaTabla;
     }
 
-    public void eliminarFila(int indiceFila){
-        this.filas.remove(indiceFila);
+    @SuppressWarnings("unchecked")
+    public <T> T obtenerValor(int indiceColumna, int IndiceFila){
+        if (indiceColumna < 0 || indiceColumna >= columnas.size()) {
+            throw new IndexOutOfBoundsException("Índice de columna fuera de rango.");
+        }
+        if (IndiceFila < 0 || IndiceFila >= columnas.get(indiceColumna).obtenerTamaño()) {
+            throw new IndexOutOfBoundsException("Índice de fila fuera de rango.");
+        }
+        return (T) columnas.get(indiceColumna).obtenerValor(IndiceFila);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T obtenerValor(String EtiquetaColumna, String EtiquetaFila){
+        int indiceColumna = obtenerIndiceDeColumna(EtiquetaColumna);
+        int indiceFila = obtenerIndiceDeFila(EtiquetaFila);
+        return (T) obtenerValor(indiceColumna, indiceFila);
+    }
+
+    public <T> String obtenerValorString(int indiceColumna, int IndiceFila){
+        if(obtenerValor(indiceColumna, IndiceFila) instanceof String){
+            return (String) obtenerValor(indiceColumna, IndiceFila);
+        }
+        T valor = obtenerValor(indiceColumna, IndiceFila);
+        return String.valueOf(String.valueOf(valor));
+    }
+
+    public <T> String obtenerValorString(String nombreColumna, String nombreFila){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        int indiceFila = obtenerIndiceDeFila(nombreFila);
+        return obtenerValorString(indiceColumna, indiceFila);
     }
     
-    public void eliminarFila(String etiqueta){
-        actualizarFilas();
-        int indiceFila = this.obtenerIndiceDeFila(etiqueta);
-        eliminarFila(indiceFila);
+    public List<String> obtenerEncabezados(){
+        actualizarEncabezados();
+        return this.encabezados;
+    }
+
+    public List<String> obtenerLabels(){
+        List<String> laList = new ArrayList<String>();
+        for(Fila fila : this.filas){
+            laList.add(fila.obtenerNombre());
+        }
+        return laList;
     }
 
     public int obtenerIndiceDeFila(String etiqueta){
@@ -491,7 +366,104 @@ public class Tabla{
         throw new IllegalArgumentException("No encontrada");
     }
 
+    public Tabla obtenerColumna(int indice){
+        Tabla nuevaTabla = new Tabla();
+        nuevaTabla.agregarColumna(this.columnas.get(indice));
+        return nuevaTabla;
+    }
 
+    public Tabla obtenerColumna(String etiqueta){
+        int indice = obtenerIndiceDeColumna(etiqueta);
+        return obtenerColumna(indice);
+    }
+
+    public int numeroFilas(){
+        return this.columnas.get(0).obtenerTamaño();
+    }
+    
+    public int numeroColumnas(){
+        return this.columnas.size();
+    }
+
+
+//Setters
+    public void asignarLabels(List<String> labels){
+        if (labels.size()!= this.filas.size()) {
+            throw new IllegalArgumentException("El número de labels no coincide con el número de filas.");
+        }
+        for(Fila fila : this.filas){
+            fila.asignarNombre(labels.get(this.filas.indexOf(fila)));
+        }
+    }
+
+    public void asignarComoIndex(int indiceColumna){
+        this.nombreIndex = String.valueOf(columnas.get(indiceColumna).obtenerNombre());
+        for (int indiceFila = 0; indiceFila < this.columnas.get(indiceColumna).obtenerTamaño(); indiceFila++){
+            this.filas.get(indiceFila).asignarNombre(obtenerValorString(indiceColumna, indiceFila));
+        }
+        this.columnas.remove(indiceColumna);
+        actualizarFilas();
+        if(obtenerLabels().size() != obtenerLabels().stream().distinct().count()){
+            resetearIndex();
+            throw new IllegalArgumentException("Error: No se permiten labels repetidos");
+        }
+    }
+
+    public void asignarComoIndex(String encabezado){
+        int indiceColumna = obtenerIndiceDeColumna(encabezado);
+        asignarComoIndex(indiceColumna);
+    }
+
+    public void crearFilasPorColumnas(List<Columna> columnas) {
+        List<String> labels = obtenerLabels();
+        int tamaño = columnas.get(0).obtenerTamaño();
+        List<Fila> filasTemporal = new ArrayList<Fila>();
+        // Iterar sobre los valores de cada columna para formar las filas
+        for (int indice = 0; indice < tamaño; indice++) {
+            //String etiquetaFila = etiquetas.get(indice); 
+            Fila filaTemporal = new Fila("");
+            if(labels.size() == tamaño){
+                filaTemporal = new Fila(labels.get(indice));
+            }
+            else {
+                filaTemporal = new Fila(String.valueOf(indice)); // Asignar nombre a la fila
+            }
+            for (Columna columna : columnas) {
+                Celda<?> celda = columna.obtenerCeldas().get(indice); // Obtener la celda correspondiente en este índice
+                filaTemporal.agregarCelda(celda); // Agregar la celda a la fila
+            }
+    
+            // Una vez que la fila está completa, agregarla a la tabla
+            filasTemporal.add(filaTemporal);
+        }
+        this.filas = filasTemporal;
+    }
+
+    public void actualizarFilas(){
+        crearFilasPorColumnas(this.columnas);
+    }
+    
+    public void actualizarEncabezados(){
+        List<String> encabezados = new ArrayList<>();
+        for (Columna columna : this.columnas) {
+            encabezados.add(columna.obtenerNombre());
+        } 
+        this.encabezados = encabezados;
+    }
+
+    public void agregarFila(Fila fila){
+        this.filas.add(fila);
+    }
+
+    public void eliminarFila(int indiceFila){
+        this.filas.remove(indiceFila);
+    }
+    
+    public void eliminarFila(String etiqueta){
+        actualizarFilas();
+        int indiceFila = this.obtenerIndiceDeFila(etiqueta);
+        eliminarFila(indiceFila);
+    }
 
     public void agregarColumna(Columna columna){
         this.columnas.add(columna);
@@ -569,6 +541,56 @@ public class Tabla{
         actualizarFilas();
     }
 
+    public void eliminarColumna(int indiceColumna){
+        this.columnas.remove(indiceColumna);
+    }
+
+    public void eliminarColumna(String nombre){
+        int indiceColumna = this.obtenerIndiceDeColumna(nombre);
+        eliminarColumna(indiceColumna);
+    }
+
+    public <T> void definirValor(int indiceColumna, int indiceFila, T valor){
+        actualizarFilas();
+        if (this.columnas.get(indiceColumna) instanceof ColumnaNumber && valor instanceof Number){
+           CeldaNumber celda =(CeldaNumber)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
+           celda.definirValor((Number)valor);
+        }
+        else if (this.columnas.get(indiceColumna) instanceof ColumnaBoolean && valor instanceof Boolean){
+           CeldaBoolean celda =(CeldaBoolean)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
+           celda.definirValor((Boolean)valor);
+        }
+        else if (this.columnas.get(indiceColumna) instanceof ColumnaString && valor instanceof String){
+           CeldaString celda =(CeldaString)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
+           celda.definirValor((String)valor);
+        }
+        else{
+            throw new IllegalArgumentException("El tipo de dato no coincide con el tipo de la columna");
+        }
+        actualizarFilas();
+    }
+
+    public void definirComoNA(int indiceColumna, int indiceFila){
+        this.columnas.get(indiceColumna).obtenerCeldas().set(indiceFila, new CeldaNA());
+    }
+
+
+
+
+
+
+
+/////////////////////////////////////////////////
+
+    public void resetearIndex(){
+        actualizarFilas();
+        this.nombreIndex = "";
+        for(Fila fila : this.filas){
+            fila.asignarNombre(String.valueOf(filas.indexOf(fila)));
+        }
+        actualizarFilas();
+    }
+
     public void testeo() {
         for (Columna columna : this.columnas) {
             System.out.println("\nColumna: " + columna.obtenerNombre() + ", Tipo: " + columna.getClass());
@@ -578,7 +600,6 @@ public class Tabla{
         }
     }
     
-
     public void guardarComoCSV(String rutaArchivo) throws IOException {
         try (FileWriter writer = new FileWriter(rutaArchivo)) {
             // Escribir encabezados separados por comas
@@ -605,24 +626,6 @@ public class Tabla{
             System.err.println("Error al escribir en el archivo CSV: " + e.getMessage());
             throw e;
         }
-    }
-
-
-
-    public void eliminarColumna(int indiceColumna){
-        this.columnas.remove(indiceColumna);
-    }
-
-    public void eliminarColumna(String nombre){
-        int indiceColumna = this.obtenerIndiceDeColumna(nombre);
-        eliminarColumna(indiceColumna);
-    }
-
-    
-
-    public Tabla filtrar() {
-        // Pendiente
-        return null;
     }
 
     public void ordenarPorColumnas(List<String> nombresColumnas, boolean ascendente) {
@@ -664,58 +667,6 @@ public class Tabla{
         }
     }
     
-    // Método auxiliar para obtener el índice de una columna según su nombre
-    private int obtenerIndiceDeColumna(String nombreColumna) {
-        for (int i = 0; i < obtenerEncabezados().size(); i++) {
-            if (obtenerEncabezados().get(i).equals(nombreColumna)) {
-                return i;
-            }  
-        }
-        return -1;
-    }
-
-    public Tabla obtenerColumna(int indice){
-        Tabla nuevaTabla = new Tabla();
-        nuevaTabla.agregarColumna(this.columnas.get(indice));
-        return nuevaTabla;
-    }
-
-    public Tabla obtenerColumna(String etiqueta){
-        int indice = obtenerIndiceDeColumna(etiqueta);
-        return obtenerColumna(indice);
-    }
-
-    public <T> void definirValor(int indiceColumna, int indiceFila, T valor){
-        actualizarFilas();
-        if (this.columnas.get(indiceColumna) instanceof ColumnaNumber && valor instanceof Number){
-           CeldaNumber celda =(CeldaNumber)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
-           celda.definirValor((Number)valor);
-        }
-        else if (this.columnas.get(indiceColumna) instanceof ColumnaBoolean && valor instanceof Boolean){
-           CeldaBoolean celda =(CeldaBoolean)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
-           celda.definirValor((Boolean)valor);
-        }
-        else if (this.columnas.get(indiceColumna) instanceof ColumnaString && valor instanceof String){
-           CeldaString celda =(CeldaString)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
-           celda.definirValor((String)valor);
-        }
-        else{
-            throw new IllegalArgumentException("El tipo de dato no coincide con el tipo de la columna");
-        }
-        actualizarFilas();
-    }
-
-    public void definirComoNA(int indiceColumna, int indiceFila){
-        this.columnas.get(indiceColumna).obtenerCeldas().set(indiceFila, new CeldaNA());
-    }
-
-    public int numeroFilas(){
-        return this.columnas.get(0).obtenerTamaño();
-    }
-    public int numeroColumnas(){
-        return this.columnas.size();
-    }
- 
     public static Tabla concatenar(Tabla tabla1, Tabla tabla2){
         Tabla copiaTabla1 = tabla1.copiaProfunda();
         Tabla copiaTabla2 = tabla2.copiaProfunda();
@@ -744,111 +695,6 @@ public class Tabla{
         return concatenada;
     }
 
-    private String formatearFilasParaImprimir(List<Fila> filasParaMostrar, List<String> nombresColumnas) {
-        // Agregar excepción si la columna no se encuentra
-
-        if (filasParaMostrar.isEmpty()) {
-            return ""; // Hacer excepcion
-        }
-
-        if (nombresColumnas == null || nombresColumnas.isEmpty()) {
-            nombresColumnas = new ArrayList<>();
-            for (Columna columna : this.columnas) {
-                nombresColumnas.add(columna.obtenerNombre());
-            }
-        }
-    
-        int numColumnas = columnas.size();
-        int[] maxAnchoPorColumna = new int[numColumnas];
-
-        if (nombresColumnas.size() == this.encabezados.size()) {
-            // Calculamos ancho máximo de cada columna
-            for (Fila fila : filasParaMostrar) {
-                for (int j = 0; j < numColumnas; j++) {
-                    String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
-                    maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], valor.length());
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append("| ");
-            for (int j = 0; j < numColumnas; j++){
-                maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], columnas.get(j).obtenerNombre().length());
-                sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", columnas.get(j).obtenerNombre())).append(" | ");
-            }
-            sb.append("\n");
-
-            // Agregamos linea separadora
-            sb.append("|");
-            for (int j = 0; j < numColumnas; j++) {
-                sb.append("-".repeat(maxAnchoPorColumna[j] + 2)).append("|");
-            }
-            sb.append("\n");
-        
-            // Agregamos las filas a la impresion
-            for (Fila fila : filasParaMostrar) {
-                sb.append("| ");
-                for (int j = 0; j < numColumnas; j++) {
-                    String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
-                    sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", valor)).append(" | ");
-                }
-                sb.append("\n"); 
-            }
-            
-            return sb.toString();
-        }
-        else{
-            // Buscamos índices a mostrar
-            List<Integer> indicesColumnas = new ArrayList<>();
-            for (String nombre : nombresColumnas) {
-                boolean columnaEncontrada = false;
-                for (int i = 0; i < columnas.size(); i++) {
-                    if (columnas.get(i).obtenerNombre().equals(nombre)) {
-                        indicesColumnas.add(i);
-                        columnaEncontrada = true;
-                        break;
-                    }
-                }
-                if (!columnaEncontrada) {
-                    throw new IllegalArgumentException("La columna '" + nombre + "' no se encuentra en la tabla.");
-                }
-            }
-
-            // Calculamos ancho máximo de cada columna
-            for (Fila fila : filasParaMostrar) {
-                for (int indice : indicesColumnas) {
-                    String valor = fila.obtenerValor(indice) != null ? fila.obtenerValor(indice).toString() : "NA";
-                    maxAnchoPorColumna[indice] = Math.max(maxAnchoPorColumna[indice], valor.length());
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append("| ");
-            for (int indice : indicesColumnas){
-                maxAnchoPorColumna[indice] = Math.max(maxAnchoPorColumna[indice], columnas.get(indice).obtenerNombre().length());
-                sb.append(String.format("%-" + maxAnchoPorColumna[indice] + "s", columnas.get(indice).obtenerNombre())).append(" | ");
-            }
-            sb.append("\n");
-
-            // Agregamos linea separadora
-            sb.append("|");
-            for (int indice : indicesColumnas) {
-                sb.append("-".repeat(maxAnchoPorColumna[indice] + 2)).append("|");
-            }
-            sb.append("\n");
-            
-            // Agregamos las filas seleccionadas a la impresión
-            for (Fila fila : filasParaMostrar) {
-                sb.append("| ");
-                for (int indice : indicesColumnas) {
-                    String valor = fila.obtenerValor(indice) != null ? fila.obtenerValor(indice).toString() : "NA";
-                    sb.append(String.format("%-" + maxAnchoPorColumna[indice] + "s", valor)).append(" | ");
-                }
-                sb.append("\n");
-            }
-
-            return sb.toString();
-        }
-    }    
-
     public void info() {
         System.out.println("Información de la Tabla:");
         System.out.println("Cantidad de filas: " + filas.size());
@@ -871,7 +717,6 @@ public class Tabla{
         }
     }
 
-    // Método para mostrar las primeras n filas de la tabla
     public void head(int n) {
         try {
             VerificadorDeRango.verificarLimite(n, filas.size());
@@ -883,7 +728,6 @@ public class Tabla{
         }
     }
 
-    // Método para mostrar las últimas n filas de la tabla
     public void tail(int n) {
         try {
             VerificadorDeRango.verificarLimite(n, filas.size());
@@ -1016,29 +860,7 @@ public class Tabla{
     
         return builder.toString();
     }
-    
-    // Método auxiliar para obtener el ancho máximo de los nombres de las filas
-    private int getMaxLabelWidth() {
-        int maxWidth = nombreIndex.length();  // Usar la variable nombreIndex para el ancho
-        // Buscar el nombre más largo entre las filas
-        for (Fila fila : filas) {
-            maxWidth = Math.max(maxWidth, fila.obtenerNombre().length()); // Usar el nombre real de la fila
-        }
-        return maxWidth;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
+        
     public Tabla copiaProfunda(){ // Posible método para abarcar verificaciones de 
         Tabla copia = new Tabla();
         for (int i=0; i < this.obtenerColumnas().size(); i++){
@@ -1065,42 +887,8 @@ public class Tabla{
         return copia;
     }
 
-
     public void procesarColumna(ArrayCelda arrayCelda) {
         this.agregarColumna(Casteo.procesarColumna(arrayCelda));
-    }
-
-
-    private void AutoCasteoColumna(ArrayCelda columna){
-        boolean columnaAgregada = false; // Flag para evitar duplicado de columnas
-
-        for (int i=0; i < columna.obtenerTamaño(); i++){
-            if (!(columna.obtenerCeldas().get(i) instanceof CeldaNA)){
-                if (columna.obtenerCeldas().get(i) instanceof CeldaBoolean){
-                    ColumnaBoolean CBoolean = new ColumnaBoolean(columna.obtenerNombre(), columna.obtenerCeldas());
-                    this.columnas.add(CBoolean);
-                    columnaAgregada = true;
-                    break;
-                }
-                else if (columna.obtenerCeldas().get(i) instanceof CeldaNumber){
-                    ColumnaNumber CNumber = new ColumnaNumber(columna.obtenerNombre(), columna.obtenerCeldas());
-                    this.columnas.add(CNumber);
-                    columnaAgregada = true;
-                    break;
-                }
-                else if (columna.obtenerCeldas().get(i) instanceof CeldaString){
-                    ColumnaString CString = new ColumnaString(columna.obtenerNombre(), columna.obtenerCeldas());
-                    this.columnas.add(CString);
-                    columnaAgregada = true;
-                    break;
-                }
-            }
-        }
-
-        if (columnaAgregada == false){ // Sí el estado no cambió, creo y agrego una columnaNA al atributo celdas de la Tabla. (No uso !columnaAgregada para evitar error de lógica.)
-            ColumnaNA CNA = new ColumnaNA(columna.obtenerNombre(), columna.obtenerCeldas());
-            this.columnas.add(CNA);
-        }
     }
 
     public void muestreo(int porcentaje){
@@ -1148,6 +936,251 @@ public class Tabla{
 
     }
 
+    public <T> Tabla filtrar(String nombreColumna, Predicate<Object> criterio) {
+        Tabla filtrada = this.copiaProfunda();
+        
+        Columna columna = this.obtenerColumnas().get(this.obtenerIndiceDeColumna(nombreColumna));
+        List<Integer> indicesFiltrados = Filtro.filtrar(columna, criterio);
+        List<Columna> columnasFiltradas = new ArrayList<Columna>(); 
+        filtrada.columnas = columnasFiltradas;
+        for (Columna col : this.copiaProfunda().obtenerColumnas()){
+            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
+            for (Integer indice : indicesFiltrados){
+                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
+            }
+            filtrada.AutoCasteoColumna(columnaFiltrada);
+        }
+        filtrada.actualizarFilas();        
+        return filtrada;
+    }
+
+    public <T> void filtrar(String nombreColumna, Predicate<Object> criterio, boolean inplace){
+        Columna columna = this.obtenerColumnas().get(this.obtenerIndiceDeColumna(nombreColumna));
+        List<Integer> indicesFiltrados = Filtro.filtrar(columna, criterio);
+        
+        this.columnas.clear();
+        List<Columna> columnasFiltradas = new ArrayList<>();
+        for (Columna col : this.obtenerColumnas()){
+            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
+            for (Integer indice : indicesFiltrados){
+                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice));
+            }
+            this.AutoCasteoColumna(col);
+        }
+        this.columnas = columnasFiltradas;
+
+        List<Fila> filasFiltradas = new ArrayList<Fila>();
+        for (Integer indice : indicesFiltrados){
+            filasFiltradas.add(this.obtenerFilas().get(indice));
+        }
+        this.filas = filasFiltradas;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        actualizarFilas();
+        // Verifica si el objeto es la misma instancia
+        if (this == obj) {
+            return true;
+        }
+    
+        // Verifica que el objeto no sea null y que sea exactamente de la misma clase
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+    
+        // Hace el cast seguro
+        Tabla otraTabla = (Tabla) obj;
+        otraTabla.actualizarFilas();
+        // Compara filas, columnas, encabezados y nombreIndex
+        return Objects.equals(this.filas, otraTabla.filas) &&
+               Objects.equals(this.columnas, otraTabla.columnas) &&
+               Objects.equals(this.nombreIndex, otraTabla.nombreIndex);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(filas, columnas, encabezados, nombreIndex);
+    }
+    
+    public static Predicate<Object> condicion(String operador, Object limite) {
+        return valor -> {
+            // Manejar valores nulos de manera específica
+            if (valor == null || limite == null) {
+                if (operador.equals("==")) {
+                    return valor == null && limite == null; // Ambos deben ser nulos para ser "iguales"
+                } else if (operador.equals("!=")) {
+                    return !(valor == null && limite == null); // Verdadero si uno es nulo y el otro no
+                } else {
+                    return false; // Otros operadores no aplican a valores nulos
+                }
+            }
+    
+            // Evaluar la condición según el operador si ambos valores no son nulos
+            switch (operador) {
+                case "<":
+                    return compararValores(valor, limite) < 0;
+                case ">":
+                    return compararValores(valor, limite) > 0;
+                case "==":
+                    return compararValores(valor, limite) == 0;
+                case "!=":
+                    return compararValores(valor, limite) != 0;
+                case "<=":
+                    return compararValores(valor, limite) <= 0;
+                case ">=":
+                    return compararValores(valor, limite) >= 0;
+                default:
+                    throw new IllegalArgumentException("Operador no válido: " + operador);
+            }
+        };
+    }
+
+    private List<Fila> obtenerFilas() {
+        return this.filas;
+    }
+
+    private List<Columna> obtenerColumnas() {
+        return this.columnas;
+    }
+
+
+    private Celda<?> inferirTipoDesdeObject(Object valor){
+        
+        if (valor instanceof Number) {
+            Number valorNumber = (Number) valor;
+            return new CeldaNumber(valorNumber);
+        }
+
+        else if (valor instanceof Boolean) {
+            Boolean valorBoolean = (Boolean) valor;
+            return new CeldaBoolean(valorBoolean);
+        }
+
+        String valorString = (String) valor;
+        if (valorString == null || valorString.equalsIgnoreCase("na") || 
+        valorString.equalsIgnoreCase("n/a") || valorString.equals("")) {
+            return new CeldaNA();
+        }
+
+        else {
+            return new CeldaString(valorString);
+        }
+    }
+
+    private int getMaxLabelWidth() {
+        int maxWidth = nombreIndex.length();  // Usar la variable nombreIndex para el ancho
+        // Buscar el nombre más largo entre las filas
+        for (Fila fila : filas) {
+            maxWidth = Math.max(maxWidth, fila.obtenerNombre().length()); // Usar el nombre real de la fila
+        }
+        return maxWidth;
+    }
+
+    private String formatearFilasParaImprimir(List<Fila> filasParaMostrar, List<String> nombresColumnas) {
+        // Agregar excepción si la columna no se encuentra
+
+        if (filasParaMostrar.isEmpty()) {
+            return ""; // Hacer excepcion
+        }
+
+        if (nombresColumnas == null || nombresColumnas.isEmpty()) {
+            nombresColumnas = new ArrayList<>();
+            for (Columna columna : this.columnas) {
+                nombresColumnas.add(columna.obtenerNombre());
+            }
+        }
+    
+        int numColumnas = columnas.size();
+        int[] maxAnchoPorColumna = new int[numColumnas];
+
+        if (nombresColumnas.size() == this.encabezados.size()) {
+            // Calculamos ancho máximo de cada columna
+            for (Fila fila : filasParaMostrar) {
+                for (int j = 0; j < numColumnas; j++) {
+                    String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
+                    maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], valor.length());
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("| ");
+            for (int j = 0; j < numColumnas; j++){
+                maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], columnas.get(j).obtenerNombre().length());
+                sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", columnas.get(j).obtenerNombre())).append(" | ");
+            }
+            sb.append("\n");
+
+            // Agregamos linea separadora
+            sb.append("|");
+            for (int j = 0; j < numColumnas; j++) {
+                sb.append("-".repeat(maxAnchoPorColumna[j] + 2)).append("|");
+            }
+            sb.append("\n");
+        
+            // Agregamos las filas a la impresion
+            for (Fila fila : filasParaMostrar) {
+                sb.append("| ");
+                for (int j = 0; j < numColumnas; j++) {
+                    String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
+                    sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", valor)).append(" | ");
+                }
+                sb.append("\n"); 
+            }
+            
+            return sb.toString();
+        }
+        else{
+            // Buscamos índices a mostrar
+            List<Integer> indicesColumnas = new ArrayList<>();
+            for (String nombre : nombresColumnas) {
+                boolean columnaEncontrada = false;
+                for (int i = 0; i < columnas.size(); i++) {
+                    if (columnas.get(i).obtenerNombre().equals(nombre)) {
+                        indicesColumnas.add(i);
+                        columnaEncontrada = true;
+                        break;
+                    }
+                }
+                if (!columnaEncontrada) {
+                    throw new IllegalArgumentException("La columna '" + nombre + "' no se encuentra en la tabla.");
+                }
+            }
+
+            // Calculamos ancho máximo de cada columna
+            for (Fila fila : filasParaMostrar) {
+                for (int indice : indicesColumnas) {
+                    String valor = fila.obtenerValor(indice) != null ? fila.obtenerValor(indice).toString() : "NA";
+                    maxAnchoPorColumna[indice] = Math.max(maxAnchoPorColumna[indice], valor.length());
+                }
+            }
+            StringBuilder sb = new StringBuilder();
+            sb.append("| ");
+            for (int indice : indicesColumnas){
+                maxAnchoPorColumna[indice] = Math.max(maxAnchoPorColumna[indice], columnas.get(indice).obtenerNombre().length());
+                sb.append(String.format("%-" + maxAnchoPorColumna[indice] + "s", columnas.get(indice).obtenerNombre())).append(" | ");
+            }
+            sb.append("\n");
+
+            // Agregamos linea separadora
+            sb.append("|");
+            for (int indice : indicesColumnas) {
+                sb.append("-".repeat(maxAnchoPorColumna[indice] + 2)).append("|");
+            }
+            sb.append("\n");
+            
+            // Agregamos las filas seleccionadas a la impresión
+            for (Fila fila : filasParaMostrar) {
+                sb.append("| ");
+                for (int indice : indicesColumnas) {
+                    String valor = fila.obtenerValor(indice) != null ? fila.obtenerValor(indice).toString() : "NA";
+                    sb.append(String.format("%-" + maxAnchoPorColumna[indice] + "s", valor)).append(" | ");
+                }
+                sb.append("\n");
+            }
+
+            return sb.toString();
+        }
+    }  
 
     private boolean esDecimal(String valor) {
         try {
@@ -1233,129 +1266,47 @@ public class Tabla{
         }
     }
 
-    public <T> Tabla filtrar(String nombreColumna, Predicate<Object> criterio) {
-        Tabla filtrada = this.copiaProfunda();
-        
-        Columna columna = this.obtenerColumnas().get(this.obtenerIndiceDeColumna(nombreColumna));
-        List<Integer> indicesFiltrados = Filtro.filtrar(columna, criterio);
-        List<Columna> columnasFiltradas = new ArrayList<Columna>(); 
-        filtrada.columnas = columnasFiltradas;
-        for (Columna col : this.copiaProfunda().obtenerColumnas()){
-            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
-            for (Integer indice : indicesFiltrados){
-                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
-            }
-            filtrada.AutoCasteoColumna(columnaFiltrada);
+    private int obtenerIndiceDeColumna(String nombreColumna) {
+        for (int i = 0; i < obtenerEncabezados().size(); i++) {
+            if (obtenerEncabezados().get(i).equals(nombreColumna)) {
+                return i;
+            }  
         }
-        filtrada.actualizarFilas();        
-        return filtrada;
+        return -1;
     }
 
-    public <T> void filtrar(String nombreColumna, Predicate<Object> criterio, boolean inplace){
-        Columna columna = this.obtenerColumnas().get(this.obtenerIndiceDeColumna(nombreColumna));
-        List<Integer> indicesFiltrados = Filtro.filtrar(columna, criterio);
-        
-        this.columnas.clear();
-        List<Columna> columnasFiltradas = new ArrayList<>();
-        for (Columna col : this.obtenerColumnas()){
-            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
-            for (Integer indice : indicesFiltrados){
-                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice));
-            }
-            this.AutoCasteoColumna(col);
-        }
-        this.columnas = columnasFiltradas;
+    private void AutoCasteoColumna(ArrayCelda columna){
+        boolean columnaAgregada = false; // Flag para evitar duplicado de columnas
 
-        List<Fila> filasFiltradas = new ArrayList<Fila>();
-        for (Integer indice : indicesFiltrados){
-            filasFiltradas.add(this.obtenerFilas().get(indice));
-        }
-        this.filas = filasFiltradas;
-    }
-
-    public <T> Tabla filtrar(List<String> columnas, List<Predicate<Object>> criterios){
-        Tabla copia = this.copiaProfunda();
-        for (int i = 0; i < columnas.size(); i++){
-            copia.filtrar(columnas.get(i), criterios.get(i), true);
-        }
-
-        return copia;
-    }
-
-    public <T> void filtrar(List<String> columnas, List<Predicate<Object>> criterios, boolean inplace){ //Criterio a mejorar, java requiere tipo de retorno y según inplace tenemos distintos
-        for (int i = 0; i <= columnas.size(); i++){
-            this.filtrar(columnas.get(i), criterios.get(i), inplace);
-        }
-    }
-
-
-
-    @Override
-    public boolean equals(Object obj) {
-        actualizarFilas();
-        // Verifica si el objeto es la misma instancia
-        if (this == obj) {
-            return true;
-        }
-    
-        // Verifica que el objeto no sea null y que sea exactamente de la misma clase
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-    
-        // Hace el cast seguro
-        Tabla otraTabla = (Tabla) obj;
-        otraTabla.actualizarFilas();
-        // Compara filas, columnas, encabezados y nombreIndex
-        return Objects.equals(this.filas, otraTabla.filas) &&
-               Objects.equals(this.columnas, otraTabla.columnas) &&
-               Objects.equals(this.nombreIndex, otraTabla.nombreIndex);
-    }
-    
-    @Override
-    public int hashCode() {
-        return Objects.hash(filas, columnas, encabezados, nombreIndex);
-    }
-    
-
-
-
-    // Método estático para crear un Predicate con una condición personalizada, considerando diferentes tipos y nulos
-    public static Predicate<Object> condicion(String operador, Object limite) {
-        return valor -> {
-            // Manejar valores nulos de manera específica
-            if (valor == null || limite == null) {
-                if (operador.equals("==")) {
-                    return valor == null && limite == null; // Ambos deben ser nulos para ser "iguales"
-                } else if (operador.equals("!=")) {
-                    return !(valor == null && limite == null); // Verdadero si uno es nulo y el otro no
-                } else {
-                    return false; // Otros operadores no aplican a valores nulos
+        for (int i=0; i < columna.obtenerTamaño(); i++){
+            if (!(columna.obtenerCeldas().get(i) instanceof CeldaNA)){
+                if (columna.obtenerCeldas().get(i) instanceof CeldaBoolean){
+                    ColumnaBoolean CBoolean = new ColumnaBoolean(columna.obtenerNombre(), columna.obtenerCeldas());
+                    this.columnas.add(CBoolean);
+                    columnaAgregada = true;
+                    break;
+                }
+                else if (columna.obtenerCeldas().get(i) instanceof CeldaNumber){
+                    ColumnaNumber CNumber = new ColumnaNumber(columna.obtenerNombre(), columna.obtenerCeldas());
+                    this.columnas.add(CNumber);
+                    columnaAgregada = true;
+                    break;
+                }
+                else if (columna.obtenerCeldas().get(i) instanceof CeldaString){
+                    ColumnaString CString = new ColumnaString(columna.obtenerNombre(), columna.obtenerCeldas());
+                    this.columnas.add(CString);
+                    columnaAgregada = true;
+                    break;
                 }
             }
-    
-            // Evaluar la condición según el operador si ambos valores no son nulos
-            switch (operador) {
-                case "<":
-                    return compararValores(valor, limite) < 0;
-                case ">":
-                    return compararValores(valor, limite) > 0;
-                case "==":
-                    return compararValores(valor, limite) == 0;
-                case "!=":
-                    return compararValores(valor, limite) != 0;
-                case "<=":
-                    return compararValores(valor, limite) <= 0;
-                case ">=":
-                    return compararValores(valor, limite) >= 0;
-                default:
-                    throw new IllegalArgumentException("Operador no válido: " + operador);
-            }
-        };
+        }
+
+        if (columnaAgregada == false){ // Sí el estado no cambió, creo y agrego una columnaNA al atributo celdas de la Tabla. (No uso !columnaAgregada para evitar error de lógica.)
+            ColumnaNA CNA = new ColumnaNA(columna.obtenerNombre(), columna.obtenerCeldas());
+            this.columnas.add(CNA);
+        }
     }
     
-
-    // Método auxiliar para comparar dos valores de tipo genérico (números, strings y booleanos)
     private static int compararValores(Object valor, Object limite) {
         if (valor instanceof Number && limite instanceof Number) {
             double valorDouble = ((Number) valor).doubleValue();
