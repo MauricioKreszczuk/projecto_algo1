@@ -608,7 +608,17 @@ public class Tabla{
         this.columnas.get(indiceColumna).obtenerCeldas().set(indiceFila, new CeldaNA());
     }
 
-
+    public void reemplazarColumna(int indiceColumna, Tabla columna){
+        if(columna.obtenerColumnas().size() != 0){
+            throw new IllegalArgumentException("No se aceptan mas de una columna");
+        }
+        try {
+            this.columnas.set(indiceColumna, columna.obtenerColumnas().get(0));
+        }
+        catch (IndexOutOfBoundsException e){
+            throw new IllegalArgumentException("La cantidad de filas de no coinciden");
+        }
+    }
 
 
 
@@ -727,6 +737,7 @@ public class Tabla{
             concatenada.AutoCasteoColumna(array);
         }
         concatenada.actualizarFilas();
+        concatenada.resetearIndex();
         return concatenada;
     }
 
@@ -785,50 +796,68 @@ public class Tabla{
         }
     }
 
-    public void visualizar(int maxColumnas, int maxFilas, int maxCaracteres){
+    public void visualizar(int maxColumnas, int maxFilas, int maxCaracteres) {
         // Hacer excepcion de si los parámetros se pasan del máximo de columnas o filas.
-        if(maxColumnas == 0){
+        if (maxColumnas == 0) {
             maxColumnas = columnas.size();
         }
-        if(maxFilas == 0){
-            maxFilas = columnas.get(0).obtenerTamaño();
+        if (maxFilas == 0) {
+            maxFilas = filas.size(); // Asegúrate de obtener el número de filas si maxFilas es 0
         }
+    
         StringBuilder builder = new StringBuilder();
+    
+        // Calcular el ancho máximo para cada columna de datos
         int[] maxAnchosPorColumna = new int[maxColumnas];
-
-        // Máximo de caracteres
+        
+        // Primero, calcular los anchos máximos para cada columna
         for (int col = 0; col < maxColumnas; col++) {
             int maxAnchoPorColumna = columnas.get(col).obtenerNombre().length();
-            for (int fila = 0; fila < maxFilas; fila++){
+            for (int fila = 0; fila < maxFilas; fila++) {
                 String valor = this.filas.get(fila).obtenerValor(col) != null ? this.filas.get(fila).obtenerValor(col).toString() : "null";
                 maxAnchoPorColumna = Math.max(maxAnchoPorColumna, valor.length());
             }
             maxAnchoPorColumna = Math.min(maxAnchoPorColumna, maxCaracteres);
             maxAnchosPorColumna[col] = maxAnchoPorColumna;
         }
-
-        // Encabezado
+    
+        // Calcular el ancho para la columna de "Filas" (nombreIndex)
+        int maxAnchoFila = getMaxLabelWidth();
+    
+        // Encabezado (incluyendo nombreIndex)
         builder.append("| ");
-        if (!columnas.isEmpty()) {
-            for (int col = 0; col < maxColumnas; col++) {
-                String columnaAjustada = columnas.get(col).obtenerNombre().length() > maxAnchosPorColumna[col] ? columnas.get(col).obtenerNombre().substring(0, maxAnchosPorColumna[col]) : columnas.get(col).obtenerNombre();
-                builder.append(String.format("%-" + maxAnchosPorColumna[col] + "s", columnaAjustada)).append(" | ");
-            }
-            builder.append("\n");
-            
-        }
-
-        // Lineas separadoras
-        builder.append("|");
-        for (int j = 0; j < maxColumnas; j++) {
-            builder.append("-".repeat(maxAnchosPorColumna[j] + 2)).append("|");
+        builder.append(String.format("%-" + maxAnchoFila + "s", nombreIndex)).append(" | "); // Agregar nombreIndex
+    
+        // Agregar encabezados de las columnas
+        for (int col = 0; col < maxColumnas; col++) {
+            String columnaAjustada = columnas.get(col).obtenerNombre().length() > maxAnchosPorColumna[col] ? columnas.get(col).obtenerNombre().substring(0, maxAnchosPorColumna[col]) : columnas.get(col).obtenerNombre();
+            builder.append(String.format("%-" + maxAnchosPorColumna[col] + "s", columnaAjustada)).append(" | ");
         }
         builder.append("\n");
-        System.out.println("Llegue");
+    
+        // Línea separadora
+        builder.append("| ");
+        builder.append("-".repeat(maxAnchoFila));  // Espacio para la columna "Filas" (sin +2)
+        builder.append(" |");  // Separador de la primera columna
 
+        // Agregar los guiones para las otras columnas
+        for (int j = 0; j < maxColumnas; j++) {
+            builder.append("-".repeat(maxAnchosPorColumna[j] + 2)); // Agregar separador para cada columna
+            if (j < maxColumnas - 1) {
+                builder.append("|"); // Añadir separador entre columnas
+            }
+        }
+        builder.append("|\n");
+
+    
         // Filas
         for (int fila = 0; fila < maxFilas; fila++) {
             builder.append("| ");
+            
+            // Imprimir nombre de la fila (como en nombreIndex)
+            builder.append(String.format("%-" + maxAnchoFila + "s", filas.get(fila).obtenerNombre())).append(" | ");
+    
+            // Valores de las celdas
             for (int col = 0; col < maxColumnas; col++) {
                 String valor = this.filas.get(fila).obtenerValor(col) != null ? this.filas.get(fila).obtenerValor(col).toString() : "null";
                 String valorAjustado = valor.length() > maxAnchosPorColumna[col] ? valor.substring(0, maxAnchosPorColumna[col]) : valor;
@@ -836,10 +865,11 @@ public class Tabla{
             }
             builder.append("\n");
         }
-
+    
+        // Mostrar el resultado
         System.out.println(builder.toString());
     }
-
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -1110,12 +1140,12 @@ public class Tabla{
     }
 
     private String formatearFilasParaImprimir(List<Fila> filasParaMostrar, List<String> nombresColumnas) {
-        // Agregar excepción si la columna no se encuentra
-
+        // Validar si la lista de filas está vacía
         if (filasParaMostrar.isEmpty()) {
-            return ""; // Hacer excepcion
+            return ""; // Hacer excepción o devolver mensaje si es necesario
         }
-
+    
+        // Si no se especifican nombres de columnas, se usan todas las columnas disponibles
         if (nombresColumnas == null || nombresColumnas.isEmpty()) {
             nombresColumnas = new ArrayList<>();
             for (Columna columna : this.columnas) {
@@ -1123,96 +1153,63 @@ public class Tabla{
             }
         }
     
-        int numColumnas = columnas.size();
+        // Obtener el número de columnas y preparar un arreglo para los anchos
+        int numColumnas = nombresColumnas.size();
         int[] maxAnchoPorColumna = new int[numColumnas];
-
-        if (nombresColumnas.size() == this.encabezados.size()) {
-            // Calculamos ancho máximo de cada columna
-            for (Fila fila : filasParaMostrar) {
-                for (int j = 0; j < numColumnas; j++) {
-                    String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
-                    maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], valor.length());
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append("| ");
-            for (int j = 0; j < numColumnas; j++){
-                maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], columnas.get(j).obtenerNombre().length());
-                sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", columnas.get(j).obtenerNombre())).append(" | ");
-            }
-            sb.append("\n");
-
-            // Agregamos linea separadora
-            sb.append("|");
+    
+        // Calcular el ancho máximo de cada columna, considerando los datos y los encabezados
+        for (Fila fila : filasParaMostrar) {
             for (int j = 0; j < numColumnas; j++) {
-                sb.append("-".repeat(maxAnchoPorColumna[j] + 2)).append("|");
+                String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
+                maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], valor.length());
             }
-            sb.append("\n");
-        
-            // Agregamos las filas a la impresion
-            for (Fila fila : filasParaMostrar) {
-                sb.append("| ");
-                for (int j = 0; j < numColumnas; j++) {
-                    String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
-                    sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", valor)).append(" | ");
-                }
-                sb.append("\n"); 
-            }
-            
-            return sb.toString();
         }
-        else{
-            // Buscamos índices a mostrar
-            List<Integer> indicesColumnas = new ArrayList<>();
-            for (String nombre : nombresColumnas) {
-                boolean columnaEncontrada = false;
-                for (int i = 0; i < columnas.size(); i++) {
-                    if (columnas.get(i).obtenerNombre().equals(nombre)) {
-                        indicesColumnas.add(i);
-                        columnaEncontrada = true;
-                        break;
-                    }
-                }
-                if (!columnaEncontrada) {
-                    throw new IndiceFueraDeRangoExcepcion("La columna '" + nombre + "' no se encuentra en la tabla.");
-                }
+    
+        // Crear el StringBuilder para construir la tabla formateada
+        StringBuilder sb = new StringBuilder();
+    
+        // Imprimir el encabezado (nombre del índice y los encabezados de las columnas)
+        int maxAnchoFila = getMaxLabelWidth(); // Calcular el ancho máximo de la columna "Filas" (nombreIndex)
+    
+        // Imprimir la columna de nombres de fila (nombreIndex)
+        sb.append("| ");
+        sb.append(String.format("%-" + maxAnchoFila + "s", nombreIndex)).append(" | ");  // Nombre del índice (filas)
+    
+        // Imprimir los encabezados de las columnas
+        for (int j = 0; j < numColumnas; j++) {
+            maxAnchoPorColumna[j] = Math.max(maxAnchoPorColumna[j], columnas.get(j).obtenerNombre().length());
+            sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", nombresColumnas.get(j))).append(" | ");
+        }
+        sb.append("\n");
+    
+        // Línea separadora
+        sb.append("|");
+        sb.append("-".repeat(maxAnchoFila + 2));  // Espacios para la columna "Filas"
+        sb.append("|");
+        for (int j = 0; j < numColumnas; j++) {
+            sb.append("-".repeat(maxAnchoPorColumna[j] + 2)); // Ancho de cada columna + márgenes
+            if (j < numColumnas - 1) {
+                sb.append("|"); // Separador entre columnas
             }
-
-            // Calculamos ancho máximo de cada columna
-            for (Fila fila : filasParaMostrar) {
-                for (int indice : indicesColumnas) {
-                    String valor = fila.obtenerValor(indice) != null ? fila.obtenerValor(indice).toString() : "NA";
-                    maxAnchoPorColumna[indice] = Math.max(maxAnchoPorColumna[indice], valor.length());
-                }
-            }
-            StringBuilder sb = new StringBuilder();
+        }
+        sb.append("|\n");
+    
+        // Imprimir las filas seleccionadas
+        for (Fila fila : filasParaMostrar) {
             sb.append("| ");
-            for (int indice : indicesColumnas){
-                maxAnchoPorColumna[indice] = Math.max(maxAnchoPorColumna[indice], columnas.get(indice).obtenerNombre().length());
-                sb.append(String.format("%-" + maxAnchoPorColumna[indice] + "s", columnas.get(indice).obtenerNombre())).append(" | ");
+            sb.append(String.format("%-" + maxAnchoFila + "s", fila.obtenerNombre())).append(" | ");  // Nombre de la fila (fila.getNombre())
+    
+            // Valores de las celdas
+            for (int j = 0; j < numColumnas; j++) {
+                String valor = fila.obtenerValor(j) != null ? fila.obtenerValor(j).toString() : "NA";
+                sb.append(String.format("%-" + maxAnchoPorColumna[j] + "s", valor)).append(" | ");
             }
             sb.append("\n");
-
-            // Agregamos linea separadora
-            sb.append("|");
-            for (int indice : indicesColumnas) {
-                sb.append("-".repeat(maxAnchoPorColumna[indice] + 2)).append("|");
-            }
-            sb.append("\n");
-            
-            // Agregamos las filas seleccionadas a la impresión
-            for (Fila fila : filasParaMostrar) {
-                sb.append("| ");
-                for (int indice : indicesColumnas) {
-                    String valor = fila.obtenerValor(indice) != null ? fila.obtenerValor(indice).toString() : "NA";
-                    sb.append(String.format("%-" + maxAnchoPorColumna[indice] + "s", valor)).append(" | ");
-                }
-                sb.append("\n");
-            }
-
-            return sb.toString();
         }
-    }  
+    
+        return sb.toString();
+    }
+    
 
     private boolean esDecimal(String valor) {
         try {

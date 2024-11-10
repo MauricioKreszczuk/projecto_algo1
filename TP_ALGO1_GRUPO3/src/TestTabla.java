@@ -1,13 +1,4 @@
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-
-import Array.Columnas.Columna;
-import Array.Columnas.ColumnaNumber;
-import Array.Columnas.ColumnaString;
-import Celda.Celda;
 
 public class TestTabla {
     public static void main(String[] args) throws IOException {
@@ -15,7 +6,8 @@ public class TestTabla {
         Tabla tabla = new Tabla(pathbat,true);
         System.out.println(tabla);
         tabla.asignarComoIndex("Nombre");
-        System.out.println(tabla);
+        tabla.resetearIndex();
+        tabla.visualizar(3, 2, 100);
 
         // System.out.println(tabla);
         // tabla.guardarComoCSV("C:\\Users\\MAURICIO\\Downloads\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\escritura.csv");
