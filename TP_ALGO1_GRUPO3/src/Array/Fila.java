@@ -1,6 +1,7 @@
 package Array;
 
 import java.util.List;
+import java.util.Objects;
 
 import Celda.Celda;
 
@@ -43,6 +44,32 @@ public class Fila extends ArrayCelda {
     
         sb.append(" |"); // Agrega el separador final
         return sb.toString(); // Devuelve el resultado
+    }
+
+
+        @Override
+    public boolean equals(Object obj) {
+        // Verifica si el objeto es la misma instancia
+        if (this == obj) {
+            return true;
+        }
+
+        // Verifica que el objeto no sea null y que sea exactamente de la misma clase
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        // Hace el cast seguro
+        Fila otraFila = (Fila) obj;
+
+        // Compara el nombre y las celdas
+        return Objects.equals(this.nombre, otraFila.nombre) &&
+            Objects.equals(this.celdas, otraFila.celdas);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nombre, celdas);
     }
     
     

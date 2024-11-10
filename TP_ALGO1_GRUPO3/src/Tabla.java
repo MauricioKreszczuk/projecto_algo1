@@ -9,6 +9,8 @@ import ExcepcionTabla.*;
 //import util.ImputarFaltantes;
 import Array.Columnas.*;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +51,7 @@ public class Tabla{
     private List<Fila> filas = new ArrayList<>();
     private List<Columna> columnas = new ArrayList<>();
     private List<String> encabezados = new ArrayList<>();
+    private String nombreIndex = "";
 
     public Tabla(){
         
@@ -186,29 +189,75 @@ public class Tabla{
         }
     }
 
-    public void crearFilasPorColumnas(List<Columna> columnas) {
+    public List<String> obtenerLabels(){
+        List<String> laList = new ArrayList<String>();
+        for(Fila fila : this.filas){
+            laList.add(fila.obtenerNombre());
+        }
+        return laList;
+    }
 
+    public void asignarLabels(List<String> labels){
+        if (labels.size()!= this.filas.size()) {
+            throw new IllegalArgumentException("El número de labels no coincide con el número de filas.");
+        }
+        for(Fila fila : this.filas){
+            fila.asignarNombre(labels.get(this.filas.indexOf(fila)));
+        }
+    }
+
+    public void asignarComoIndex(int indiceColumna){
+        this.nombreIndex = String.valueOf(columnas.get(indiceColumna).obtenerNombre());
+        for (int indiceFila = 0; indiceFila < this.columnas.get(indiceColumna).obtenerTamaño(); indiceFila++){
+            this.filas.get(indiceFila).asignarNombre(obtenerValorString(indiceColumna, indiceFila));
+        }
+        this.columnas.remove(indiceColumna);
+        actualizarFilas();
+        if(obtenerLabels().size() != obtenerLabels().stream().distinct().count()){
+            resetearIndex();
+            throw new IllegalArgumentException("Error: No se permiten labels repetidos");
+        }
+    }
+
+    public void resetearIndex(){
+        actualizarFilas();
+        this.nombreIndex = "";
+        for(Fila fila : this.filas){
+            fila.asignarNombre(String.valueOf(filas.indexOf(fila)));
+        }
+        actualizarFilas();
+    }
+
+    public void crearFilasPorColumnas(List<Columna> columnas) {
+        List<String> labels = obtenerLabels();
         int tamaño = columnas.get(0).obtenerTamaño();
-        List<String> etiquetas = columnas.get(0).obtenerEtiquetasPredefinidas();
+        List<Fila> filasTemporal = new ArrayList<Fila>();
         // Iterar sobre los valores de cada columna para formar las filas
         for (int indice = 0; indice < tamaño; indice++) {
             //String etiquetaFila = etiquetas.get(indice); 
-            Fila filaTemporal = new Fila(String.valueOf(indice)); // Asignar nombre a la fila
+            Fila filaTemporal = new Fila("");
+            if(labels.size() == tamaño){
+                filaTemporal = new Fila(labels.get(indice));
+            }
+            else {
+                filaTemporal = new Fila(String.valueOf(indice)); // Asignar nombre a la fila
+            }
             for (Columna columna : columnas) {
                 Celda<?> celda = columna.obtenerCeldas().get(indice); // Obtener la celda correspondiente en este índice
                 filaTemporal.agregarCelda(celda); // Agregar la celda a la fila
             }
     
             // Una vez que la fila está completa, agregarla a la tabla
-            this.filas.add(filaTemporal);
+            filasTemporal.add(filaTemporal);
         }
+        this.filas = filasTemporal;
     }
 
     public void actualizarFilas(){
-        this.filas.clear();
         crearFilasPorColumnas(this.columnas);
     }
     
+    @SuppressWarnings("unchecked")
     public <T> T obtenerValor(int indiceColumna, int IndiceFila){
         if (indiceColumna < 0 || indiceColumna >= columnas.size()) {
             throw new IndexOutOfBoundsException("Índice de columna fuera de rango.");
@@ -217,6 +266,21 @@ public class Tabla{
             throw new IndexOutOfBoundsException("Índice de fila fuera de rango.");
         }
         return (T) columnas.get(indiceColumna).obtenerValor(IndiceFila);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T obtenerValor(String EtiquetaColumna, String EtiquetaFila){
+        int indiceColumna = obtenerIndiceDeColumna(EtiquetaColumna);
+        int indiceFila = obtenerIndiceDeFila(EtiquetaFila);
+        return (T) obtenerValor(indiceColumna, indiceFila);
+    }
+
+    public <T> String obtenerValorString(int indiceColumna, int IndiceFila){
+        if(obtenerValor(indiceColumna, IndiceFila) instanceof String){
+            return (String) obtenerValor(indiceColumna, IndiceFila);
+        }
+        T valor = obtenerValor(indiceColumna, IndiceFila);
+        return String.valueOf(String.valueOf(valor));
     }
     
 
@@ -229,7 +293,16 @@ public class Tabla{
         return this.columnas;
     }
 
+    public void actualizarEncabezados(){
+        List<String> encabezados = new ArrayList<>();
+        for (Columna columna : this.columnas) {
+            encabezados.add(columna.obtenerNombre());
+        } 
+        this.encabezados = encabezados;
+    }
+
     public List<String> obtenerEncabezados(){
+        actualizarEncabezados();
         return this.encabezados;
     }
 
@@ -256,14 +329,13 @@ public class Tabla{
             while ((linea = br.readLine()) != null) {
                 String[] valores = linea.split(delimitador);
         
-                // Crear columnas si no se crearon con encabezado
-                if (tieneEncabezado == false) {
+                // Crear columnas dinámicamente si no hay encabezado
+                if (!tieneEncabezado && columnasCastear.isEmpty()) {
                     for (int i = 0; i < valores.length; i++) {
-                        ArrayCelda columna = new ArrayCelda("Columna" + i);
-                        this.encabezados.add("Columna" + i);
+                        ArrayCelda columna = new ArrayCelda(""+ i);
+                        this.encabezados.add(""+i);
                         columnasCastear.add(columna);
-                        //columnas.add(columna);
-                    } 
+                    }
                 }
         
                 // Verificar que el número de valores coincida con el número de columnas
@@ -274,7 +346,7 @@ public class Tabla{
                 }
         
                 // Asignar cada valor a la columna y fila correspondiente
-                Fila fila = new Fila("Fila" + (filas.size() + 1));
+                Fila fila = new Fila(String.valueOf( filas.size() ));
                 for (int i = 0; i < valores.length; i++) {
                     Celda<?> celda = this.inferirTipoDeDato(valores[i]);
                     columnasCastear.get(i).agregarCelda(celda);
@@ -285,11 +357,14 @@ public class Tabla{
         }
 
         for (ArrayCelda columna : columnasCastear) {
-            AutoCasteoColumna(columna);
+            
+            AutoCasteoColumna(columna); 
             int indiceCol = this.obtenerColumnas().indexOf(columna);
             if (!(esConsistente(this.obtenerColumnas().get(indiceCol)))){
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
             }
+            // procesarColumna(columna);
+            // actualizarFilas();
         }
     }
     
@@ -613,40 +688,47 @@ public class Tabla{
            celda.definirValor((String)valor);
         }
         else{
-            throw new IllegalArgumentException("El tipo de dato no coincide con el tipo de la celda.");
+            throw new IllegalArgumentException("El tipo de dato no coincide con el tipo de la columna");
         }
+        actualizarFilas();
     }
 
     public void definirComoNA(int indiceColumna, int indiceFila){
         this.columnas.get(indiceColumna).obtenerCeldas().set(indiceFila, new CeldaNA());
     }
+
+    public int numeroFilas(){
+        return this.columnas.get(0).obtenerTamaño();
+    }
+    public int numeroColumnas(){
+        return this.columnas.size();
+    }
  
-    public Tabla concatenar(Tabla tabla1, Tabla tabla2){
+    public static Tabla concatenar(Tabla tabla1, Tabla tabla2){
         Tabla copiaTabla1 = tabla1.copiaProfunda();
         Tabla copiaTabla2 = tabla2.copiaProfunda();
-        Tabla concatenada = copiaTabla1.copiaProfunda();
+        Tabla concatenada = new Tabla();
 
-        if (copiaTabla1.obtenerColumnas().size() != copiaTabla2.obtenerColumnas().size()){
-            //throw new Excepción nuestra ("mensaje");
+        if (copiaTabla1.numeroColumnas() != copiaTabla2.numeroColumnas()){
+            throw new IllegalArgumentException("Las tablas deben tener el mismo número de columnas.");
         }
-
-        if (!(copiaTabla1.obtenerEncabezados().equals(copiaTabla2.obtenerEncabezados()))){
-            //throw new Excepción nuestra ("mensaje");
+        else if (copiaTabla1.numeroFilas() != copiaTabla2.numeroFilas()){
+            throw new IllegalArgumentException("Las tablas deben tener el mismo número de filas.");
         }
-
-        for (Columna columna : copiaTabla2.obtenerColumnas()){
-            int i = copiaTabla1.obtenerColumnas().indexOf(columna);
-            for (Celda celda : copiaTabla2.obtenerColumnas().get(i).obtenerCeldas()){
-                Celda copiaCelda = celda.copiaProfunda();
-                concatenada.obtenerColumnas().get(i).agregarCelda(copiaCelda);
+        for(int ncolumna = 0; ncolumna < copiaTabla1.numeroColumnas(); ncolumna++){
+            if(copiaTabla1.obtenerColumnas().get(ncolumna).getClass() != copiaTabla2.obtenerColumnas().get(ncolumna).getClass()){
+                throw new IllegalArgumentException("Las columnas deben ser del mismo tipo");
             }
+            ArrayCelda array = new ArrayCelda(copiaTabla1.obtenerColumnas().get(ncolumna).obtenerNombre());
+            for(int i = 0; i < copiaTabla1.numeroFilas(); i++){
+                array.agregarCelda(copiaTabla1.obtenerColumnas().get(ncolumna).obtenerCeldas().get(i));                    
+            }
+            for(int i = 0; i < copiaTabla2.numeroFilas(); i++){
+                array.agregarCelda(copiaTabla2.obtenerColumnas().get(ncolumna).obtenerCeldas().get(i));                    
+            }
+            concatenada.AutoCasteoColumna(array);
         }
-
-        for (Fila fila : copiaTabla2.obtenerFilas()){
-            //Como uso la copia profunda de tabla2, no hace falta crear la copia de la fila, ya está copiada en profundidad.
-            concatenada.filas.add(fila);
-        }
-
+        concatenada.actualizarFilas();
         return concatenada;
     }
 
@@ -814,7 +896,12 @@ public class Tabla{
 
     public void visualizar(int maxColumnas, int maxFilas, int maxCaracteres){
         // Hacer excepcion de si los parámetros se pasan del máximo de columnas o filas.
-
+        if(maxColumnas == 0){
+            maxColumnas = columnas.size();
+        }
+        if(maxFilas == 0){
+            maxFilas = columnas.get(0).obtenerTamaño();
+        }
         StringBuilder builder = new StringBuilder();
         int[] maxAnchosPorColumna = new int[maxColumnas];
 
@@ -865,47 +952,79 @@ public class Tabla{
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        int[] maxAnchosPorColumna = new int[columnas.size()];
-
-        // Máximo de caracteres
+    
+        // Obtener el máximo ancho para cada columna, incluyendo la columna "Filas"
+        int[] maxAnchosPorColumna = new int[columnas.size() + 1]; // +1 para la columna "Filas"
+    
+        // Cálculo del ancho máximo para la columna "Filas" (utilizando nombreIndex)
+        maxAnchosPorColumna[0] = getMaxLabelWidth(); // Ancho de la columna "Filas"
+        
+        // Cálculo del ancho máximo para las demás columnas
         for (int col = 0; col < columnas.size(); col++) {
             int maxAnchoPorColumna = columnas.get(col).obtenerNombre().length();
             for (Fila fila : filas) {
                 String valor = fila.obtenerValor(col) != null ? fila.obtenerValor(col).toString() : "null";
                 maxAnchoPorColumna = Math.max(maxAnchoPorColumna, valor.length());
             }
-            maxAnchosPorColumna[col] = maxAnchoPorColumna;
+            maxAnchosPorColumna[col + 1] = maxAnchoPorColumna; // Ajustar para la columna normal
         }
-
-        // Encabezado
+    
+        // Encabezado (con la columna de nombres de fila)
         builder.append("| ");
-        if (!columnas.isEmpty()) {
-            for (int col = 0; col < columnas.size(); col++) {
-                String nombreColumna = columnas.get(col).obtenerNombre();
-                builder.append(String.format("%-" + maxAnchosPorColumna[col] + "s", nombreColumna)).append(" | ");
-            }
-            builder.append("\n");
+        builder.append(String.format("%-" + maxAnchosPorColumna[0] + "s", nombreIndex)).append(" | "); // Columna de nombres de fila
+        for (int col = 0; col < columnas.size(); col++) {
+            String nombreColumna = columnas.get(col).obtenerNombre();
+            builder.append(String.format("%-" + maxAnchosPorColumna[col + 1] + "s", nombreColumna)).append(" | ");
         }
-
-        // Lineas separadoras
-        builder.append("|");
-            for (int j = 0; j < this.columnas.size(); j++) {
-                builder.append("-".repeat(maxAnchosPorColumna[j] + 2)).append("|");
+        builder.append("\n");
+    
+        // Línea separadora
+        builder.append("|");  // Empezamos con el separador para la columna "Filas"
+        for (int j = 0; j < maxAnchosPorColumna.length; j++) {
+            // Agregar los guiones para cada columna más un espacio adicional ( +2) para los márgenes
+            builder.append("-".repeat(maxAnchosPorColumna[j] + 2));
+            if (j < maxAnchosPorColumna.length - 1) {
+                builder.append("|"); // Agregar "|" entre las columnas, no al final
             }
-            builder.append("\n");
-
-        // Filas
-        for (Fila fila : filas) {
+        }
+        builder.append("|\n");  // Añadimos el último "|" para cerrar la línea separadora
+    
+        // Filas (incluyendo el nombre de la fila a la izquierda)
+        for (int i = 0; i < filas.size(); i++) {
+            Fila fila = filas.get(i);
             builder.append("| ");
+            // Imprimir el nombre de la fila con el mismo ancho que el nombreIndex
+            builder.append(String.format("%-" + maxAnchosPorColumna[0] + "s", fila.obtenerNombre()) + " | ");
             for (int col = 0; col < columnas.size(); col++) {
                 String cellValue = fila.obtenerValor(col) != null ? fila.obtenerValor(col).toString() : "null";
-                builder.append(String.format("%-" + maxAnchosPorColumna[col] + "s", cellValue)).append(" | ");
+                builder.append(String.format("%-" + maxAnchosPorColumna[col + 1] + "s", cellValue)).append(" | ");
             }
             builder.append("\n");
         }
-
+    
         return builder.toString();
     }
+    
+    // Método auxiliar para obtener el ancho máximo de los nombres de las filas
+    private int getMaxLabelWidth() {
+        int maxWidth = nombreIndex.length();  // Usar la variable nombreIndex para el ancho
+        // Buscar el nombre más largo entre las filas
+        for (Fila fila : filas) {
+            maxWidth = Math.max(maxWidth, fila.obtenerNombre().length()); // Usar el nombre real de la fila
+        }
+        return maxWidth;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
     public Tabla copiaProfunda(){ // Posible método para abarcar verificaciones de 
@@ -932,6 +1051,11 @@ public class Tabla{
 
         }
         return copia;
+    }
+
+
+    public void procesarColumna(ArrayCelda arrayCelda) {
+        this.agregarColumna(Casteo.procesarColumna(arrayCelda));
     }
 
 
@@ -1161,23 +1285,36 @@ public class Tabla{
         }
     }
 
-    // @Override
-    // public void imputarNA(Number nuevaCelda) {
-    //     // TODO Auto-generated method stub
-    //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
-    // }
 
-    // @Override
-    // public void imputarNA(Boolean nuevaCelda) {
-    //     // TODO Auto-generated method stub
-    //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
-    // }
 
-    // @Override
-    // public void imputarNA(String nuevaCelda) {
-    //     // TODO Auto-generated method stub
-    //     throw new UnsupportedOperationException("Unimplemented method 'imputarNA'");
-    // }
+    @Override
+    public boolean equals(Object obj) {
+        actualizarFilas();
+        // Verifica si el objeto es la misma instancia
+        if (this == obj) {
+            return true;
+        }
+    
+        // Verifica que el objeto no sea null y que sea exactamente de la misma clase
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+    
+        // Hace el cast seguro
+        Tabla otraTabla = (Tabla) obj;
+        otraTabla.actualizarFilas();
+        // Compara filas, columnas, encabezados y nombreIndex
+        return Objects.equals(this.filas, otraTabla.filas) &&
+               Objects.equals(this.columnas, otraTabla.columnas) &&
+               Objects.equals(this.nombreIndex, otraTabla.nombreIndex);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hash(filas, columnas, encabezados, nombreIndex);
+    }
+    
+
 
 
 }

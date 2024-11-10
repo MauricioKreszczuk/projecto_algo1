@@ -8,12 +8,10 @@ import java.util.List;
 
 public class ArrayCelda implements util.ImputarFaltantes {
     protected List<Celda<?>> celdas;
-    protected Identificadores identificadores;
     protected String nombre;
 
     public ArrayCelda(String nombre) {
         this.celdas = new ArrayList<>();
-        this.identificadores = new Identificadores();
         this.nombre = nombre;
     }
 
@@ -33,18 +31,6 @@ public class ArrayCelda implements util.ImputarFaltantes {
         return (T) celda.obtenerValor();
     }
     
-
-    
-    public void cambiarPorNA(int indice) {
-        if (identificadores.indiceValido(indice)) {
-            celdas.set(indice, new CeldaNA());
-        }
-    }
-    
-    public void cambiarPorNA(String etiqueta) {
-        int indice = identificadores.indiceDeEtiqueta(etiqueta);
-        cambiarPorNA(indice);
-    }
     
     public Integer obtenerTamaño() {
         return celdas.size();
@@ -58,62 +44,43 @@ public class ArrayCelda implements util.ImputarFaltantes {
         return nombre;
     }
     
-    public void asignarEtiquetas(String... listaEtiquetas) {
-        identificadores.asignarEtiquetas(List.of(listaEtiquetas), celdas.size());
-    }
-    public void asignarEtiquetas(List<String> listaEtiquetas) {
-        identificadores.asignarEtiquetas(listaEtiquetas, celdas.size());
-    }
-    
-    public <T> T obtenerValor(String etiqueta) {
-        int indice = identificadores.indiceDeEtiqueta(etiqueta);
-        return obtenerValor(indice);
-    }
+
+
 
     
     public void agregarCelda(Celda<?> celda) {
         celdas.add(celda);
-        if (!identificadores.tieneEtiquetasPersonalizadas()) {
-            identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1);
-        }
     }
     
     
     // Método para agregar un valor de tipo Number y asignar etiqueta por defecto
     public void agregarValor(Number valor) {
         celdas.add(new CeldaNumber(valor)); // Agrega una nueva celda de tipo número
-        identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1); // Asigna etiqueta por defecto
     }
 
     // Método para agregar un valor de tipo Boolean y asignar etiqueta por defecto
     public void agregarValor(Boolean valor) {
         celdas.add(new CeldaBoolean(valor)); // Agrega una nueva celda de tipo booleano
-        identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1); // Asigna etiqueta por defecto
     }
 
     // Método para agregar un valor de tipo String y asignar etiqueta por defecto
     public void agregarValor(String valor) {
         
         celdas.add(new CeldaString(valor)); // Agrega una nueva celda de tipo cadena
-        identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1); // Asigna etiqueta por defecto
     }
 
     // Método para agregar una celda de tipo NA (no disponible) y asignar etiqueta por defecto
     public void agregarValor() {
         celdas.add(new CeldaNA()); // Agrega una nueva celda de tipo NA
-        identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1); // Asigna etiqueta por defecto
     }
 
     public ArrayCelda copiaProfunda() {
-        ArrayCelda nuevaArray = new ArrayCelda(this.nombre);
+        ArrayCelda nuevaArray = new ArrayCelda(String.valueOf(this.nombre));
         int i = 0;
         for (Celda<?> celda : celdas) {
-            identificadores.asignarEtiquetaPorDefecto(i);
             nuevaArray.celdas.add(celda.copiaProfunda());
             i++;
         }
-        List<String> etiquetas = identificadores.obtenerEtiquetas();
-        nuevaArray.asignarEtiquetas(etiquetas); 
         return nuevaArray;
     }
 
@@ -148,19 +115,7 @@ public class ArrayCelda implements util.ImputarFaltantes {
         }
     }
 
-    public List<String> obtenerEtiquetas(){
-        return identificadores.obtenerEtiquetas();
-    }
-
-    public String obtenerEtiqueta(int indice){
-        return identificadores.obtenerEtiqueta(indice);
-    }
-
-    public List<String> obtenerEtiquetasPredefinidas(){
-        identificadores.asignarEtiquetaPorDefecto(celdas.size() - 1);
-        return identificadores.obtenerEtiquetas();
-    }
-
+  
     @Override
     public boolean equals(Object obj) {
         if (obj == null || !(obj instanceof ArrayCelda)) {
@@ -172,6 +127,6 @@ public class ArrayCelda implements util.ImputarFaltantes {
 
     @Override
     public int hashCode() {
-        return 31 * celdas.hashCode() + identificadores.hashCode();
+        return 31 * celdas.hashCode();
     }
 }

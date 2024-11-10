@@ -11,7 +11,7 @@ import Celda.Celda;
 
 public class TestTabla {
     public static void main(String[] args) throws IOException {
-        String pathbat = "C:\\Users\\MAURICIO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\testNoTanFeo.csv";
+        String pathbat = "C:\\Users\\MAURICIO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\test.csv";
         Tabla tabla = new Tabla(pathbat,true);
         // System.out.println(tabla);
         // tabla.guardarComoCSV("C:\\Users\\MAURICIO\\Downloads\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\escritura.csv");
@@ -21,17 +21,35 @@ public class TestTabla {
         // tabla.imputarNA("Ciudad", "nada");
         // System.out.println(tabla);
 
-        List<Object> lista = new ArrayList<>();
-        lista.add("Edad");
-        lista.add(30);
-        lista.add(50);
-        lista.add(20);
-        lista.add(650);
-        lista.add(60);
-        lista.add(10);
-        tabla.insertarColumna(lista, true);
+        // List<Object> lista = new ArrayList<>();
+        // lista.add("Edad");
+        // lista.add(30);
+        // lista.add(50);
+        // lista.add(20);
+        // lista.add(650);
+        // lista.add(60);
+        // lista.add(10);
+        // tabla.insertarColumna(lista, true);
 
+        // System.out.println(tabla);
+        // tabla.imputarNA("Edad", 2);
+        // tabla.asignarComoIndex(0);
+        // System.out.println(tabla);
+        // String valor = tabla.obtenerValor("Edad", "Alice");
+        // System.out.println(valor);
+        // tabla.resetearIndex();
+        // System.out.println(tabla);
+
+        Tabla tabla2 = tabla.copiaProfunda();
         System.out.println(tabla);
+        System.out.println(tabla2);
+        tabla2.definirValor(0, 0, "Juan");
+        System.out.println(tabla2);
+        System.out.println(tabla.equals(tabla2));
+
+
+
+
 
         // System.out.println(tabla);
 
