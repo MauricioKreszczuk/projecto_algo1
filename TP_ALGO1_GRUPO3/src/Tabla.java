@@ -42,7 +42,11 @@ public class Tabla{
         this.columnas = new ArrayList<>();
         this.encabezados = new ArrayList<>();
         this.nombreIndex = "";
-        // Hacer excepcion de si se pasa una lista vacia y si tienen distintos largos
+        
+        if (listaDeFilas.size() == 0){
+            throw new ExcepcionConstructorConSecuenciaVacia("El constructor recibió una secuencia lineal vacía, no se puede crear una tabla a partir de una estructura vacía");
+        }
+
         ArrayList<ArrayCelda> columnasCastear = new ArrayList<>();
 
         if (tieneEncabezado){
@@ -66,8 +70,7 @@ public class Tabla{
         int filaInicio = tieneEncabezado ? 1 : 0;
         for (int i = filaInicio; i < listaDeFilas.size(); i++) {
             if (listaDeFilas.get(i).size() != columnasCastear.size()) {
-                throw new IllegalArgumentException("La fila " + i + " no coincide con el número de columnas.");
-                //Modificar para que la excepcion diga el número de la fila
+                throw new ExcepcionIncositenciaDeRango("La fila " + i + " no coincide con el número de columnas.");
             }
     
             Fila fila = new Fila("Fila" + (filas.size() + 1));
@@ -125,7 +128,7 @@ public class Tabla{
             
             // Verificar que la fila tenga el mismo número de valores que el número de columnas
             if (filaDatos.length != columnasCastear.size()) {
-                throw new IllegalArgumentException("La fila " + i + " no coincide con el número de columnas.");
+                throw new ExcepcionIncositenciaDeRango("La fila " + i + " no coincide con el número de columnas.");
             }
     
             Fila fila = new Fila("Fila" + (filas.size() + 1));
@@ -190,7 +193,7 @@ public class Tabla{
                 if (valores.length != columnasCastear.size()) {
                     System.out.println(columnas.size());
                     System.out.println(valores.length);
-                    throw new IOException("El número de valores no coincide con el número de columnas.");
+                    throw new ExcepcionIncositenciaDeRango("El número de valores no coincide con el número de columnas.");
                 }
         
                 // Asignar cada valor a la columna y fila correspondiente
@@ -211,8 +214,6 @@ public class Tabla{
             if (!(esConsistente(this.obtenerColumnas().get(indiceCol)))){
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
             }
-            // procesarColumna(columna);
-            // actualizarFilas();
         }
     }
     
@@ -235,7 +236,6 @@ public class Tabla{
                     columna.asignarNombre(encabezado);
                     this.encabezados.add(encabezado);
                     columnasCastear.add(columna);
-                    //columnas.add(columna);
                 }
             }
         
@@ -249,7 +249,6 @@ public class Tabla{
                         ArrayCelda columna = new ArrayCelda("Columna" + i);
                         this.encabezados.add("Columna" + i);
                         columnasCastear.add(columna);
-                        //columnas.add(columna);
                     } 
                 }
         
@@ -257,7 +256,7 @@ public class Tabla{
                 if (valores.length != columnasCastear.size()) {
                     System.out.println(columnas.size());
                     System.out.println(valores.length);
-                    throw new IOException("El número de valores no coincide con el número de columnas.");
+                    throw new ExcepcionIncositenciaDeRango("El número de valores no coincide con el número de columnas.");
                 }
         
                 // Asignar cada valor a la columna y fila correspondiente
@@ -312,24 +311,42 @@ public class Tabla{
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T obtenerValor(int indiceColumna, int IndiceFila){
+    public <T> T obtenerValor(int indiceColumna, int IndiceFila) throws IndiceFueraDeRangoExcepcion{
         if (indiceColumna < 0 || indiceColumna >= columnas.size()) {
-            throw new IndexOutOfBoundsException("Índice de columna fuera de rango.");
+            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango.");
         }
         if (IndiceFila < 0 || IndiceFila >= columnas.get(indiceColumna).obtenerTamaño()) {
-            throw new IndexOutOfBoundsException("Índice de fila fuera de rango.");
+            throw new IndiceFueraDeRangoExcepcion("Índice de fila fuera de rango.");
         }
         return (T) columnas.get(indiceColumna).obtenerValor(IndiceFila);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T obtenerValor(String EtiquetaColumna, String EtiquetaFila){
+    public <T> T obtenerValor(String EtiquetaColumna, String EtiquetaFila) throws IndiceFueraDeRangoExcepcion{
         int indiceColumna = obtenerIndiceDeColumna(EtiquetaColumna);
         int indiceFila = obtenerIndiceDeFila(EtiquetaFila);
+
+        if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
+            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+        }
+
+        if (indiceFila < 0 || indiceFila >= this.filas.get(indiceFila).obtenerTamaño()){
+            throw new IndiceFueraDeRangoExcepcion("Índice de fila fuera de rango");
+        }
+
         return (T) obtenerValor(indiceColumna, indiceFila);
     }
 
-    public <T> String obtenerValorString(int indiceColumna, int IndiceFila){
+    public <T> String obtenerValorString(int indiceColumna, int IndiceFila) throws IndiceFueraDeRangoExcepcion{
+
+        if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
+            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+        }
+
+        if (IndiceFila < 0 || IndiceFila >= this.filas.get(IndiceFila).obtenerTamaño()){
+            throw new IndiceFueraDeRangoExcepcion("Índice de fila fuera de rango");
+        }
+
         if(obtenerValor(indiceColumna, IndiceFila) instanceof String){
             return (String) obtenerValor(indiceColumna, IndiceFila);
         }
@@ -337,9 +354,18 @@ public class Tabla{
         return String.valueOf(String.valueOf(valor));
     }
 
-    public <T> String obtenerValorString(String nombreColumna, String nombreFila){
+    public <T> String obtenerValorString(String nombreColumna, String nombreFila) throws IndiceFueraDeRangoExcepcion{
         int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
         int indiceFila = obtenerIndiceDeFila(nombreFila);
+
+        if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
+            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+        }
+
+        if (indiceFila < 0 || indiceFila >= this.filas.get(indiceFila).obtenerTamaño()){
+            throw new IndiceFueraDeRangoExcepcion("Índice de fila fuera de rango");
+        }
+
         return obtenerValorString(indiceColumna, indiceFila);
     }
     
@@ -389,14 +415,19 @@ public class Tabla{
 //Setters
     public void asignarLabels(List<String> labels){
         if (labels.size()!= this.filas.size()) {
-            throw new IllegalArgumentException("El número de labels no coincide con el número de filas.");
+            throw new ExcepcionIncositenciaDeRango("El número de labels no coincide con el número de filas.");
         }
         for(Fila fila : this.filas){
             fila.asignarNombre(labels.get(this.filas.indexOf(fila)));
         }
     }
 
-    public void asignarComoIndex(int indiceColumna){
+    public void asignarComoIndex(int indiceColumna) throws IndiceFueraDeRangoExcepcion{
+
+        if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
+            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+        }
+        
         this.nombreIndex = String.valueOf(columnas.get(indiceColumna).obtenerNombre());
         for (int indiceFila = 0; indiceFila < this.columnas.get(indiceColumna).obtenerTamaño(); indiceFila++){
             this.filas.get(indiceFila).asignarNombre(obtenerValorString(indiceColumna, indiceFila));
@@ -405,12 +436,17 @@ public class Tabla{
         actualizarFilas();
         if(obtenerLabels().size() != obtenerLabels().stream().distinct().count()){
             resetearIndex();
-            throw new IllegalArgumentException("Error: No se permiten labels repetidos");
+            throw new ExcepcionEtiquetaRepetida("Error: No se permiten labels repetidos");
         }
     }
 
-    public void asignarComoIndex(String encabezado){
+    public void asignarComoIndex(String encabezado) throws IndiceFueraDeRangoExcepcion{
         int indiceColumna = obtenerIndiceDeColumna(encabezado);
+
+        if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
+            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+        }
+
         asignarComoIndex(indiceColumna);
     }
 
@@ -433,7 +469,7 @@ public class Tabla{
                 filaTemporal.agregarCelda(celda); // Agregar la celda a la fila
             }
     
-            // Una vez que la fila está completa, agregarla a la tabla
+            // Ahora agrego la fila, cuando ya está completa
             filasTemporal.add(filaTemporal);
         }
         this.filas = filasTemporal;
@@ -469,7 +505,7 @@ public class Tabla{
         this.columnas.add(columna);
     }
 
-    public void insertarColumna(Tabla columna){
+    public void insertarColumna(Tabla columna){ //WTF
         if (columna.obtenerColumnas().size() == 1)
         {
             this.columnas.addAll(columna.obtenerColumnas());
@@ -497,7 +533,6 @@ public class Tabla{
     }
 
     public <T> void imputarNA(String nombreColumna, T valor) {
-        // Obtener el índice de la columna por nombre
         int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
         if (columnas.get(indiceColumna) instanceof ColumnaNumber){
             Number valo = Double.valueOf(String.valueOf(valor));
@@ -550,7 +585,7 @@ public class Tabla{
         eliminarColumna(indiceColumna);
     }
 
-    public <T> void definirValor(int indiceColumna, int indiceFila, T valor){
+    public <T> void definirValor(int indiceColumna, int indiceFila, T valor) throws TipoDeDatoInvalidoExcepcion{
         actualizarFilas();
         if (this.columnas.get(indiceColumna) instanceof ColumnaNumber && valor instanceof Number){
            CeldaNumber celda =(CeldaNumber)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
@@ -565,7 +600,7 @@ public class Tabla{
            celda.definirValor((String)valor);
         }
         else{
-            throw new IllegalArgumentException("El tipo de dato no coincide con el tipo de la columna");
+            throw new TipoDeDatoInvalidoExcepcion("El tipo de dato no coincide con el tipo de la columna");
         }
         actualizarFilas();
     }
@@ -622,18 +657,19 @@ public class Tabla{
                 }
                 writer.append("\n");
             }
-        } catch (IOException e) {
+        } catch (ExcepcionErrorDeEscrituraCSV e) {
             System.err.println("Error al escribir en el archivo CSV: " + e.getMessage());
             throw e;
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void ordenarPorColumnas(List<String> nombresColumnas, boolean ascendente) {
         Comparator<Fila> comparator = (fila1, fila2) -> {
             for (String nombreColumna : nombresColumnas) {
                 int indiceColumna = this.obtenerIndiceDeColumna(nombreColumna);
-                if (indiceColumna == -1) {
-                    throw new IllegalArgumentException("Columna " + nombreColumna + " no encontrada.");
+                if (indiceColumna < 0) {
+                    throw new IndiceFueraDeRangoExcepcion("Columna " + nombreColumna + " no encontrada.");
                 }
 
                 if ((fila1.obtenerCelda(indiceColumna) instanceof CeldaNA && fila2.obtenerCelda(indiceColumna) instanceof CeldaNA)) {
@@ -673,14 +709,14 @@ public class Tabla{
         Tabla concatenada = new Tabla();
 
         if (copiaTabla1.numeroColumnas() != copiaTabla2.numeroColumnas()){
-            throw new IllegalArgumentException("Las tablas deben tener el mismo número de columnas.");
+            throw new ExcepcionIncositenciaDeRango("Las tablas deben tener el mismo número de columnas.");
         }
         else if (copiaTabla1.numeroFilas() != copiaTabla2.numeroFilas()){
-            throw new IllegalArgumentException("Las tablas deben tener el mismo número de filas.");
+            throw new ExcepcionIncositenciaDeRango("Las tablas deben tener el mismo número de filas.");
         }
         for(int ncolumna = 0; ncolumna < copiaTabla1.numeroColumnas(); ncolumna++){
             if(copiaTabla1.obtenerColumnas().get(ncolumna).getClass() != copiaTabla2.obtenerColumnas().get(ncolumna).getClass()){
-                throw new IllegalArgumentException("Las columnas deben ser del mismo tipo");
+                throw new TipoDeDatoInvalidoExcepcion("Las columnas deben ser del mismo tipo");
             }
             ArrayCelda array = new ArrayCelda(copiaTabla1.obtenerColumnas().get(ncolumna).obtenerNombre());
             for(int i = 0; i < copiaTabla1.numeroFilas(); i++){
@@ -861,7 +897,7 @@ public class Tabla{
         return builder.toString();
     }
         
-    public Tabla copiaProfunda(){ // Posible método para abarcar verificaciones de 
+    public Tabla copiaProfunda(){ 
         Tabla copia = new Tabla();
         for (int i=0; i < this.obtenerColumnas().size(); i++){
             if (this.obtenerColumnas().get(i) instanceof ColumnaBoolean){
@@ -979,20 +1015,17 @@ public class Tabla{
     @Override
     public boolean equals(Object obj) {
         actualizarFilas();
-        // Verifica si el objeto es la misma instancia
         if (this == obj) {
             return true;
         }
     
-        // Verifica que el objeto no sea null y que sea exactamente de la misma clase
         if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
     
-        // Hace el cast seguro
         Tabla otraTabla = (Tabla) obj;
         otraTabla.actualizarFilas();
-        // Compara filas, columnas, encabezados y nombreIndex
+        
         return Objects.equals(this.filas, otraTabla.filas) &&
                Objects.equals(this.columnas, otraTabla.columnas) &&
                Objects.equals(this.nombreIndex, otraTabla.nombreIndex);
@@ -1031,7 +1064,7 @@ public class Tabla{
                 case ">=":
                     return compararValores(valor, limite) >= 0;
                 default:
-                    throw new IllegalArgumentException("Operador no válido: " + operador);
+                    throw new ExcepcionOperadorInvalido("Operador no válido: " + operador);
             }
         };
     }
@@ -1142,7 +1175,7 @@ public class Tabla{
                     }
                 }
                 if (!columnaEncontrada) {
-                    throw new IllegalArgumentException("La columna '" + nombre + "' no se encuentra en la tabla.");
+                    throw new IndiceFueraDeRangoExcepcion("La columna '" + nombre + "' no se encuentra en la tabla.");
                 }
             }
 
@@ -1301,7 +1334,7 @@ public class Tabla{
             }
         }
 
-        if (columnaAgregada == false){ // Sí el estado no cambió, creo y agrego una columnaNA al atributo celdas de la Tabla. (No uso !columnaAgregada para evitar error de lógica.)
+        if (columnaAgregada == false){ 
             ColumnaNA CNA = new ColumnaNA(columna.obtenerNombre(), columna.obtenerCeldas());
             this.columnas.add(CNA);
         }
@@ -1317,7 +1350,7 @@ public class Tabla{
         } else if (valor instanceof Boolean && limite instanceof Boolean) {
             return Boolean.compare((Boolean) valor, (Boolean) limite);
         } else {
-            throw new IllegalArgumentException("Tipos incompatibles: " + valor.getClass() + " y " + limite.getClass());
+            throw new TipoDeDatoInvalidoExcepcion("Tipos incompatibles: " + valor.getClass() + " y " + limite.getClass());
         }
     }
 }

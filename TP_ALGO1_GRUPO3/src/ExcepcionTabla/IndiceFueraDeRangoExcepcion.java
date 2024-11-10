@@ -1,11 +1,14 @@
 package ExcepcionTabla;
 
-public class IndiceFueraDeRangoExcepcion extends ExcepcionTabla {
-
-    // public IndiceFueraDeRangoExcepcion(int comienzoRango, int finalRango , int maxfilas) {
-    //     super("El rango especificado (" + comienzoRango + " a " + finalRango + ") está fuera del rango permitido (0 a " + maxfilas + ")");
-    // }
+public class IndiceFueraDeRangoExcepcion extends RuntimeException {
+    public String mensaje;
     public IndiceFueraDeRangoExcepcion(String mensaje) {
         super(mensaje);
+        this.mensaje = mensaje;
+        
+    }
+
+    public String obtenerMensaje() {
+        return this.mensaje;
     }
 }
