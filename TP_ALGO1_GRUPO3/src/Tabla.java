@@ -1411,11 +1411,37 @@ public class Tabla{
         return this.condicion(indiceColumna, condicion, limite);
     }
 
-
-
     public void aNumerica (int indiceColumna){
         ColumnaNumber columna = Casteo.aNumber(this.obtenerColumnas().get(indiceColumna));
         this.columnas.set(indiceColumna,columna);
         actualizarFilas();
     }
+
+    public void aNumerica(String nombreColumna){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        this.aNumerica(indiceColumna);
+    }
+
+    public void aBooleana(int indiceColumna){
+        ColumnaBoolean columna = Casteo.aBoolean(this.obtenerColumnas().get(indiceColumna));
+        this.columnas.set(indiceColumna, columna);
+        actualizarFilas();
+    }
+
+    public void aBooleana(String nombreColumna){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        this.aBooleana(indiceColumna);
+    }
+
+    public void aString(int indiceColumna){
+        ColumnaString columna = Casteo.aString(this.obtenerColumnas().get(indiceColumna));
+        this.columnas.set(indiceColumna, columna);
+        actualizarFilas();
+    }
+
+    public void aString(String nombreColumna){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        this.aString(indiceColumna);
+    }
+
 }
