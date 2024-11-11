@@ -6,10 +6,6 @@ public class CeldaNA extends Celda<String> {
         super(null);
     }
 
-    @Override
-    public String obtenerTipo() {
-        return "NA"; 
-    }
 
     @Override
     public String toString() {
