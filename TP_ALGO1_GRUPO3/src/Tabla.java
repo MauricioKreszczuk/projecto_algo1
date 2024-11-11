@@ -89,7 +89,7 @@ public class Tabla{
         }
 
         for (ArrayCelda columna : columnasCastear) {
-            AutoCasteoColumna(columna);
+            procesarColumna(columna);
             int indiceCol = this.obtenerColumnas().indexOf(columna);
             if (!esConsistente(this.obtenerColumnas().get(indiceCol))) {
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
@@ -147,7 +147,7 @@ public class Tabla{
     
         // Verificación de consistencia y auto-casteo de columnas
         for (ArrayCelda columna : columnasCastear) {
-            AutoCasteoColumna(columna);
+            procesarColumna(columna);
             int indiceCol = this.obtenerColumnas().indexOf(columna);
             if (!esConsistente(this.obtenerColumnas().get(indiceCol))) {
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
@@ -214,7 +214,7 @@ public class Tabla{
 
         for (ArrayCelda columna : columnasCastear) {
             
-            AutoCasteoColumna(columna); 
+            procesarColumna(columna); 
             int indiceCol = this.obtenerColumnas().indexOf(columna);
             if (!(esConsistente(this.obtenerColumnas().get(indiceCol)))){
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
@@ -276,7 +276,7 @@ public class Tabla{
         }
 
         for (ArrayCelda columna : columnasCastear) {
-            AutoCasteoColumna(columna);
+            procesarColumna(columna);
             int indiceCol = this.obtenerColumnas().indexOf(columna);
             if (!(esConsistente(this.obtenerColumnas().get(indiceCol)))){
                 reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
@@ -296,6 +296,7 @@ public class Tabla{
         return nuevaTabla;
     }
 
+    @SuppressWarnings("unchecked")
     public Tabla obtenerFila(String etiqueta){
         Fila fila = new Fila(etiqueta);
         int indiceColumna = 0;
@@ -308,9 +309,7 @@ public class Tabla{
         nuevaTabla.encabezados = this.encabezados;
         nuevaTabla.obtenerFilas().add(fila);
         
-        for (Celda celda : fila.obtenerCeldas()){
-        nuevaTabla.obtenerColumnas().get(indiceColumna).agregarCelda(celda);
-        }
+        nuevaTabla.obtenerColumnas().get(indiceColumna).establecerCeldas(fila.obtenerCeldas());
         
         return nuevaTabla;
     }
@@ -409,7 +408,7 @@ public class Tabla{
     }
 
     public int numeroFilas(){
-        return this.columnas.get(0).obtenerTamaño();
+        return this.filas.size();
     }
     
     public int numeroColumnas(){
@@ -532,7 +531,7 @@ public class Tabla{
         for (Object cosa : columna){
             nuevaColumna.agregarCelda(inferirTipoDesdeObject(cosa)); 
         }
-        this.AutoCasteoColumna(nuevaColumna);
+        this.procesarColumna(nuevaColumna);
         actualizarFilas();
     }
 
@@ -642,7 +641,7 @@ public class Tabla{
             for (Integer indice : indicesFiltrados){
                 columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
             }
-            this.AutoCasteoColumna(columnaFiltrada);
+            this.procesarColumna(columnaFiltrada);
         }
         this.actualizarFilas();        
     }
@@ -664,7 +663,7 @@ public class Tabla{
             for (Integer indice : indicesFiltrados) {
                 columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
             }
-            this.AutoCasteoColumna(columnaFiltrada);
+            this.procesarColumna(columnaFiltrada);
         }
         this.actualizarFilas();
     }
@@ -853,7 +852,7 @@ public class Tabla{
             for(int i = 0; i < copiaTabla2.numeroFilas(); i++){
                 array.agregarCelda(copiaTabla2.obtenerColumnas().get(ncolumna).obtenerCeldas().get(i));                    
             }
-            concatenada.AutoCasteoColumna(array);
+            concatenada.procesarColumna(array);
         }
         concatenada.actualizarFilas();
         concatenada.resetearIndex();
@@ -1049,16 +1048,16 @@ public class Tabla{
         Tabla copia = new Tabla();
         for (int i=0; i < this.obtenerColumnas().size(); i++){
             if (this.obtenerColumnas().get(i) instanceof ColumnaBoolean){
-                copia.AutoCasteoColumna(this.obtenerColumnas().get(i).copiaProfunda());
+                copia.procesarColumna(this.obtenerColumnas().get(i).copiaProfunda());
             }
             else if (this.obtenerColumnas().get(i) instanceof ColumnaNumber){
-                copia.AutoCasteoColumna(this.obtenerColumnas().get(i).copiaProfunda());
+                copia.procesarColumna(this.obtenerColumnas().get(i).copiaProfunda());
             }
             else if (this.obtenerColumnas().get(i) instanceof ColumnaString){
-                copia.AutoCasteoColumna(this.obtenerColumnas().get(i).copiaProfunda());
+                copia.procesarColumna(this.obtenerColumnas().get(i).copiaProfunda());
             }
             else if (this.obtenerColumnas().get(i) instanceof ColumnaNA){
-                copia.AutoCasteoColumna(this.obtenerColumnas().get(i).copiaProfunda());
+                copia.procesarColumna(this.obtenerColumnas().get(i).copiaProfunda());
             }
         }
         
@@ -1132,7 +1131,7 @@ public class Tabla{
             for (Integer indice : indicesFiltrados){
                 columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
             }
-            filtrada.AutoCasteoColumna(columnaFiltrada);
+            filtrada.procesarColumna(columnaFiltrada);
         }
         filtrada.actualizarFilas();        
         return filtrada;
@@ -1149,7 +1148,7 @@ public class Tabla{
             for (Integer indice : indicesFiltrados){
                 columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice));
             }
-            this.AutoCasteoColumna(col);
+            this.procesarColumna(col);
         }
         this.columnas = columnasFiltradas;
 
@@ -1419,38 +1418,6 @@ public class Tabla{
             }  
         }
         return -1;
-    }
-
-    private void AutoCasteoColumna(ArrayCelda columna){
-        boolean columnaAgregada = false; // Flag para evitar duplicado de columnas
-
-        for (int i=0; i < columna.obtenerTamaño(); i++){
-            if (!(columna.obtenerCeldas().get(i) instanceof CeldaNA)){
-                if (columna.obtenerCeldas().get(i) instanceof CeldaBoolean){
-                    ColumnaBoolean CBoolean = new ColumnaBoolean(columna.obtenerNombre(), columna.obtenerCeldas());
-                    this.columnas.add(CBoolean);
-                    columnaAgregada = true;
-                    break;
-                }
-                else if (columna.obtenerCeldas().get(i) instanceof CeldaNumber){
-                    ColumnaNumber CNumber = new ColumnaNumber(columna.obtenerNombre(), columna.obtenerCeldas());
-                    this.columnas.add(CNumber);
-                    columnaAgregada = true;
-                    break;
-                }
-                else if (columna.obtenerCeldas().get(i) instanceof CeldaString){
-                    ColumnaString CString = new ColumnaString(columna.obtenerNombre(), columna.obtenerCeldas());
-                    this.columnas.add(CString);
-                    columnaAgregada = true;
-                    break;
-                }
-            }
-        }
-
-        if (columnaAgregada == false){ 
-            ColumnaNA CNA = new ColumnaNA(columna.obtenerNombre(), columna.obtenerCeldas());
-            this.columnas.add(CNA);
-        }
     }
     
     private static int compararValores(Object valor, Object limite) {

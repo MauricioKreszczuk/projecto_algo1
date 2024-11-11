@@ -25,7 +25,7 @@ public class Columna<T> extends ArrayCelda {
         super(nombre);
     }
     
-       public Columna(String nombre, List<Celda<?>> Celdas) {
+    public Columna(String nombre, List<Celda<?>> Celdas) {
         super(nombre);
         this.celdas = Celdas;
     }
@@ -40,19 +40,13 @@ public class Columna<T> extends ArrayCelda {
         return valor;
     }
 
-
     public void agregarValor() {
         super.agregarValor();
     }
 
-
     public void cambiarCelda(int indice, Celda celda){
         this.celdas.set(indice, celda);
     }
-
-
-
-
 
     protected void validarTipo(T valor) {
         if (!tipoDeDato.isInstance(valor)) {
