@@ -5,8 +5,8 @@ public class TestTabla {
         String pathbat = "C:\\Users\\MAURICIO\\Downloads\\mascosas\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\test.csv";
         Tabla tabla = new Tabla(pathbat,true);
         System.out.println(tabla);
-        tabla.aNumerica(1);
-        System.out.println(tabla);
+        Tabla columnasSeleccionadas = tabla.obtenerColumnas("Edad","Ciudad");
+        System.out.println(columnasSeleccionadas);
         
 
 

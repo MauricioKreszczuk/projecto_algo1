@@ -722,7 +722,9 @@ public class Tabla{
                 throw new IndexOutOfBoundsException("Índice de columna fuera de rango: " + indice);
             }
         }
+        nuevaTabla.actualizarFilas();
         return nuevaTabla;
+        
     }
     
     public Tabla obtenerColumnas(String... etiquetas) {
@@ -735,6 +737,7 @@ public class Tabla{
                 throw new IllegalArgumentException("La columna con etiqueta '" + etiqueta + "' no existe.");
             }
         }
+        nuevaTabla.actualizarFilas();
         return nuevaTabla;
     }
 
