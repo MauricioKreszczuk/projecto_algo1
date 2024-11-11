@@ -625,7 +625,118 @@ public class Tabla{
         }
     }
 
+    public void or(List<Integer>... listas) {
+        
+        Set<Integer> conjuntoUnico = new HashSet<>();
+    
+        // Agregar todos los elementos de cada lista al conjunto
+        for (List<Integer> lista : listas) {
+            conjuntoUnico.addAll(lista);
+        }
+        List<Integer> indicesFiltrados = new ArrayList<>(conjuntoUnico);
 
+        List<Columna> columnas = this.copiaProfunda().obtenerColumnas();
+        this.columnas.clear();
+        for (Columna col : columnas){
+            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
+            for (Integer indice : indicesFiltrados){
+                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
+            }
+            this.AutoCasteoColumna(columnaFiltrada);
+        }
+        this.actualizarFilas();        
+    }
+
+    public void and(List<Integer>... listas) {
+
+        Set<Integer> conjuntoComun = new HashSet<>(listas[0]);
+
+        for (int i = 1; i < listas.length; i++) {
+            conjuntoComun.retainAll(listas[i]);
+        }
+    
+        List<Integer> indicesFiltrados = new ArrayList<>(conjuntoComun);
+        List<Columna> columnas = this.copiaProfunda().obtenerColumnas();
+        this.columnas.clear();
+
+        for (Columna col : columnas) {
+            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
+            for (Integer indice : indicesFiltrados) {
+                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
+            }
+            this.AutoCasteoColumna(columnaFiltrada);
+        }
+        this.actualizarFilas();
+    }
+    
+    public List<Integer> condicion(int indiceColumna, String condicion, Object limite ){
+        Predicate<Object> filtro = Tabla.condicion(condicion, limite);
+        List<Integer> indicesFiltrados = Filtro.filtrar(this.obtenerColumnas().get(indiceColumna), filtro);
+        return indicesFiltrados;
+    }
+
+    public List<Integer> condicion(String nombreColumna, String condicion, Object limite){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        return this.condicion(indiceColumna, condicion, limite);
+    }
+
+    public void aNumerica (int indiceColumna){
+        ColumnaNumber columna = Casteo.aNumber(this.obtenerColumnas().get(indiceColumna));
+        this.columnas.set(indiceColumna,columna);
+        actualizarFilas();
+    }
+
+    public void aNumerica(String nombreColumna){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        this.aNumerica(indiceColumna);
+    }
+
+    public void aBooleana(int indiceColumna){
+        ColumnaBoolean columna = Casteo.aBoolean(this.obtenerColumnas().get(indiceColumna));
+        this.columnas.set(indiceColumna, columna);
+        actualizarFilas();
+    }
+
+    public void aBooleana(String nombreColumna){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        this.aBooleana(indiceColumna);
+    }
+
+    public void aString(int indiceColumna){
+        ColumnaString columna = Casteo.aString(this.obtenerColumnas().get(indiceColumna));
+        this.columnas.set(indiceColumna, columna);
+        actualizarFilas();
+    }
+
+    public void aString(String nombreColumna){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        this.aString(indiceColumna);
+    }
+
+    public Tabla obtenerColumnas(int... indices) {
+        Tabla nuevaTabla = new Tabla();
+        for (int indice : indices) {
+            if (indice >= 0 && indice < this.columnas.size()) {
+                nuevaTabla.agregarColumna(this.columnas.get(indice));
+            } else {
+                throw new IndexOutOfBoundsException("Índice de columna fuera de rango: " + indice);
+            }
+        }
+        return nuevaTabla;
+    }
+    
+    public Tabla obtenerColumnas(String... etiquetas) {
+        Tabla nuevaTabla = new Tabla();
+        for (String etiqueta : etiquetas) {
+            int indice = obtenerIndiceDeColumna(etiqueta);
+            if (indice != -1) {
+                nuevaTabla.agregarColumna(this.columnas.get(indice));
+            } else {
+                throw new IllegalArgumentException("La columna con etiqueta '" + etiqueta + "' no existe.");
+            }
+        }
+        return nuevaTabla;
+    }
 
 
 
@@ -1356,92 +1467,6 @@ public class Tabla{
 
     
 
-    public void or(List<Integer>... listas) {
-        
-        Set<Integer> conjuntoUnico = new HashSet<>();
+
     
-        // Agregar todos los elementos de cada lista al conjunto
-        for (List<Integer> lista : listas) {
-            conjuntoUnico.addAll(lista);
-        }
-        List<Integer> indicesFiltrados = new ArrayList<>(conjuntoUnico);
-
-        List<Columna> columnas = this.copiaProfunda().obtenerColumnas();
-        this.columnas.clear();
-        for (Columna col : columnas){
-            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
-            for (Integer indice : indicesFiltrados){
-                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
-            }
-            this.AutoCasteoColumna(columnaFiltrada);
-        }
-        this.actualizarFilas();        
-    }
-
-    public void and(List<Integer>... listas) {
-
-        Set<Integer> conjuntoComun = new HashSet<>(listas[0]);
-
-        for (int i = 1; i < listas.length; i++) {
-            conjuntoComun.retainAll(listas[i]);
-        }
-    
-        List<Integer> indicesFiltrados = new ArrayList<>(conjuntoComun);
-        List<Columna> columnas = this.copiaProfunda().obtenerColumnas();
-        this.columnas.clear();
-
-        for (Columna col : columnas) {
-            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
-            for (Integer indice : indicesFiltrados) {
-                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
-            }
-            this.AutoCasteoColumna(columnaFiltrada);
-        }
-        this.actualizarFilas();
-    }
-    
-    public List<Integer> condicion(int indiceColumna, String condicion, Object limite ){
-        Predicate<Object> filtro = Tabla.condicion(condicion, limite);
-        List<Integer> indicesFiltrados = Filtro.filtrar(this.obtenerColumnas().get(indiceColumna), filtro);
-        return indicesFiltrados;
-    }
-
-    public List<Integer> condicion(String nombreColumna, String condicion, Object limite){
-        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
-        return this.condicion(indiceColumna, condicion, limite);
-    }
-
-    public void aNumerica (int indiceColumna){
-        ColumnaNumber columna = Casteo.aNumber(this.obtenerColumnas().get(indiceColumna));
-        this.columnas.set(indiceColumna,columna);
-        actualizarFilas();
-    }
-
-    public void aNumerica(String nombreColumna){
-        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
-        this.aNumerica(indiceColumna);
-    }
-
-    public void aBooleana(int indiceColumna){
-        ColumnaBoolean columna = Casteo.aBoolean(this.obtenerColumnas().get(indiceColumna));
-        this.columnas.set(indiceColumna, columna);
-        actualizarFilas();
-    }
-
-    public void aBooleana(String nombreColumna){
-        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
-        this.aBooleana(indiceColumna);
-    }
-
-    public void aString(int indiceColumna){
-        ColumnaString columna = Casteo.aString(this.obtenerColumnas().get(indiceColumna));
-        this.columnas.set(indiceColumna, columna);
-        actualizarFilas();
-    }
-
-    public void aString(String nombreColumna){
-        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
-        this.aString(indiceColumna);
-    }
-
 }
