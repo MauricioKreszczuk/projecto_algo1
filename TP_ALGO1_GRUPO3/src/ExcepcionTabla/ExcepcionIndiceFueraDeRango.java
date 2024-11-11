@@ -1,8 +1,8 @@
 package ExcepcionTabla;
 
-public class IndiceFueraDeRangoExcepcion extends RuntimeException {
+public class ExcepcionIndiceFueraDeRango extends RuntimeException {
     public String mensaje;
-    public IndiceFueraDeRangoExcepcion(String mensaje) {
+    public ExcepcionIndiceFueraDeRango(String mensaje) {
         super(mensaje);
         this.mensaje = mensaje;
         

@@ -316,40 +316,40 @@ public class Tabla{
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T obtenerValor(int indiceColumna, int IndiceFila) throws IndiceFueraDeRangoExcepcion{
+    public <T> T obtenerValor(int indiceColumna, int IndiceFila) throws ExcepcionIndiceFueraDeRango{
         if (indiceColumna < 0 || indiceColumna >= columnas.size()) {
-            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango.");
+            throw new ExcepcionIndiceFueraDeRango("Índice de columna fuera de rango.");
         }
         if (IndiceFila < 0 || IndiceFila >= columnas.get(indiceColumna).obtenerTamaño()) {
-            throw new IndiceFueraDeRangoExcepcion("Índice de fila fuera de rango.");
+            throw new ExcepcionIndiceFueraDeRango("Índice de fila fuera de rango.");
         }
         return (T) columnas.get(indiceColumna).obtenerValor(IndiceFila);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T obtenerValor(String EtiquetaColumna, String EtiquetaFila) throws IndiceFueraDeRangoExcepcion{
+    public <T> T obtenerValor(String EtiquetaColumna, String EtiquetaFila) throws ExcepcionIndiceFueraDeRango{
         int indiceColumna = obtenerIndiceDeColumna(EtiquetaColumna);
         int indiceFila = obtenerIndiceDeFila(EtiquetaFila);
 
         if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
-            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+            throw new ExcepcionIndiceFueraDeRango("Índice de columna fuera de rango");
         }
 
         if (indiceFila < 0 || indiceFila >= this.filas.get(indiceFila).obtenerTamaño()){
-            throw new IndiceFueraDeRangoExcepcion("Índice de fila fuera de rango");
+            throw new ExcepcionIndiceFueraDeRango("Índice de fila fuera de rango");
         }
 
         return (T) obtenerValor(indiceColumna, indiceFila);
     }
 
-    public <T> String obtenerValorString(int indiceColumna, int IndiceFila) throws IndiceFueraDeRangoExcepcion{
+    public <T> String obtenerValorString(int indiceColumna, int IndiceFila) throws ExcepcionIndiceFueraDeRango{
 
         if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
-            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+            throw new ExcepcionIndiceFueraDeRango("Índice de columna fuera de rango");
         }
 
         if (IndiceFila < 0 || IndiceFila >= this.filas.get(IndiceFila).obtenerTamaño()){
-            throw new IndiceFueraDeRangoExcepcion("Índice de fila fuera de rango");
+            throw new ExcepcionIndiceFueraDeRango("Índice de fila fuera de rango");
         }
 
         if(obtenerValor(indiceColumna, IndiceFila) instanceof String){
@@ -359,16 +359,16 @@ public class Tabla{
         return String.valueOf(String.valueOf(valor));
     }
 
-    public <T> String obtenerValorString(String nombreColumna, String nombreFila) throws IndiceFueraDeRangoExcepcion{
+    public <T> String obtenerValorString(String nombreColumna, String nombreFila) throws ExcepcionIndiceFueraDeRango{
         int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
         int indiceFila = obtenerIndiceDeFila(nombreFila);
 
         if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
-            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+            throw new ExcepcionIndiceFueraDeRango("Índice de columna fuera de rango");
         }
 
         if (indiceFila < 0 || indiceFila >= this.filas.get(indiceFila).obtenerTamaño()){
-            throw new IndiceFueraDeRangoExcepcion("Índice de fila fuera de rango");
+            throw new ExcepcionIndiceFueraDeRango("Índice de fila fuera de rango");
         }
 
         return obtenerValorString(indiceColumna, indiceFila);
@@ -394,7 +394,7 @@ public class Tabla{
                 return this.filas.indexOf(fila);
             }
         }
-        throw new IndiceFueraDeRangoExcepcion("Fila no encontrada");
+        throw new ExcepcionIndiceFueraDeRango("Fila no encontrada");
     }
 
     public Tabla obtenerColumna(int indice){
@@ -427,10 +427,10 @@ public class Tabla{
         }
     }
 
-    public void asignarComoIndex(int indiceColumna) throws IndiceFueraDeRangoExcepcion{
+    public void asignarComoIndex(int indiceColumna) throws ExcepcionIndiceFueraDeRango{
 
         if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
-            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+            throw new ExcepcionIndiceFueraDeRango("Índice de columna fuera de rango");
         }
         
         this.nombreIndex = String.valueOf(columnas.get(indiceColumna).obtenerNombre());
@@ -445,11 +445,11 @@ public class Tabla{
         }
     }
 
-    public void asignarComoIndex(String encabezado) throws IndiceFueraDeRangoExcepcion{
+    public void asignarComoIndex(String encabezado) throws ExcepcionIndiceFueraDeRango{
         int indiceColumna = obtenerIndiceDeColumna(encabezado);
 
         if (indiceColumna < 0 || indiceColumna >= this.columnas.get(indiceColumna).obtenerTamaño()){
-            throw new IndiceFueraDeRangoExcepcion("Índice de columna fuera de rango");
+            throw new ExcepcionIndiceFueraDeRango("Índice de columna fuera de rango");
         }
 
         asignarComoIndex(indiceColumna);
@@ -589,7 +589,7 @@ public class Tabla{
         eliminarColumna(indiceColumna);
     }
 
-    public <T> void definirValor(int indiceColumna, int indiceFila, T valor) throws TipoDeDatoInvalidoExcepcion{
+    public <T> void definirValor(int indiceColumna, int indiceFila, T valor) throws ExcepcionTipoDeDatoInvalido{
         actualizarFilas();
         if (this.columnas.get(indiceColumna) instanceof ColumnaNumber && valor instanceof Number){
            CeldaNumber celda =(CeldaNumber)this.columnas.get(indiceColumna).obtenerCeldas().get(indiceFila);
@@ -604,7 +604,7 @@ public class Tabla{
            celda.definirValor((String)valor);
         }
         else{
-            throw new TipoDeDatoInvalidoExcepcion("El tipo de dato no coincide con el tipo de la columna");
+            throw new ExcepcionTipoDeDatoInvalido("El tipo de dato no coincide con el tipo de la columna");
         }
         actualizarFilas();
     }
@@ -797,7 +797,7 @@ public class Tabla{
             for (String nombreColumna : nombresColumnas) {
                 int indiceColumna = this.obtenerIndiceDeColumna(nombreColumna);
                 if (indiceColumna < 0) {
-                    throw new IndiceFueraDeRangoExcepcion("Columna " + nombreColumna + " no encontrada.");
+                    throw new ExcepcionIndiceFueraDeRango("Columna " + nombreColumna + " no encontrada.");
                 }
 
                 if ((fila1.obtenerCelda(indiceColumna) instanceof CeldaNA && fila2.obtenerCelda(indiceColumna) instanceof CeldaNA)) {
@@ -844,7 +844,7 @@ public class Tabla{
         }
         for(int ncolumna = 0; ncolumna < copiaTabla1.numeroColumnas(); ncolumna++){
             if(copiaTabla1.obtenerColumnas().get(ncolumna).getClass() != copiaTabla2.obtenerColumnas().get(ncolumna).getClass()){
-                throw new TipoDeDatoInvalidoExcepcion("Las columnas deben ser del mismo tipo");
+                throw new ExcepcionTipoDeDatoInvalido("Las columnas deben ser del mismo tipo");
             }
             ArrayCelda array = new ArrayCelda(copiaTabla1.obtenerColumnas().get(ncolumna).obtenerNombre());
             for(int i = 0; i < copiaTabla1.numeroFilas(); i++){
@@ -888,7 +888,7 @@ public class Tabla{
             List<Fila> filasParaMostrar = filas.subList(0, n);
             System.out.println("Primeras " + n + " filas de la Tabla:");
             System.out.print(formatearFilasParaImprimir(filasParaMostrar, this.encabezados)); 
-        } catch (IndiceFueraDeRangoExcepcion e) {
+        } catch (ExcepcionIndiceFueraDeRango e) {
             System.out.println("Error en head: Índice fuera de rango - " + e.obtenerMensaje());
         }
     }
@@ -899,7 +899,7 @@ public class Tabla{
             List<Fila> filasParaMostrar = filas.subList(Math.max(0, filas.size() - n), filas.size());
             System.out.println("Últimas " + n + " filas de la Tabla:");
             System.out.print(formatearFilasParaImprimir(filasParaMostrar, encabezados));
-        } catch (IndiceFueraDeRangoExcepcion e) {
+        } catch (ExcepcionIndiceFueraDeRango e) {
             System.out.println("Error en tail: Índice fuera de rango - " + e.obtenerMensaje());
         }
     }
@@ -910,13 +910,13 @@ public class Tabla{
             List<Fila> filasParaMostrar = filas.subList(comienzoRango, Math.min(finalRango, filas.size()));
             System.out.print(formatearFilasParaImprimir(filasParaMostrar, nombresColumnas));
 
-        } catch (IndiceFueraDeRangoExcepcion e) {
+        } catch (ExcepcionIndiceFueraDeRango e) {
             System.out.println("Error en mostrarRango: índice fuera de rango - " + e.obtenerMensaje());
         }
     }
 
     public void visualizar(int maxColumnas, int maxFilas, int maxCaracteres) {
-        // Hacer excepcion de si los parámetros se pasan del máximo de columnas o filas.
+        // ExcepcionHacer  de si los parámetros se pasan del máximo de columnas o filas.
         if (maxColumnas == 0) {
             maxColumnas = columnas.size();
         }
@@ -1463,13 +1463,8 @@ public class Tabla{
         } else if (valor instanceof Boolean && limite instanceof Boolean) {
             return Boolean.compare((Boolean) valor, (Boolean) limite);
         } else {
-            throw new TipoDeDatoInvalidoExcepcion("Tipos incompatibles: " + valor.getClass() + " y " + limite.getClass());
+            throw new ExcepcionTipoDeDatoInvalido("Tipos incompatibles: " + valor.getClass() + " y " + limite.getClass());
         }
     }
-
-
-    
-
-
     
 }
