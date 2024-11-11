@@ -2,12 +2,13 @@ import java.io.IOException;
 
 public class TestTabla {
     public static void main(String[] args) throws IOException {
-        String pathbat = "C:\\Users\\MAURICIO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\test.csv";
+        String pathbat = "C:\\Users\\MAURICIO\\Downloads\\mascosas\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\test.csv";
         Tabla tabla = new Tabla(pathbat,true);
         System.out.println(tabla);
-        tabla.asignarComoIndex("Nombre");
-        tabla.resetearIndex();
-        tabla.visualizar(3, 2, 100);
+        tabla.aNumerica(1);
+        System.out.println(tabla);
+        
+
 
         // System.out.println(tabla);
         // tabla.guardarComoCSV("C:\\Users\\MAURICIO\\Downloads\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\escritura.csv");

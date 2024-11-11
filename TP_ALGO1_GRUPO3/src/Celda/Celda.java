@@ -10,9 +10,6 @@ public abstract class Celda<T> {
         this.valor = valor;
     }
 
-    public String obtenerTipo() {
-        return tipo;
-    }
 
     public T obtenerValor(){
         return this.valor;

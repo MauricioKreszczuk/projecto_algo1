@@ -7,6 +7,53 @@ import Array.Columnas.*;;
 
 public class Casteo {
 
+    public static ColumnaNumber aNumber(Columna columna){
+        ColumnaNumber nuevaColumna = new ColumnaNumber(columna.obtenerNombre());
+        for (Celda<?> celda : columna.obtenerCeldas()){
+            try{
+                CeldaNumber nuevaCelda = new CeldaNumber(Double.valueOf(String.valueOf(celda.obtenerValor())));
+                nuevaColumna.agregarCelda(nuevaCelda);
+            }
+            catch (NumberFormatException e){
+                nuevaColumna.agregarCelda(new CeldaNA());
+            }
+        }
+        return nuevaColumna;
+    }
+
+    public static ColumnaString aString(Columna columna){
+        ColumnaString nuevaColumna = new ColumnaString(columna.obtenerNombre());
+        for (Celda<?> celda : columna.obtenerCeldas()){
+            try {
+                // Se intenta convertir el valor a un String (aunque en teoría ya es String)
+                String valor = String.valueOf(celda.obtenerValor());
+                nuevaColumna.agregarCelda(new CeldaString(valor));
+            }
+            catch (Exception e) {
+                // Si ocurre un error (en la mayoría de los casos no debería), se agrega una celda NA
+                nuevaColumna.agregarCelda(new CeldaNA());
+            }
+        }
+        return nuevaColumna;
+    }
+    
+    public static ColumnaBoolean aBoolean(Columna columna){
+        ColumnaBoolean nuevaColumna = new ColumnaBoolean(columna.obtenerNombre());
+        for (Celda<?> celda : columna.obtenerCeldas()){
+            try {
+                // Intentamos convertir el valor a un Booleano. Si no es válido, lanzará una excepción
+                Boolean valor = Boolean.valueOf(String.valueOf(celda.obtenerValor()));
+                nuevaColumna.agregarCelda(new CeldaBoolean(valor));
+            }
+            catch (Exception e) {
+                // Si no es un valor booleano válido, agregamos una celda NA
+                nuevaColumna.agregarCelda(new CeldaNA());
+            }
+        }
+        return nuevaColumna;
+    }
+    
+
     public static <T> boolean esColumnaDeTipo(List<Celda<?>> columna, Class<T> tipoCelda) {
         for (Celda<?> celda : columna) {
             // Si la celda no es del tipo especificado ni NA, es un tipo no esperado

@@ -9,11 +9,15 @@ import ExcepcionTabla.*;
 //import util.ImputarFaltantes;
 import Array.Columnas.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 //Carga de CSV
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -21,6 +25,7 @@ import java.io.IOException;
 import java.io.FileWriter;
 
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Tabla{
     private List<Fila> filas;
@@ -1106,7 +1111,6 @@ public class Tabla{
         return this.columnas;
     }
 
-
     private Celda<?> inferirTipoDesdeObject(Object valor){
         
         if (valor instanceof Number) {
@@ -1210,7 +1214,6 @@ public class Tabla{
         return sb.toString();
     }
     
-
     private boolean esDecimal(String valor) {
         try {
             Double.parseDouble(valor);
@@ -1348,5 +1351,71 @@ public class Tabla{
         } else {
             throw new TipoDeDatoInvalidoExcepcion("Tipos incompatibles: " + valor.getClass() + " y " + limite.getClass());
         }
+    }
+
+
+    
+
+    public void or(List<Integer>... listas) {
+        
+        Set<Integer> conjuntoUnico = new HashSet<>();
+    
+        // Agregar todos los elementos de cada lista al conjunto
+        for (List<Integer> lista : listas) {
+            conjuntoUnico.addAll(lista);
+        }
+        List<Integer> indicesFiltrados = new ArrayList<>(conjuntoUnico);
+
+        List<Columna> columnas = this.copiaProfunda().obtenerColumnas();
+        this.columnas.clear();
+        for (Columna col : columnas){
+            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
+            for (Integer indice : indicesFiltrados){
+                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
+            }
+            this.AutoCasteoColumna(columnaFiltrada);
+        }
+        this.actualizarFilas();        
+    }
+
+    public void and(List<Integer>... listas) {
+
+        Set<Integer> conjuntoComun = new HashSet<>(listas[0]);
+
+        for (int i = 1; i < listas.length; i++) {
+            conjuntoComun.retainAll(listas[i]);
+        }
+    
+        List<Integer> indicesFiltrados = new ArrayList<>(conjuntoComun);
+        List<Columna> columnas = this.copiaProfunda().obtenerColumnas();
+        this.columnas.clear();
+
+        for (Columna col : columnas) {
+            Columna columnaFiltrada = new Columna<>(col.obtenerNombre());
+            for (Integer indice : indicesFiltrados) {
+                columnaFiltrada.agregarCelda(col.obtenerCeldas().get(indice).copiaProfunda());
+            }
+            this.AutoCasteoColumna(columnaFiltrada);
+        }
+        this.actualizarFilas();
+    }
+    
+    public List<Integer> condicion(int indiceColumna, String condicion, Object limite ){
+        Predicate<Object> filtro = Tabla.condicion(condicion, limite);
+        List<Integer> indicesFiltrados = Filtro.filtrar(this.obtenerColumnas().get(indiceColumna), filtro);
+        return indicesFiltrados;
+    }
+
+    public List<Integer> condicion(String nombreColumna, String condicion, Object limite){
+        int indiceColumna = obtenerIndiceDeColumna(nombreColumna);
+        return this.condicion(indiceColumna, condicion, limite);
+    }
+
+
+
+    public void aNumerica (int indiceColumna){
+        ColumnaNumber columna = Casteo.aNumber(this.obtenerColumnas().get(indiceColumna));
+        this.columnas.set(indiceColumna,columna);
+        actualizarFilas();
     }
 }

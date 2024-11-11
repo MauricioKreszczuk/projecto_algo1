@@ -4,6 +4,7 @@ import Array.Fila;
 import Celda.Celda;
 
 public class testFiltrar {
+        @SuppressWarnings("unchecked")
         public static void main(String[] args) throws Exception {
         String pathLabo = "C://Users//MAURICIO//grupo3Algoritmos1//TP_ALGO1_GRUPO3//src//testNoTanFeo.csv";
         String pathBat = "C://Users//ariel//OneDrive//Escritorio//Varios//UNSAM//Algoritmos_1//TP_FINAL_REPO//grupo3Algoritmos1//TP_ALGO1_GRUPO3//src//testNoTanFeo.csv";
@@ -11,23 +12,24 @@ public class testFiltrar {
 
         // String delimitador = ",";
         // Tabla tablaDesdeCSV = new Tabla(pathBat, true, delimitador);
-        Tabla tabla = new Tabla("C:\\Users\\MAURICIO\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\testNoTanFeo.csv", true);
+        Tabla tabla = new Tabla("C:\\Users\\MAURICIO\\Downloads\\mascosas\\grupo3Algoritmos1\\TP_ALGO1_GRUPO3\\src\\carga.csv", true);
+
+        System.out.println(tabla);
+        Tabla tabla2 = tabla.copiaProfunda();
+
+        // Tabla filtrada = tabla.filtrar("Pais", Tabla.condicion("==", "España"));
+        // System.out.println(filtrada);z
+        
+        tabla.or(tabla.condicion("Edad", ">=",28),
+                tabla.condicion("Ciudad","==","París"));
 
         System.out.println(tabla);
 
-
-        Predicate<Object> criterioCiudad = Ciudad -> (String.valueOf(Ciudad)).equals("París");
-        // {
-        //     if (Ciudad instanceof String) {
-        //         return ((String) Ciudad).equals("París");
-        //     }
-        //     return false;
-        // };
-        
-        Predicate<Object> criterio = (Tabla.condicion("!=", "París"));
-        Tabla filtrada = tabla.filtrar("Ciudad", criterio);
-        System.out.println(filtrada);
-
+        tabla2.and(tabla2.condicion("Ciudad","==", "Nueva York"),
+                    tabla2.condicion("Edad",">=", 30));
+            
+        System.out.println(tabla2);
+        tabla2.testeo();
 
         // tablaDesdeCSV.imprimirTabla();
 
