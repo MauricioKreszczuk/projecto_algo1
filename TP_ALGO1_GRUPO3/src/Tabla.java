@@ -196,8 +196,7 @@ public class Tabla{
         
                 // Verificar que el número de valores coincida con el número de columnas
                 if (valores.length != columnasCastear.size()) {
-                    System.out.println(columnas.size());
-                    System.out.println(valores.length);
+
                     throw new ExcepcionIncositenciaDeRango("El número de valores no coincide con el número de columnas.");
                 }
         
@@ -215,10 +214,6 @@ public class Tabla{
         for (ArrayCelda columna : columnasCastear) {
             
             procesarColumna(columna); 
-            int indiceCol = this.obtenerColumnas().indexOf(columna);
-            if (!(esConsistente(this.obtenerColumnas().get(indiceCol)))){
-                reemplazarIncosistencias(this.obtenerColumnas().get(indiceCol));
-            }
         }
     }
     
@@ -289,29 +284,25 @@ public class Tabla{
 
 // Getters
     public Tabla obtenerFila(int indice){
-        actualizarFilas();
-        Tabla nuevaTabla = new Tabla();
-        Fila nuevaFila = (Fila) filas.get(indice).copiaProfunda();
-        nuevaTabla.agregarFila(nuevaFila);
+        Tabla nuevaTabla = this.copiaProfunda();
+        Integer numeroFilas = Integer.valueOf(this.numeroFilas());
+        
+        // Iterar de forma inversa para evitar desajustes de índices
+        for (int i = numeroFilas - 1; i >= 0; i--){
+            if (i != indice){
+                nuevaTabla.eliminarFila(i);
+            }
+        }
+        
+        nuevaTabla.actualizarFilas();
         return nuevaTabla;
     }
 
+
     @SuppressWarnings("unchecked")
     public Tabla obtenerFila(String etiqueta){
-        Fila fila = new Fila(etiqueta);
-        int indiceColumna = 0;
-        for (Columna columna : this.columnas){
-        fila.agregarCelda(columna.obtenerCeldas().get(indiceColumna));
-        indiceColumna++;
-        }
-        
-        Tabla nuevaTabla = new Tabla();
-        nuevaTabla.encabezados = this.encabezados;
-        nuevaTabla.obtenerFilas().add(fila);
-        
-        nuevaTabla.obtenerColumnas().get(indiceColumna).establecerCeldas(fila.obtenerCeldas());
-        
-        return nuevaTabla;
+        int indiceColumna = obtenerIndiceDeFila(etiqueta);
+        return obtenerFila(indiceColumna);
     }
 
     @SuppressWarnings("unchecked")
@@ -399,6 +390,7 @@ public class Tabla{
     public Tabla obtenerColumna(int indice){
         Tabla nuevaTabla = new Tabla();
         nuevaTabla.agregarColumna(this.columnas.get(indice));
+        nuevaTabla.actualizarFilas();
         return nuevaTabla;
     }
 
@@ -496,7 +488,11 @@ public class Tabla{
     }
 
     public void eliminarFila(int indiceFila){
-        this.filas.remove(indiceFila);
+
+        for (Columna columna : this.columnas){
+            columna.eliminarCelda(indiceFila);
+        }
+        actualizarFilas();
     }
     
     public void eliminarFila(String etiqueta){
