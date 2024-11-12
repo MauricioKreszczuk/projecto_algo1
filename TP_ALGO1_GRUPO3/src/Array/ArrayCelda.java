@@ -119,6 +119,9 @@ public class ArrayCelda implements util.ImputarFaltantes {
         }
     }
 
+    public void establecerCeldas(List<Celda<?>> celdas){
+        this.celdas = celdas;
+    }
   
     @Override
     public boolean equals(Object obj) {
