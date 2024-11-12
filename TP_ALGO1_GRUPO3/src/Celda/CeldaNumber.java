@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 public class CeldaNumber extends Celda<Number> implements definirCelda<Number> {
 
-
     public CeldaNumber(Number valor) {
         super(valor);
     }
@@ -14,22 +13,23 @@ public class CeldaNumber extends Celda<Number> implements definirCelda<Number> {
     }
 
     public static Number convertirANumeroEspecifico(Number numero) {
-        // Si es decimal, conviértelo a Float o Double
-        if (numero.doubleValue() % 1 != 0) { // Si tiene decimales
+        // Chequeo de qué tipo primitvo es
+        if (numero.doubleValue() % 1 != 0) { // Si tiene decimales, Double
         if (numero.doubleValue() >= Float.MIN_VALUE && numero.doubleValue() <= Float.MAX_VALUE) {
         return numero.floatValue(); // Devuelve Float si cabe
         }
         return numero.doubleValue(); // Devuelve Double si no cabe en Float
         } else {
-        // Si es entero, conviértelo a Byte, Short, Integer o Long
+        
+        // Casteo a long para atrapar otros subtipos en el if    
         long longValue = numero.longValue();
         
         if (longValue >= Byte.MIN_VALUE && longValue <= Byte.MAX_VALUE) {
-        return numero.byteValue(); // Devuelve Byte si cabe
+        return numero.byteValue();
         } else if (longValue >= Short.MIN_VALUE && longValue <= Short.MAX_VALUE) {
-        return numero.shortValue(); // Devuelve Short si cabe
+        return numero.shortValue(); 
         } else if (longValue >= Integer.MIN_VALUE && longValue <= Integer.MAX_VALUE) {
-        return numero.intValue(); // Devuelve Integer si cabe
+        return numero.intValue(); 
         }
         return longValue; // Devuelve Long si no cabe en tipos más bajos
         }
@@ -92,7 +92,6 @@ public class CeldaNumber extends Celda<Number> implements definirCelda<Number> {
         if (valor==null){
             return 0;
         }
-
         return Double.hashCode(valor.doubleValue());
     }
 

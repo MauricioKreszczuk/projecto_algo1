@@ -31,7 +31,6 @@ public class ArrayCelda implements util.ImputarFaltantes {
         return (T) celda.obtenerValor();
     }
     
-    
     public Integer obtenerTamaño() {
         return celdas.size();
     }
@@ -44,47 +43,36 @@ public class ArrayCelda implements util.ImputarFaltantes {
         return nombre;
     }
     
-
-
-
-    
     public void agregarCelda(Celda<?> celda) {
         celdas.add(celda);
     }
     
-    
-    // Método para agregar un valor de tipo Number y asignar etiqueta por defecto
     public void agregarValor(Number valor) {
-        celdas.add(new CeldaNumber(valor)); // Agrega una nueva celda de tipo número
+        celdas.add(new CeldaNumber(valor)); 
     }
 
-    // Método para agregar un valor de tipo Boolean y asignar etiqueta por defecto
     public void agregarValor(Boolean valor) {
-        celdas.add(new CeldaBoolean(valor)); // Agrega una nueva celda de tipo booleano
+        celdas.add(new CeldaBoolean(valor)); 
     }
 
-    // Método para agregar un valor de tipo String y asignar etiqueta por defecto
     public void agregarValor(String valor) {
-        
-        celdas.add(new CeldaString(valor)); // Agrega una nueva celda de tipo cadena
+        celdas.add(new CeldaString(valor)); 
     }
 
-    // Método para agregar una celda de tipo NA (no disponible) y asignar etiqueta por defecto
     public void agregarValor() {
-        celdas.add(new CeldaNA()); // Agrega una nueva celda de tipo NA
+        celdas.add(new CeldaNA()); 
+    }
+
+    public void establecerCeldas(List<Celda<?>> nuevasCeldas) {
+        this.celdas = nuevasCeldas;
     }
 
     public ArrayCelda copiaProfunda() {
         ArrayCelda nuevaArray = new ArrayCelda(String.valueOf(this.nombre));
-        int i = 0;
         for (Celda<?> celda : celdas) {
             nuevaArray.celdas.add(celda.copiaProfunda());
-            i++;
         }
         return nuevaArray;
-    }
-
-    public void etiquetasPorDefecto(){
     }
 
     public List<Celda<?>> obtenerCeldas(){

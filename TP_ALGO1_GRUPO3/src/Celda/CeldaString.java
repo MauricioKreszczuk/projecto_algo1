@@ -3,7 +3,6 @@ package Celda;
 
 public class CeldaString extends Celda<String> implements definirCelda<String> {
 
-
     public CeldaString(String valor) {
         super(valor);
     }

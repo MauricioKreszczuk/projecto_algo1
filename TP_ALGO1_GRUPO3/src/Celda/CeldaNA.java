@@ -6,7 +6,6 @@ public class CeldaNA extends Celda<String> {
         super(null);
     }
 
-
     @Override
     public String toString() {
         return "NA";
@@ -32,7 +31,6 @@ public class CeldaNA extends Celda<String> {
         }
         return true;  // Todas las celdas NA son iguales
     }
-
 
     @Override
     public CeldaNA copiaProfunda() {

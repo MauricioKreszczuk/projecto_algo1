@@ -1,6 +1,7 @@
 package Array.Columnas;
 
 import Celda.*;
+import ExcepcionTabla.ExcepcionTipoDeDatoInvalido;
 
 import java.util.List;
 
@@ -30,10 +31,6 @@ public class Columna<T> extends ArrayCelda {
         this.celdas = Celdas;
     }
 
-    public void establecerCeldas(List<Celda<?>> nuevasCeldas) {
-        this.celdas = nuevasCeldas;
-    }
-
     @Override
     public T obtenerValor(int indice){
         T valor = super.obtenerValor(indice);
@@ -50,7 +47,7 @@ public class Columna<T> extends ArrayCelda {
 
     protected void validarTipo(T valor) {
         if (!tipoDeDato.isInstance(valor)) {
-            throw new IllegalArgumentException("El valor no es del tipo esperado: " + tipoDeDato.getSimpleName());
+            throw new ExcepcionTipoDeDatoInvalido("El valor no es del tipo esperado: " + tipoDeDato.getSimpleName());
         }
     }
 

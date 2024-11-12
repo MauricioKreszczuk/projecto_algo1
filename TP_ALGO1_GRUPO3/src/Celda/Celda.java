@@ -1,10 +1,7 @@
 package Celda;
 
 public abstract class Celda<T> {
-
     T valor;
-    final String tipo = this.getClass().getSimpleName();
-
 
     public Celda(T valor) {
         this.valor = valor;
@@ -29,7 +26,7 @@ public abstract class Celda<T> {
 
     @Override
     public int hashCode() {
-        return java.util.Objects.hash(valor, tipo);
+        return java.util.Objects.hash(valor);
     }
 
 
